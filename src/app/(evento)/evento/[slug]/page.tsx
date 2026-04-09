@@ -546,15 +546,23 @@ export default function EventoPage() {
         {/* Tab: Participantes */}
         {activeTab === "participantes" && (
           <div className="space-y-2">
-            {/* Organizer: summary button */}
-            {isOrganizer && event.participants.length > 0 && (
-              <div className="flex justify-end">
+            {/* Organizer: summary + refresh buttons */}
+            {isOrganizer && (
+              <div className="flex justify-end gap-2">
                 <button
-                  onClick={() => setShowSummary(true)}
-                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 hover:text-violet-700 transition"
+                  onClick={() => loadEvent()}
+                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-50 transition"
                 >
-                  📊 Generar resumen
+                  🔄 Actualizar
                 </button>
+                {event.participants.length > 0 && (
+                  <button
+                    onClick={() => setShowSummary(true)}
+                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 hover:text-violet-700 transition"
+                  >
+                    📊 Generar resumen
+                  </button>
+                )}
               </div>
             )}
             {event.participants.length === 0 ? (
@@ -895,12 +903,21 @@ function ParticipantCard({
   const [submitting, setSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const confirmedPayment = participant.payments?.find((p) => p.status === "confirmed");
   const pendingPayment = participant.payments?.find((p) => p.status === "pending");
   const isPaid = !!confirmedPayment;
   const isPending = !isPaid && !!pendingPayment;
+
+  // Reset local visual state when payment status changes (fixes "Deshacer" visual bug)
+  useEffect(() => {
+    setExpanded(false);
+    setSelectedFile(null);
+    setPreview(null);
+    setShowReceipt(false);
+  }, [isPaid, isPending]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -992,7 +1009,7 @@ function ParticipantCard({
         </div>
       </div>
 
-      {/* Organizer: receipt preview */}
+      {/* Organizer: receipt on pending payment */}
       {isOrganizer && isPending && pendingPayment?.receipt_url && (
         <div className="border-t border-amber-200 px-4 pb-4 pt-3">
           <p className="mb-2 text-xs font-medium text-amber-700">📎 Comprobante del participante:</p>
@@ -1005,6 +1022,29 @@ function ParticipantCard({
       {isOrganizer && isPending && !pendingPayment?.receipt_url && (
         <div className="border-t border-amber-200 px-4 pb-3 pt-2">
           <p className="text-xs text-amber-600">El participante declaró que pagó (sin comprobante adjunto)</p>
+        </div>
+      )}
+
+      {/* Organizer: receipt toggle on confirmed payment */}
+      {isOrganizer && isPaid && confirmedPayment?.receipt_url && (
+        <div className="border-t border-green-100 px-4 pb-3 pt-2">
+          <button
+            onClick={() => setShowReceipt(!showReceipt)}
+            className="text-xs text-green-600 hover:text-green-800 hover:underline"
+          >
+            {showReceipt ? "▲ Ocultar recibo" : "▼ Ver recibo de pago"}
+          </button>
+          {showReceipt && (
+            <div className="mt-2">
+              <a href={confirmedPayment.receipt_url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={confirmedPayment.receipt_url}
+                  alt="Comprobante confirmado"
+                  className="max-h-48 w-full rounded-xl object-contain border border-green-200 bg-white"
+                />
+              </a>
+            </div>
+          )}
         </div>
       )}
 
