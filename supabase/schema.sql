@@ -24,11 +24,14 @@ CREATE TABLE IF NOT EXISTS public.events (
   id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   slug          TEXT UNIQUE NOT NULL,
   code          TEXT UNIQUE NOT NULL,
-  admin_token   TEXT UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,  -- token secreto del organizador
+  admin_token   TEXT UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,  -- token interno (no expuesto)
+  admin_pin     TEXT NOT NULL,                                          -- PIN del organizador (para acceso admin)
   name          TEXT NOT NULL,
   description   TEXT,
-  total_amount  NUMERIC(12, 2),
-  currency      TEXT NOT NULL DEFAULT 'CLP',
+  event_date    DATE,                                                    -- opcional; si es NULL se usa created_at
+  total_amount      NUMERIC(12, 2),
+  amount_per_person NUMERIC(12, 2),                                       -- si se define, cada participante paga este monto fijo
+  currency          TEXT NOT NULL DEFAULT 'CLP',
   organizer_id  UUID REFERENCES auth.users(id) ON DELETE SET NULL,     -- opcional (si tiene cuenta)
   is_active     BOOLEAN NOT NULL DEFAULT true,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -66,8 +69,10 @@ CREATE TABLE IF NOT EXISTS public.payments (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   participant_id  UUID NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE,
   amount          NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
-  confirmed_at    TIMESTAMPTZ,
-  confirmed_by    TEXT,  -- admin_token del organizador
+  status          TEXT NOT NULL DEFAULT 'confirmed',  -- 'pending' | 'confirmed' | 'rejected'
+  receipt_url     TEXT,                               -- URL del comprobante subido por el participante
+  confirmed_at    TIMESTAMPTZ,                        -- NULL si está pendiente
+  confirmed_by    TEXT,                               -- admin_token del organizador
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -168,6 +173,13 @@ CREATE POLICY "Actualizar info de pago" ON public.payment_info
   FOR UPDATE USING (true);
 
 -- ============================================================
+-- STORAGE: bucket receipts (crear manualmente en Supabase UI)
+-- Policies para permitir subida y lectura pública
+-- ============================================================
+-- Nota: el bucket "receipts" debe crearse como Public en Supabase → Storage
+-- Las policies de storage se configuran desde la UI o con el Supabase CLI.
+
+-- ============================================================
 -- ÍNDICES
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_events_slug ON public.events(slug);
@@ -175,3 +187,14 @@ CREATE INDEX IF NOT EXISTS idx_events_code ON public.events(code);
 CREATE INDEX IF NOT EXISTS idx_events_admin_token ON public.events(admin_token);
 CREATE INDEX IF NOT EXISTS idx_participants_event ON public.participants(event_id);
 CREATE INDEX IF NOT EXISTS idx_payments_participant ON public.payments(participant_id);
+
+-- ============================================================
+-- SUPABASE REALTIME
+-- Necesario para que los cambios se transmitan en tiempo real.
+-- REPLICA IDENTITY FULL es requerido para suscripciones con filtro (filter: event_id=eq.X).
+-- ============================================================
+ALTER TABLE public.participants REPLICA IDENTITY FULL;
+ALTER TABLE public.payments REPLICA IDENTITY FULL;
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.participants;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.payments;

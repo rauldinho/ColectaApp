@@ -7,67 +7,60 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
-import { splitEqually, generateEventCode } from "@/lib/utils";
+import { generateEventCode } from "@/lib/utils";
 import { nanoid } from "nanoid";
-
-type Item = { name: string; amount: string };
-type Participant = { name: string; email: string };
 
 export default function NuevoEventoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [splitType, setSplitType] = useState<"total" | "items">("total");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [currency, setCurrency] = useState("CLP");
-  const [items, setItems] = useState<Item[]>([{ name: "", amount: "" }]);
-  const [participants, setParticipants] = useState<Participant[]>([
-    { name: "", email: "" },
-    { name: "", email: "" },
-  ]);
+  const [eventDate, setEventDate] = useState("");
+  const [adminPin, setAdminPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
 
-  function addItem() { setItems([...items, { name: "", amount: "" }]); }
-  function removeItem(i: number) { setItems(items.filter((_, idx) => idx !== i)); }
-  function updateItem(i: number, field: keyof Item, value: string) {
-    const u = [...items]; u[i][field] = value; setItems(u);
-  }
-
-  function addParticipant() { setParticipants([...participants, { name: "", email: "" }]); }
-  function removeParticipant(i: number) { setParticipants(participants.filter((_, idx) => idx !== i)); }
-  function updateParticipant(i: number, field: keyof Participant, value: string) {
-    const u = [...participants]; u[i][field] = value; setParticipants(u);
-  }
-
-  const itemsTotal = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
-  const computedTotal = splitType === "total" ? parseFloat(totalAmount) || 0 : itemsTotal;
-  const validParticipants = participants.filter((p) => p.name.trim());
-  const perPerson = validParticipants.length > 0 ? computedTotal / validParticipants.length : 0;
+  // Cuota fija por participante
+  const [fixedPerPerson, setFixedPerPerson] = useState(false);
+  const [amountPerPerson, setAmountPerPerson] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (validParticipants.length === 0) { toast.error("Agrega al menos un participante"); return; }
-    if (computedTotal <= 0) { toast.error("El monto total debe ser mayor a 0"); return; }
     if (!name.trim()) { toast.error("El nombre es requerido"); return; }
+
+    const parsedTotal = parseFloat(totalAmount) || 0;
+    const parsedPerPerson = parseFloat(amountPerPerson) || 0;
+
+    if (fixedPerPerson && parsedPerPerson <= 0) {
+      toast.error("La cuota por participante debe ser mayor a 0"); return;
+    }
+    if (!fixedPerPerson && parsedTotal <= 0) {
+      toast.error("El monto total debe ser mayor a 0"); return;
+    }
+    if (adminPin.length < 4) { toast.error("El PIN debe tener al menos 4 dígitos"); return; }
+    if (adminPin !== confirmPin) { toast.error("Los PINs no coinciden"); return; }
 
     setLoading(true);
     const supabase = createClient();
 
-    // Generar identificadores únicos
     const slug = `${name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}-${nanoid(6)}`;
     const code = generateEventCode();
 
-    // 1. Crear evento
     const { data: event, error: eventError } = await supabase
       .from("events")
       .insert({
         slug,
         code,
+        admin_pin: adminPin,
         name: name.trim(),
         description: description.trim() || null,
-        total_amount: computedTotal,
+        event_date: eventDate || null,
+        total_amount: fixedPerPerson ? null : parsedTotal,
+        amount_per_person: fixedPerPerson ? parsedPerPerson : null,
         currency,
       })
       .select()
@@ -79,42 +72,11 @@ export default function NuevoEventoPage() {
       return;
     }
 
-    // 2. Insertar ítems si aplica
-    if (splitType === "items") {
-      const validItems = items.filter((i) => i.name && parseFloat(i.amount) > 0);
-      if (validItems.length > 0) {
-        await supabase.from("event_items").insert(
-          validItems.map((item) => ({
-            event_id: event.id,
-            name: item.name,
-            amount: parseFloat(item.amount),
-          }))
-        );
-      }
-    }
+    // Marcar como organizador en localStorage
+    localStorage.setItem(`colecta_organizer_${event.slug}`, "true");
 
-    // 3. Insertar participantes con división equitativa
-    const amounts = splitEqually(Math.round(computedTotal), validParticipants.length);
-    const { error: participantsError } = await supabase.from("participants").insert(
-      validParticipants.map((p, i) => ({
-        event_id: event.id,
-        name: p.name.trim(),
-        email: p.email.trim() || null,
-        amount_owed: amounts[i],
-      }))
-    );
-
-    if (participantsError) {
-      toast.error("Error al guardar participantes");
-      setLoading(false);
-      return;
-    }
-
-    // 4. Guardar admin_token en localStorage para acceso futuro
-    localStorage.setItem(`colecta_admin_${event.slug}`, event.admin_token);
-
-    toast.success("¡Colecta creada!");
-    router.push(`/evento/${event.slug}?token=${event.admin_token}`);
+    toast.success("¡Colecta creada! Comparte el link con los participantes.");
+    router.push(`/evento/${event.slug}`);
   }
 
   return (
@@ -142,15 +104,21 @@ export default function NuevoEventoPage() {
             <FormField label="Descripción (opcional)">
               <Input placeholder="Agrega un detalle..." value={description} onChange={(e) => setDescription(e.target.value)} />
             </FormField>
+            <FormField label="Fecha del evento (opcional)">
+              <Input
+                type="date"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
+              {!eventDate && (
+                <p className="mt-1 text-xs text-gray-400">Si no se indica, se usará la fecha de hoy.</p>
+              )}
+            </FormField>
           </Section>
 
           {/* Monto */}
           <Section title="¿Cuánto hay que juntar?">
-            <div className="flex gap-2">
-              <ToggleButton active={splitType === "total"} onClick={() => setSplitType("total")}>Monto total</ToggleButton>
-              <ToggleButton active={splitType === "items"} onClick={() => setSplitType("items")}>Por ítems</ToggleButton>
-            </div>
-
             <FormField label="Moneda">
               <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                 className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -163,59 +131,103 @@ export default function NuevoEventoPage() {
               </select>
             </FormField>
 
-            {splitType === "total" ? (
-              <FormField label="Monto total *">
-                <Input type="number" min="1" placeholder="Ej: 50000" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} required />
-              </FormField>
-            ) : (
-              <div className="space-y-2">
-                {items.map((item, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input placeholder="Ítem (ej: carne)" value={item.name} onChange={(e) => updateItem(i, "name", e.target.value)} className="flex-1" />
-                    <Input type="number" placeholder="Monto" value={item.amount} onChange={(e) => updateItem(i, "amount", e.target.value)} className="w-32" />
-                    {items.length > 1 && (
-                      <button type="button" onClick={() => removeItem(i)} className="text-gray-400 hover:text-red-500">✕</button>
-                    )}
-                  </div>
-                ))}
-                <button type="button" onClick={addItem} className="text-sm text-violet-600 hover:underline">+ Agregar ítem</button>
-                {itemsTotal > 0 && (
-                  <p className="text-right text-sm font-medium text-gray-700">
-                    Total: <span className="text-violet-600">{itemsTotal.toLocaleString()} {currency}</span>
+            {/* Toggle: cuota fija por participante */}
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 hover:bg-gray-100 transition">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={fixedPerPerson}
+                  onChange={(e) => setFixedPerPerson(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`h-5 w-9 rounded-full transition-colors ${fixedPerPerson ? "bg-violet-600" : "bg-gray-300"}`} />
+                <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${fixedPerPerson ? "translate-x-4" : "translate-x-0.5"}`} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">Definir cuota por participante</p>
+                <p className="text-xs text-gray-500">
+                  {fixedPerPerson
+                    ? "Cada persona paga un monto fijo. El total crece según cuántos se unan."
+                    : "Se divide el monto total en partes iguales entre todos los participantes."}
+                </p>
+              </div>
+            </label>
+
+            {fixedPerPerson ? (
+              <FormField label="Cuota por participante *">
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Ej: 5000"
+                  value={amountPerPerson}
+                  onChange={(e) => setAmountPerPerson(e.target.value)}
+                  autoFocus
+                />
+                {parseFloat(amountPerPerson) > 0 && (
+                  <p className="mt-1.5 text-xs text-violet-600">
+                    💡 El total se calculará automáticamente: {currency} {parseFloat(amountPerPerson).toLocaleString()} × participantes
                   </p>
                 )}
-              </div>
+              </FormField>
+            ) : (
+              <FormField label="Monto total *">
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Ej: 50000"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
+                />
+                {parseFloat(totalAmount) > 0 && (
+                  <p className="mt-1.5 text-xs text-violet-600">
+                    💡 Se dividirá en partes iguales entre todos los que se unan
+                  </p>
+                )}
+              </FormField>
             )}
           </Section>
 
-          {/* Participantes */}
-          <Section title="¿Quiénes participan?">
-            <div className="space-y-2">
-              {participants.map((p, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input placeholder="Nombre *" value={p.name} onChange={(e) => updateParticipant(i, "name", e.target.value)} className="flex-1" />
-                  <Input type="email" placeholder="Email (opcional)" value={p.email} onChange={(e) => updateParticipant(i, "email", e.target.value)} className="flex-1" />
-                  {participants.length > 1 && (
-                    <button type="button" onClick={() => removeParticipant(i)} className="text-gray-400 hover:text-red-500">✕</button>
-                  )}
+          {/* PIN del organizador */}
+          <Section title="🔐 PIN del organizador">
+            <p className="text-xs text-gray-500">
+              Este PIN te permite gestionar la colecta desde cualquier dispositivo. Solo tú lo sabes — no lo compartas.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="PIN (mín. 4 dígitos) *">
+                <div className="relative">
+                  <Input
+                    type={showPin ? "text" : "password"}
+                    inputMode="numeric"
+                    placeholder="••••"
+                    value={adminPin}
+                    onChange={(e) => setAdminPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                    required
+                    maxLength={8}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    {showPin ? "Ocultar" : "Ver"}
+                  </button>
                 </div>
-              ))}
-              <button type="button" onClick={addParticipant} className="text-sm text-violet-600 hover:underline">+ Agregar participante</button>
+              </FormField>
+              <FormField label="Confirmar PIN *">
+                <Input
+                  type={showPin ? "text" : "password"}
+                  inputMode="numeric"
+                  placeholder="••••"
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                  required
+                  maxLength={8}
+                  className={confirmPin && adminPin !== confirmPin ? "border-red-400 focus-visible:ring-red-400" : ""}
+                />
+              </FormField>
             </div>
-
-            {/* Preview división */}
-            {computedTotal > 0 && validParticipants.length > 0 && (
-              <div className="rounded-xl bg-violet-50 p-4">
-                <p className="text-sm font-medium text-violet-800">
-                  Cada uno paga:{" "}
-                  <span className="text-xl font-bold">
-                    {Math.ceil(perPerson).toLocaleString()} {currency}
-                  </span>
-                </p>
-                <p className="text-xs text-violet-500">
-                  {computedTotal.toLocaleString()} {currency} ÷ {validParticipants.length} persona{validParticipants.length !== 1 ? "s" : ""}
-                </p>
-              </div>
+            {confirmPin && adminPin !== confirmPin && (
+              <p className="text-xs text-red-500">Los PINs no coinciden</p>
             )}
           </Section>
 
@@ -251,11 +263,3 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-function ToggleButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button type="button" onClick={onClick}
-      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${active ? "bg-violet-600 text-white" : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}>
-      {children}
-    </button>
-  );
-}

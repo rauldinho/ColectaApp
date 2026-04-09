@@ -15,9 +15,12 @@ export interface Database {
           slug: string;
           code: string;
           admin_token: string;
+          admin_pin: string;
           name: string;
           description: string | null;
+          event_date: string | null;
           total_amount: number | null;
+          amount_per_person: number | null;
           currency: string;
           organizer_id: string | null;
           is_active: boolean;
@@ -29,9 +32,12 @@ export interface Database {
           slug: string;
           code: string;
           admin_token?: string;
+          admin_pin: string;
           name: string;
           description?: string | null;
+          event_date?: string | null;
           total_amount?: number | null;
+          amount_per_person?: number | null;
           currency?: string;
           organizer_id?: string | null;
           is_active?: boolean;
@@ -42,6 +48,7 @@ export interface Database {
           name?: string;
           description?: string | null;
           total_amount?: number | null;
+          amount_per_person?: number | null;
           currency?: string;
           is_active?: boolean;
           updated_at?: string;
@@ -97,6 +104,8 @@ export interface Database {
           id: string;
           participant_id: string;
           amount: number;
+          status: "pending" | "confirmed" | "rejected";
+          receipt_url: string | null;
           confirmed_at: string | null;
           confirmed_by: string | null;
           created_at: string;
@@ -105,11 +114,15 @@ export interface Database {
           id?: string;
           participant_id: string;
           amount: number;
+          status?: "pending" | "confirmed" | "rejected";
+          receipt_url?: string | null;
           confirmed_at?: string | null;
           confirmed_by?: string | null;
           created_at?: string;
         };
         Update: {
+          status?: "pending" | "confirmed" | "rejected";
+          receipt_url?: string | null;
           confirmed_at?: string | null;
           confirmed_by?: string | null;
         };
