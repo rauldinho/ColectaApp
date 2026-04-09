@@ -1,0 +1,9 @@
+# Copia este archivo como .npmrc y ajusta según tu entorno
+# Para desarrollo local estándar:
+registry=https://registry.npmjs.org
+
+# Si estás detrás de un proxy corporativo (ej: Walmart VPN):
+# registry=https://npme.walmart.com
+# proxy=http://sysproxy.wal-mart.com:8080
+# https-proxy=http://sysproxy.wal-mart.com:8080
+# strict-ssl=false
