@@ -28,7 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   if (!mounted) {
     return (
       <button
-        className={`flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-400 ${className ?? ""}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground ${className ?? ""}`}
         aria-hidden
       >
         <span className="text-base">○</span>
@@ -43,7 +43,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       className={`flex h-8 w-8 items-center justify-center rounded-full border transition
         ${isDark
           ? "border-slate-600 bg-slate-800 text-yellow-300 hover:bg-slate-700"
-          : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+          : "border-border bg-card text-muted-foreground hover:bg-muted/50"
         } ${className ?? ""}`}
     >
       <span className="text-base leading-none">{isDark ? "☀️" : "🌙"}</span>

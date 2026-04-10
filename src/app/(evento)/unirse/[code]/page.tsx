@@ -33,7 +33,7 @@ export default function UnirsePage() {
 
   if (status === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4 bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center px-4 bg-background">
         <div className="text-center">
           <p className="mb-3 text-5xl">😕</p>
           <h2 className="text-xl font-bold text-foreground">Código no válido</h2>
@@ -52,10 +52,10 @@ export default function UnirsePage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
         <div className="mb-3 text-4xl animate-bounce">🪣</div>
-        <p className="text-gray-600">Buscando colecta <span className="font-mono font-bold text-indigo-700">{code}</span>...</p>
+        <p className="text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-indigo-600">{code}</span>...</p>
       </div>
     </div>
   );

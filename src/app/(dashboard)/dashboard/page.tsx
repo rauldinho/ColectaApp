@@ -102,7 +102,7 @@ function EventCard({ event }: { event: Event & { participants: { count: number }
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-3 text-sm text-muted-foreground/70">
               <span>👥 {participantCount} persona{participantCount !== 1 ? "s" : ""}</span>
-              <span className="text-gray-200">·</span>
+              <span className="text-muted-foreground/30">·</span>
               <span className="font-mono text-xs">{event.code}</span>
             </div>
             {event.total_amount ? (

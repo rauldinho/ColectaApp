@@ -372,7 +372,7 @@ export default function EventoPage() {
             ) : (
               <button
                 onClick={() => setShowPinModal(true)}
-                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-gray-600 hover:bg-muted/50 transition"
+                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted/50 transition"
               >
                 🔐 Soy el organizador
               </button>
@@ -410,7 +410,7 @@ export default function EventoPage() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 divide-x divide-gray-100">
+          <div className="grid grid-cols-3 divide-x divide-border">
             <div className="px-4 py-3 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500 mb-0.5">Total</p>
               <p className="text-sm font-bold text-foreground">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
@@ -484,7 +484,7 @@ export default function EventoPage() {
 
         {/* Compartir + Invitar */}
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-gray-700">📤 Compartir colecta</p>
+          <p className="text-sm font-semibold text-foreground">📤 Compartir colecta</p>
 
           {/* Código + link */}
           <div className="flex gap-2">
@@ -538,7 +538,7 @@ export default function EventoPage() {
                   </div>
                   <button
                     onClick={copyInviteText}
-                    className="w-full rounded-xl border border-border py-2 text-xs text-gray-600 hover:bg-muted/50 transition"
+                    className="w-full rounded-xl border border-border py-2 text-xs text-muted-foreground hover:bg-muted/50 transition"
                   >
                     📋 Copiar texto de invitación
                   </button>
@@ -555,7 +555,7 @@ export default function EventoPage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 whitespace-nowrap rounded-lg py-2.5 px-1 text-xs font-semibold transition ${
-                activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-gray-700"
+                activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab === "participantes"
@@ -582,7 +582,7 @@ export default function EventoPage() {
                 {event.participants.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-muted/50 hover:text-indigo-700 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-indigo-600 transition"
                   >
                     📊 Generar resumen
                   </button>
@@ -592,7 +592,7 @@ export default function EventoPage() {
             {event.participants.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
                 <p className="text-4xl mb-3">👥</p>
-                <p className="font-medium text-gray-700">Aún no hay participantes</p>
+                <p className="font-medium text-foreground">Aún no hay participantes</p>
                 <p className="mt-1 text-sm text-muted-foreground/70">
                   Comparte el código <span className="font-mono font-bold text-indigo-600">{event.code}</span> para que se unan
                 </p>
@@ -722,7 +722,7 @@ export default function EventoPage() {
                           <img
                             src={doc.url}
                             alt="Factura"
-                            className="w-full max-h-64 object-contain bg-white border-b border-border"
+                            className="w-full max-h-64 object-contain bg-card border-b border-border"
                           />
                         </a>
                       )}
@@ -731,7 +731,7 @@ export default function EventoPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-gray-700 hover:text-indigo-700 truncate"
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-indigo-600 truncate"
                         >
                           <span>{isPdf ? "📄" : isImage ? "🖼️" : "📎"}</span>
                           <span className="truncate max-w-xs">{doc.originalName}</span>
@@ -801,14 +801,14 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4 backdrop-blur-sm">
-      <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl bg-white shadow-xl">
+      <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl bg-card shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
             <h3 className="font-bold text-foreground">📊 Resumen de pagos</h3>
             <p className="text-xs text-muted-foreground/70 mt-0.5">Listo para copiar y pegar en WhatsApp</p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-muted hover:text-gray-600">
+          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-muted hover:text-foreground">
             ✕
           </button>
         </div>
@@ -816,7 +816,7 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
         {/* Preview */}
         <div className="px-5 py-4">
           <div className="rounded-2xl border border-border bg-muted/50 p-4 max-h-72 overflow-y-auto">
-            <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans leading-relaxed">
+            <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">
               {summaryText}
             </pre>
           </div>
@@ -887,16 +887,16 @@ function JoinSection({
       )}
       {/* Formulario */}
       <div className="p-5">
-        <p className="text-sm font-semibold text-gray-800 mb-4">Ingresa tus datos para unirte</p>
+        <p className="text-sm font-semibold text-foreground mb-4">Ingresa tus datos para unirte</p>
         <form onSubmit={handleJoin} className="space-y-3">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               Tu nombre <span className="text-red-400">*</span>
             </label>
             <Input placeholder="Ej: María González" value={name} onChange={(e) => setName(e.target.value)} required autoFocus className="h-12 text-base" />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               Email <span className="text-muted-foreground/70 font-normal">(opcional)</span>
             </label>
             <Input type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base" />
@@ -967,7 +967,7 @@ function ParticipantCard({
     <div className={`rounded-xl border transition ${
       isPaid ? "border-emerald-200 bg-emerald-50/40"
       : isPending ? "border-amber-200 bg-amber-50/40"
-      : isMe ? "border-indigo-200 bg-white"
+      : isMe ? "border-indigo-200 bg-indigo-50/30 dark:bg-indigo-950/30"
       : "border-border bg-card"
     }`}>
       <div className="flex items-center justify-between px-4 py-3.5">
@@ -977,7 +977,7 @@ function ParticipantCard({
             isPaid ? "bg-emerald-500 text-white"
             : isPending ? "bg-amber-400 text-white"
             : isMe ? "bg-indigo-600 text-white"
-            : "bg-gray-200 text-gray-600"
+            : "bg-muted text-muted-foreground"
           }`}>
             {isPaid ? "✓" : isPending ? "⏳" : initials}
           </div>
@@ -1045,7 +1045,7 @@ function ParticipantCard({
           <p className="mb-2 text-xs font-medium text-amber-700">📎 Comprobante del participante:</p>
           <a href={pendingPayment.receipt_url} target="_blank" rel="noopener noreferrer">
             <img src={pendingPayment.receipt_url} alt="Comprobante"
-              className="max-h-48 w-full rounded-xl object-contain border border-amber-200 bg-white" />
+              className="max-h-48 w-full rounded-xl object-contain border border-amber-200 bg-card" />
           </a>
         </div>
       )}
@@ -1070,7 +1070,7 @@ function ParticipantCard({
                 <img
                   src={confirmedPayment.receipt_url}
                   alt="Comprobante confirmado"
-                  className="max-h-48 w-full rounded-xl object-contain border border-green-200 bg-white"
+                  className="max-h-48 w-full rounded-xl object-contain border border-green-200 bg-card"
                 />
               </a>
             </div>
@@ -1081,7 +1081,7 @@ function ParticipantCard({
       {/* Participant: "Ya pagué" form */}
       {isMe && !isOrganizer && !isPaid && !isPending && expanded && (
         <div className="border-t border-indigo-100 px-4 pb-4 pt-3 space-y-3">
-          <p className="text-sm font-medium text-gray-700">Adjunta tu comprobante (opcional)</p>
+          <p className="text-sm font-medium text-foreground">Adjunta tu comprobante (opcional)</p>
           <div
             onClick={() => fileInputRef.current?.click()}
             className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 p-4 hover:border-indigo-400 hover:bg-indigo-50 transition"
@@ -1155,7 +1155,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
               className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-gray-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground">
               {showPin ? "Ocultar" : "Ver"}
             </button>
           </div>
@@ -1224,7 +1224,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         {existingInfo.account_number && <InfoRow label="N° de cuenta" value={existingInfo.account_number} />}
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
-        {existingInfo.notes && <div className="rounded-xl bg-muted/50 p-3 text-sm text-gray-600">{existingInfo.notes}</div>}
+        {existingInfo.notes && <div className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>}
       </div>
     );
   }
@@ -1244,7 +1244,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         { key: "notes", label: "Notas adicionales" },
       ].map(({ key, label }) => (
         <div key={key}>
-          <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
+          <label className="mb-1 block text-sm font-medium text-foreground">{label}</label>
           <input value={form[key as keyof typeof form]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
             className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
         </div>
@@ -1256,7 +1256,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
+    <div className="flex items-center justify-between py-1 border-b border-border/40 last:border-0">
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-sm font-medium text-foreground">{value}</span>
     </div>

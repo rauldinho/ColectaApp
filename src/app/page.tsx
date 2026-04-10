@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-4">
       <div className="mx-auto max-w-2xl text-center">
         {/* Logo / Brand */}
         <div className="mb-6 flex items-center justify-center gap-2">
@@ -73,7 +73,7 @@ function JoinByCodeButton() {
     return (
       <button
         onClick={() => setShow(true)}
-        className="w-full rounded-xl border border-border bg-card px-8 py-3 text-base font-semibold text-gray-700 shadow-sm transition hover:bg-muted/50 sm:w-auto"
+        className="w-full rounded-xl border border-border bg-card px-8 py-3 text-base font-semibold text-foreground shadow-sm transition hover:bg-muted/50 sm:w-auto"
       >
         Ingresar con código
       </button>

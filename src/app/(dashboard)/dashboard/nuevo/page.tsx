@@ -84,7 +84,7 @@ export default function NuevoEventoPage() {
             <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gray-700">
               <span>←</span> Inicio
             </Link>
-            <span className="text-gray-300">/</span>
+            <span className="text-border">/</span>
             <span className="text-sm font-semibold text-foreground">Nueva colecta</span>
           </div>
           <ThemeToggle />
@@ -156,11 +156,11 @@ export default function NuevoEventoPage() {
                   onChange={(e) => setFixedPerPerson(e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`h-6 w-11 rounded-full transition-colors ${fixedPerPerson ? "bg-indigo-600" : "bg-gray-300"}`} />
+                <div className={`h-6 w-11 rounded-full transition-colors ${fixedPerPerson ? "bg-indigo-600" : "bg-muted-foreground/30"}`} />
                 <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${fixedPerPerson ? "translate-x-6" : "translate-x-1"}`} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-800">Definir cuota por participante</p>
+                <p className="text-sm font-semibold text-foreground">Definir cuota por participante</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {fixedPerPerson
                     ? "Cada persona paga un monto fijo. El total crece según cuántos se unan."
@@ -218,7 +218,7 @@ export default function NuevoEventoPage() {
                   />
                   <button
                     type="button" onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground"
                   >
                     {showPin ? "Ocultar" : "Ver"}
                   </button>
@@ -272,7 +272,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium text-gray-700">{label}</label>
+      <label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
       {children}
     </div>
   );
