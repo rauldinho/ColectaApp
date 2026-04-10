@@ -49,34 +49,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2">
             <span className="text-3xl">🪣</span>
-            <span className="text-2xl font-bold text-gray-900">Colecta</span>
+            <span className="text-2xl font-bold text-foreground">Colecta</span>
           </Link>
-          <p className="mt-2 text-sm text-gray-500">Inicia sesión para continuar</p>
+          <p className="mt-2 text-sm text-muted-foreground">Inicia sesión para continuar</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           {sent ? (
             /* Estado: email enviado */
             <div className="text-center">
               <div className="mb-4 text-5xl">📬</div>
-              <h2 className="mb-2 text-lg font-semibold text-gray-900">
+              <h2 className="mb-2 text-lg font-semibold text-foreground">
                 ¡Revisa tu correo!
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Enviamos un link mágico a{" "}
-                <span className="font-medium text-violet-600">{email}</span>.
+                <span className="font-medium text-indigo-500">{email}</span>.
                 <br />
                 Haz clic en el link para ingresar.
               </p>
               <button
                 onClick={() => setSent(false)}
-                className="mt-4 text-sm text-violet-600 hover:underline"
+                className="mt-4 text-sm text-indigo-500 hover:underline"
               >
                 ¿No llegó? Reenviar
               </button>
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="mb-1.5 block text-sm font-medium text-gray-700"
+                    className="mb-1.5 block text-sm font-medium text-foreground"
                   >
                     Correo electrónico
                   </label>
@@ -109,9 +109,9 @@ export default function LoginPage() {
 
               {/* Divider */}
               <div className="my-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-gray-100" />
-                <span className="text-xs text-gray-400">o continúa con</span>
-                <div className="h-px flex-1 bg-gray-100" />
+                <div className="h-px flex-1 bg-muted" />
+                <span className="text-xs text-muted-foreground/70">o continúa con</span>
+                <div className="h-px flex-1 bg-muted" />
               </div>
 
               {/* Google */}
@@ -128,9 +128,9 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           ¿No tienes cuenta?{" "}
-          <Link href="/signup" className="text-violet-600 hover:underline">
+          <Link href="/signup" className="text-indigo-500 hover:underline">
             Regístrate gratis
           </Link>
         </p>

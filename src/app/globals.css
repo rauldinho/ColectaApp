@@ -3,49 +3,51 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Slate Light ── */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: 210 40% 96%;        /* #f1f5f9 slate-100 */
+    --foreground: 222 47% 11%;        /* #0f172a slate-900 */
+    --card: 0 0% 100%;                /* #ffffff */
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262.1 83.3% 57.8%;
-    --radius: 0.75rem;
+    --popover-foreground: 222 47% 11%;
+    --primary: 243 75% 59%;           /* #4f46e5 indigo-600 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 214 32% 95%;
+    --muted-foreground: 215 16% 47%;  /* #64748b slate-500 */
+    --accent: 214 32% 95%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;            /* #e2e8f0 slate-200 */
+    --input: 214 32% 91%;
+    --ring: 243 75% 59%;              /* #4f46e5 indigo-600 */
+    --radius: 0.875rem;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 263.4 70% 50.4%;
+  /* ── Slate Dark — activado por clase .dark en <html> ── */
+  html.dark {
+    --background: 222 47% 11%;        /* #0f172a slate-900 */
+    --foreground: 214 32% 91%;        /* #e2e8f0 slate-200 */
+    --card: 215 28% 17%;              /* #1e293b slate-800 */
+    --card-foreground: 214 32% 91%;
+    --popover: 215 28% 17%;
+    --popover-foreground: 214 32% 91%;
+    --primary: 238 91% 73%;           /* #818cf8 indigo-400 */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 215 25% 20%;
+    --secondary-foreground: 214 32% 91%;
+    --muted: 215 25% 20%;
+    --muted-foreground: 215 20% 65%;  /* #8fa4c0 — más claro para bg oscuro */
+    --accent: 215 25% 20%;
+    --accent-foreground: 214 32% 91%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 214 32% 91%;
+    --border: 215 25% 27%;            /* #334155 slate-700 */
+    --input: 215 25% 27%;
+    --ring: 238 91% 73%;              /* #818cf8 indigo-400 */
   }
 }
 
@@ -56,5 +58,9 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, a {
+    min-height: 36px;
   }
 }
