@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description:
     "Divide gastos, comparte el enlace y cobra de forma simple entre amigos, familia o compañeros.",
   keywords: ["pagos grupales", "dividir gastos", "cobros", "QR", "transferencias"],
+  icons: {
+    icon: "/icon.svg",
+  },
   openGraph: {
     title: "Colecta",
     description: "Organiza pagos grupales de forma simple y sin fricción.",
