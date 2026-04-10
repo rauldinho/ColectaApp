@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colecta — Dark Mode · 10 Variantes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: #050507;
+      color: #fff;
+      min-height: 100vh;
+      padding: 36px 24px 72px;
+    }
+
+    .page-header { max-width: 1400px; margin: 0 auto 44px; text-align: center; }
+    .page-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .page-header p { font-size: 14px; color: #555; max-width: 520px; margin: 0 auto; line-height: 1.65; }
+    .tags { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; padding: 4px 12px;
+      border-radius: 20px; letter-spacing: 0.4px;
+    }
+    .tag-slate { background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); color: #a5b4fc; }
+    .tag-outfit { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #9ca3af; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(296px, 1fr)); gap: 36px; max-width: 1400px; margin: 0 auto; }
+
+    .style-card { display: flex; flex-direction: column; gap: 14px; }
+    .style-label { display: flex; align-items: flex-start; gap: 10px; }
+    .style-num { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.5px; margin-top: 3px; flex-shrink: 0; }
+    .style-info { flex: 1; }
+    .style-name { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .style-desc { font-size: 12px; color: #555; margin-top: 3px; line-height: 1.45; }
+    .style-palette { display: flex; gap: 5px; margin-top: 7px; }
+    .swatch { width: 20px; height: 8px; border-radius: 4px; }
+
+    .phone {
+      width: 100%; max-width: 312px; height: 590px; margin: 0 auto;
+      border-radius: 36px; overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    .phone-inner { width: 100%; height: 100%; overflow-y: auto; scrollbar-width: none; font-family: 'Outfit', sans-serif; }
+    .phone-inner::-webkit-scrollbar { display: none; }
+
+    .vote-btn {
+      width: 100%; max-width: 312px; margin: 0 auto; display: block;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      color: #6b7280; font-size: 13px; font-weight: 600; padding: 11px 16px;
+      border-radius: 14px; cursor: pointer; transition: all 0.15s ease;
+      font-family: 'Outfit', sans-serif; text-align: center;
+    }
+    .vote-btn:hover { background: rgba(255,255,255,0.1); color: #e5e7eb; border-color: rgba(255,255,255,0.18); }
+    .vote-btn.selected { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+
+    /* ── Phone UI elements (vars injected per theme) ── */
+    .pc { min-height: 100%; font-family: 'Outfit', sans-serif; background: var(--bg); }
+
+    .ph {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface);
+    }
+    .ph-logo { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; color: var(--text); }
+    .ph-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; background: var(--accent-soft); color: var(--accent); }
+
+    .pm { padding: 12px 12px 80px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+
+    .ec { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+    .ec-top { padding: 14px 14px 10px; }
+    .ec-eyebrow { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 2px; }
+    .ec-title { font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; line-height: 1.25; }
+    .ec-date { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .ec-amount { padding: 10px 14px 12px; border-top: 1px solid var(--border); }
+    .ec-amount-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 2px; }
+    .ec-amount-num { font-size: 36px; font-weight: 900; color: var(--text); letter-spacing: -1.5px; line-height: 1; }
+
+    .ec-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--border); }
+    .ec-stat { padding: 8px 6px; text-align: center; border-right: 1px solid var(--border); }
+    .ec-stat:last-child { border-right: none; }
+    .ec-stat-lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1px; }
+    .ec-stat-val { font-size: 12px; font-weight: 800; }
+    .st-accent .ec-stat-lbl { color: var(--accent); } .st-accent .ec-stat-val { color: var(--text); }
+    .st-green .ec-stat-lbl { color: var(--success); } .st-green .ec-stat-val { color: var(--success); }
+    .st-red .ec-stat-lbl { color: var(--danger); } .st-red .ec-stat-val { color: var(--danger); }
+
+    .ec-prog { padding: 10px 14px; border-top: 1px solid var(--border); }
+    .ec-prog-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+    .ec-prog-pct { font-weight: 700; color: var(--accent); }
+    .ec-prog-track { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .ec-prog-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+    .share { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); }
+    .share-lbl { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .share-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+    .share-code { font-family: monospace; font-size: 18px; font-weight: 800; letter-spacing: 3px; color: var(--accent); }
+    .share-btn { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--accent); color: var(--accent-fg); border: none; cursor: pointer; }
+
+    .tabs { display: flex; gap: 3px; padding: 3px; background: var(--bg); border: 1px solid var(--border); border-radius: 14px; }
+    .tab { flex: 1; text-align: center; font-size: 10px; font-weight: 700; padding: 6px 2px; border-radius: 10px; color: var(--muted); }
+    .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+    .parts { display: flex; flex-direction: column; gap: 6px; }
+    .prow { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; box-shadow: var(--shadow); }
+    .prow.paid { background: var(--success-bg); border-color: var(--success-border); }
+    .prow.wait { background: var(--warn-bg); border-color: var(--warn-border); }
+    .prow.me { border-color: var(--accent); border-width: 1.5px; }
+
+    .pav { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .av-green { background: var(--success); color: #fff; }
+    .av-amber { background: #d97706; color: #fff; }
+    .av-accent { background: var(--accent); color: var(--accent-fg); }
+    .av-muted { background: var(--border); color: var(--muted); }
+
+    .pinfo { flex: 1; }
+    .pname { font-size: 12px; font-weight: 700; color: var(--text); }
+    .pamount { font-size: 11px; font-weight: 600; }
+    .pa-green { color: var(--success); }
+    .pa-amber { color: #f59e0b; }
+    .pa-muted { color: var(--muted); }
+
+    .pact { font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; white-space: nowrap; }
+    .act-green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .act-amber { background: var(--warn-bg); color: #d97706; border: 1px solid var(--warn-border); }
+    .act-accent { background: var(--accent); color: var(--accent-fg); }
+
+    .pbot { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 12px; }
+    .pcta { width: 100%; background: var(--accent); color: var(--accent-fg); font-size: 13px; font-weight: 700; padding: 12px; border-radius: 12px; border: none; cursor: pointer; text-align: center; display: block; font-family: 'Outfit', sans-serif; }
+
+    /* ── Summary ── */
+    #summary {
+      display: none; max-width: 1400px; margin: 40px auto 0;
+      background: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.2);
+      border-radius: 16px; padding: 20px 24px;
+    }
+    #summary .lbl { font-size: 10px; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    #selected-list { font-size: 16px; font-weight: 700; color: #fff; }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      body { padding: 20px 16px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="tags">
+    <span class="tag tag-outfit">✦ Fuente: Outfit</span>
+    <span class="tag tag-slate">◈ Estilo base: Slate · Índigo</span>
+    <span class="tag tag-outfit">🌙 Dark Mode</span>
+  </div>
+  <h1>10 Variantes Dark Mode</h1>
+  <p>El mismo Slate con Outfit, pero en oscuro. Cada variante tiene distinto fondo, superficie y temperatura de color. Marca los que te gusten.</p>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="summary">
+  <div class="lbl">Tus favoritos</div>
+  <div id="selected-list"></div>
+</div>
+
+<script>
+const themes = [
+  {
+    id: 1,
+    name: "Obsidian",
+    desc: "Negro azulado casi puro. Máximo contraste, look ultra premium.",
+    vars: {
+      "--bg":             "#0f1117",
+      "--surface":        "#1a1d27",
+      "--border":         "#252836",
+      "--text":           "#e2e8f0",
+      "--muted":          "#4a5568",
+      "--accent":         "#6366f1",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(99,102,241,0.15)",
+      "--success":        "#34d399",
+      "--success-bg":     "rgba(52,211,153,0.08)",
+      "--success-border": "rgba(52,211,153,0.2)",
+      "--warn-bg":        "rgba(245,158,11,0.08)",
+      "--warn-border":    "rgba(245,158,11,0.2)",
+      "--danger":         "#f87171",
+      "--shadow":         "0 2px 12px rgba(0,0,0,0.4)",
+    },
+    palette: ["#0f1117","#1a1d27","#252836","#6366f1"]
+  },
+  {
+    id: 2,
+    name: "Midnight",
+    desc: "Azul marino muy oscuro. Transmite profundidad y sofisticación.",
+    vars: {
+      "--bg":             "#07090f",
+      "--surface":        "#0f1629",
+      "--border":         "#1a2540",
+      "--text":           "#c8d6f0",
+      "--muted":          "#3d5070",
+      "--accent":         "#818cf8",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(129,140,248,0.12)",
+      "--success":        "#34d399",
+      "--success-bg":     "rgba(52,211,153,0.07)",
+      "--success-border": "rgba(52,211,153,0.18)",
+      "--warn-bg":        "rgba(245,158,11,0.07)",
+      "--warn-border":    "rgba(245,158,11,0.18)",
+      "--danger":         "#fb7185",
+      "--shadow":         "0 2px 12px rgba(0,0,0,0.5)",
+    },
+    palette: ["#07090f","#0f1629","#1a2540","#818cf8"]
+  },
+  {
+    id: 3,
+    name: "Charcoal",
+    desc: "Gris carbón puro. Neutro total, acento índigo vibrante.",
+    vars: {
+      "--bg":             "#111111",
+      "--surface":        "#1c1c1e",
+      "--border":         "#2c2c2e",
+      "--text":           "#f2f2f7",
+      "--muted":          "#636366",
+      "--accent":         "#6366f1",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(99,102,241,0.14)",
+      "--success":        "#30d158",
+      "--success-bg":     "rgba(48,209,88,0.08)",
+      "--success-border": "rgba(48,209,88,0.2)",
+      "--warn-bg":        "rgba(255,159,10,0.08)",
+      "--warn-border":    "rgba(255,159,10,0.2)",
+      "--danger":         "#ff453a",
+      "--shadow":         "0 2px 8px rgba(0,0,0,0.35)",
+    },
+    palette: ["#111111","#1c1c1e","#2c2c2e","#6366f1"]
+  },
+  {
+    id: 4,
+    name: "Slate Dark",
+    desc: "La versión dark nativa del Slate. Cohesión perfecta con el light mode.",
+    vars: {
+      "--bg":             "#0f172a",
+      "--surface":        "#1e293b",
+      "--border":         "#334155",
+      "--text":           "#e2e8f0",
+      "--muted":          "#475569",
+      "--accent":         "#818cf8",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(129,140,248,0.12)",
+      "--success":        "#4ade80",
+      "--success-bg":     "rgba(74,222,128,0.07)",
+      "--success-border": "rgba(74,222,128,0.2)",
+      "--warn-bg":        "rgba(251,191,36,0.07)",
+      "--warn-border":    "rgba(251,191,36,0.2)",
+      "--danger":         "#f87171",
+      "--shadow":         "0 2px 12px rgba(0,0,0,0.4)",
+    },
+    palette: ["#0f172a","#1e293b","#334155","#818cf8"]
+  },
+  {
+    id: 5,
+    name: "Zinc",
+    desc: "Casi negro con tinte zinc. Minimalismo absoluto, muy Apple.",
+    vars: {
+      "--bg":             "#09090b",
+      "--surface":        "#18181b",
+      "--border":         "#27272a",
+      "--text":           "#fafafa",
+      "--muted":          "#52525b",
+      "--accent":         "#6366f1",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(99,102,241,0.12)",
+      "--success":        "#22c55e",
+      "--success-bg":     "rgba(34,197,94,0.07)",
+      "--success-border": "rgba(34,197,94,0.2)",
+      "--warn-bg":        "rgba(234,179,8,0.07)",
+      "--warn-border":    "rgba(234,179,8,0.2)",
+      "--danger":         "#ef4444",
+      "--shadow":         "0 2px 8px rgba(0,0,0,0.4)",
+    },
+    palette: ["#09090b","#18181b","#27272a","#6366f1"]
+  },
+  {
+    id: 6,
+    name: "Deep Ocean",
+    desc: "Fondo azul-verdoso profundo. Look de app financiera premium.",
+    vars: {
+      "--bg":             "#04111f",
+      "--surface":        "#081a30",
+      "--border":         "#10284a",
+      "--text":           "#c8e0f5",
+      "--muted":          "#2e4f6e",
+      "--accent":         "#60a5fa",
+      "--accent-fg":      "#03111f",
+      "--accent-soft":    "rgba(96,165,250,0.12)",
+      "--success":        "#34d399",
+      "--success-bg":     "rgba(52,211,153,0.07)",
+      "--success-border": "rgba(52,211,153,0.18)",
+      "--warn-bg":        "rgba(251,191,36,0.07)",
+      "--warn-border":    "rgba(251,191,36,0.18)",
+      "--danger":         "#f87171",
+      "--shadow":         "0 2px 12px rgba(0,0,0,0.5)",
+    },
+    palette: ["#04111f","#081a30","#10284a","#60a5fa"]
+  },
+  {
+    id: 7,
+    name: "Graphite",
+    desc: "Gris oscuro con temperatura neutra. Muy versátil y profesional.",
+    vars: {
+      "--bg":             "#141618",
+      "--surface":        "#1e2226",
+      "--border":         "#2e3438",
+      "--text":           "#e8eaed",
+      "--muted":          "#5f6368",
+      "--accent":         "#7c85f5",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(124,133,245,0.12)",
+      "--success":        "#34a853",
+      "--success-bg":     "rgba(52,168,83,0.08)",
+      "--success-border": "rgba(52,168,83,0.2)",
+      "--warn-bg":        "rgba(251,188,5,0.08)",
+      "--warn-border":    "rgba(251,188,5,0.2)",
+      "--danger":         "#ea4335",
+      "--shadow":         "0 2px 10px rgba(0,0,0,0.35)",
+    },
+    palette: ["#141618","#1e2226","#2e3438","#7c85f5"]
+  },
+  {
+    id: 8,
+    name: "Abyss",
+    desc: "El look de GitHub Dark. Muy conocido, extremadamente legible.",
+    vars: {
+      "--bg":             "#010409",
+      "--surface":        "#0d1117",
+      "--border":         "#21262d",
+      "--text":           "#c9d1d9",
+      "--muted":          "#484f58",
+      "--accent":         "#79c0ff",
+      "--accent-fg":      "#010409",
+      "--accent-soft":    "rgba(121,192,255,0.1)",
+      "--success":        "#3fb950",
+      "--success-bg":     "rgba(63,185,80,0.07)",
+      "--success-border": "rgba(63,185,80,0.2)",
+      "--warn-bg":        "rgba(210,153,34,0.07)",
+      "--warn-border":    "rgba(210,153,34,0.2)",
+      "--danger":         "#f85149",
+      "--shadow":         "0 2px 8px rgba(0,0,0,0.5)",
+    },
+    palette: ["#010409","#0d1117","#21262d","#79c0ff"]
+  },
+  {
+    id: 9,
+    name: "Ink",
+    desc: "Negro con cálida temperatura café. Íntimo y artesanal.",
+    vars: {
+      "--bg":             "#100d0a",
+      "--surface":        "#1c1713",
+      "--border":         "#2e261e",
+      "--text":           "#ede4d8",
+      "--muted":          "#6b5c4a",
+      "--accent":         "#a78bfa",
+      "--accent-fg":      "#fff",
+      "--accent-soft":    "rgba(167,139,250,0.12)",
+      "--success":        "#4ade80",
+      "--success-bg":     "rgba(74,222,128,0.07)",
+      "--success-border": "rgba(74,222,128,0.18)",
+      "--warn-bg":        "rgba(251,191,36,0.07)",
+      "--warn-border":    "rgba(251,191,36,0.18)",
+      "--danger":         "#f87171",
+      "--shadow":         "0 2px 10px rgba(0,0,0,0.4)",
+    },
+    palette: ["#100d0a","#1c1713","#2e261e","#a78bfa"]
+  },
+  {
+    id: 10,
+    name: "Dusk",
+    desc: "Violeta oscuro. La transición perfecta entre el día y la noche.",
+    vars: {
+      "--bg":             "#0d0a16",
+      "--surface":        "#15102a",
+      "--border":         "#241b40",
+      "--text":           "#e4d9f5",
+      "--muted":          "#6b5a9a",
+      "--accent":         "#c4b5fd",
+      "--accent-fg":      "#0d0a16",
+      "--accent-soft":    "rgba(196,181,253,0.12)",
+      "--success":        "#4ade80",
+      "--success-bg":     "rgba(74,222,128,0.07)",
+      "--success-border": "rgba(74,222,128,0.18)",
+      "--warn-bg":        "rgba(251,191,36,0.07)",
+      "--warn-border":    "rgba(251,191,36,0.18)",
+      "--danger":         "#fb7185",
+      "--shadow":         "0 2px 12px rgba(0,0,0,0.5)",
+    },
+    palette: ["#0d0a16","#15102a","#241b40","#c4b5fd"]
+  }
+];
+
+const phoneHTML = (vars) => {
+  const style = Object.entries(vars).map(([k,v]) => `${k}:${v}`).join(';');
+  return `
+<div class="pc" style="${style}">
+  <div class="ph">
+    <div class="ph-logo">🪣 Colecta</div>
+    <div class="ph-badge">👑 Organizador</div>
+  </div>
+  <div class="pm">
+    <div class="ec">
+      <div class="ec-top">
+        <div class="ec-eyebrow">Colecta</div>
+        <div class="ec-title">Asado del sábado</div>
+        <div class="ec-date">📅 12 de abril, 2026</div>
+      </div>
+      <div class="ec-amount">
+        <div class="ec-amount-lbl">Cuota por persona</div>
+        <div class="ec-amount-num">$5.000</div>
+      </div>
+      <div class="ec-stats">
+        <div class="ec-stat st-accent">
+          <div class="ec-stat-lbl">Total</div>
+          <div class="ec-stat-val">$20.000</div>
+        </div>
+        <div class="ec-stat st-green">
+          <div class="ec-stat-lbl">Cobrado</div>
+          <div class="ec-stat-val">$10.000</div>
+        </div>
+        <div class="ec-stat st-red">
+          <div class="ec-stat-lbl">Falta</div>
+          <div class="ec-stat-val">$10.000</div>
+        </div>
+      </div>
+      <div class="ec-prog">
+        <div class="ec-prog-meta">
+          <span>2 de 4 pagaron</span>
+          <span class="ec-prog-pct">50%</span>
+        </div>
+        <div class="ec-prog-track">
+          <div class="ec-prog-fill" style="width:50%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="share">
+      <div class="share-lbl">📤 Compartir colecta</div>
+      <div class="share-row">
+        <span class="share-code">AB3K</span>
+        <button class="share-btn">📋 Copiar link</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">👥 (1)</div>
+      <div class="tab">📲 QR</div>
+      <div class="tab">💳 Pago</div>
+      <div class="tab">📄 Docs</div>
+    </div>
+
+    <div class="parts">
+      <div class="prow paid">
+        <div class="pav av-green">✓</div>
+        <div class="pinfo">
+          <div class="pname">Ana García</div>
+          <div class="pamount pa-green">$5.000 · Pagado</div>
+        </div>
+        <button class="pact act-green">Pagado ✓</button>
+      </div>
+      <div class="prow wait">
+        <div class="pav av-amber">⏳</div>
+        <div class="pinfo">
+          <div class="pname">Carlos Ruiz</div>
+          <div class="pamount pa-amber">$5.000 · Por confirmar</div>
+        </div>
+        <button class="pact act-amber">Aprobar</button>
+      </div>
+      <div class="prow">
+        <div class="pav av-muted">ML</div>
+        <div class="pinfo">
+          <div class="pname">María López</div>
+          <div class="pamount pa-muted">$5.000 · Pendiente</div>
+        </div>
+        <button class="pact act-accent">Confirmar</button>
+      </div>
+      <div class="prow me">
+        <div class="pav av-accent">Yo</div>
+        <div class="pinfo">
+          <div class="pname">Tú</div>
+          <div class="pamount pa-muted">$5.000 · Pendiente</div>
+        </div>
+        <button class="pact act-accent">Ya pagué</button>
+      </div>
+    </div>
+  </div>
+  <div class="pbot">
+    <button class="pcta">📊 Generar resumen WhatsApp</button>
+  </div>
+</div>`;
+};
+
+const grid = document.getElementById('grid');
+const selected = new Set();
+
+themes.forEach(t => {
+  const num = String(t.id).padStart(2, '0');
+  const accentColor = t.vars['--accent'];
+  const card = document.createElement('div');
+  card.className = 'style-card';
+
+  const swatches = t.palette.map(c =>
+    `<div class="swatch" style="background:${c}"></div>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="style-label">
+      <div class="style-num" style="background:${accentColor}22;color:${accentColor};border:1px solid ${accentColor}44">${num}</div>
+      <div class="style-info">
+        <div class="style-name">${t.name}</div>
+        <div class="style-desc">${t.desc}</div>
+        <div class="style-palette">${swatches}</div>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="phone-inner">${phoneHTML(t.vars)}</div>
+    </div>
+    <button class="vote-btn" onclick="vote(this,'${num} · ${t.name}')">Me gusta este dark →</button>
+  `;
+  grid.appendChild(card);
+});
+
+function vote(btn, label) {
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    btn.textContent = 'Me gusta este dark →';
+    selected.delete(label);
+  } else {
+    btn.classList.add('selected');
+    btn.textContent = '✓ Seleccionado';
+    selected.add(label);
+  }
+  const summary = document.getElementById('summary');
+  const list = document.getElementById('selected-list');
+  if (selected.size > 0) {
+    summary.style.display = 'block';
+    list.textContent = [...selected].join('  ·  ');
+  } else {
+    summary.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>

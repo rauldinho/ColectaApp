@@ -344,7 +344,7 @@ export default function EventoPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b bg-white px-4 py-4">
+      <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl">🪣</span>
@@ -353,7 +353,7 @@ export default function EventoPage() {
           <div className="flex items-center gap-2">
             {isOrganizer ? (
               <>
-                <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700">
+                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">
                   👑 Organizador
                 </span>
                 <button
@@ -379,43 +379,65 @@ export default function EventoPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-6 space-y-4">
-        {/* Resumen */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            {event.description && <p className="text-sm text-gray-500">{event.description}</p>}
-            <span className="text-xs text-gray-400">
-              📅{" "}
-              {event.event_date
-                ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
-                : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
+      <main className="mx-auto max-w-2xl px-4 py-4 space-y-3">
+        {/* Hero card — monto prominente + progress */}
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+          {/* Nombre + fecha */}
+          <div className="px-5 pt-5 pb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Colecta</p>
+            <h1 className="text-xl font-bold text-gray-900 leading-tight">{event.name}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {event.description && <p className="text-sm text-gray-500">{event.description}</p>}
+              <span className="text-xs text-gray-400">
+                📅{" "}
+                {event.event_date
+                  ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
+                  : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
+              </span>
+            </div>
+          </div>
+
+          {/* Big number — cuota o total */}
+          <div className="px-5 pb-3 border-b border-gray-100">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
+              {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
+            </p>
+            <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              {formatCurrency(event.amount_per_person ?? event.total_amount ?? 0, event.currency)}
             </span>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {event.amount_per_person ? (
-              <StatCard label="Cuota c/u" value={formatCurrency(event.amount_per_person, event.currency)} color="violet" />
-            ) : (
-              <StatCard label="Total" value={formatCurrency(event.total_amount ?? 0, event.currency)} color="violet" />
-            )}
-            <StatCard label="Cobrado" value={formatCurrency(totalConfirmed, event.currency)} color="green" />
-            <StatCard label="Pendiente" value={formatCurrency(totalPending, event.currency)} color="orange" />
+          {/* Stats row */}
+          <div className="grid grid-cols-3 divide-x divide-gray-100">
+            <div className="px-4 py-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500 mb-0.5">Total</p>
+              <p className="text-sm font-bold text-gray-900">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 mb-0.5">Cobrado</p>
+              <p className="text-sm font-bold text-emerald-600">{formatCurrency(totalConfirmed, event.currency)}</p>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-400 mb-0.5">Falta</p>
+              <p className="text-sm font-bold text-rose-500">{formatCurrency(totalPending, event.currency)}</p>
+            </div>
           </div>
 
+          {/* Progress bar */}
           {event.participants.length > 0 && (
-            <div className="mt-4">
-              <div className="mb-1 flex justify-between text-xs text-gray-500">
+            <div className="px-5 py-3 border-t border-gray-50">
+              <div className="flex justify-between text-xs text-gray-400 mb-1.5">
                 <span>
-                  {confirmedCount} confirmado{confirmedCount !== 1 ? "s" : ""}
-                  {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} esperando</span>}
-                  /{event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
+                  {confirmedCount} de {event.participants.length} pagaron
+                  {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} por confirmar</span>}
                 </span>
-                <span>{event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%</span>
+                <span className="font-semibold text-indigo-600">
+                  {event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%
+                </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-green-500 transition-all duration-500"
+                  className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                   style={{ width: `${event.total_amount ? (totalConfirmed / event.total_amount) * 100 : 0}%` }}
                 />
               </div>
@@ -439,8 +461,8 @@ export default function EventoPage() {
           const me = event.participants.find((p) => p.id === myParticipantId);
           if (!me) return null;
           return (
-            <div className="rounded-2xl border-2 border-violet-300 bg-violet-50 p-4 shadow-sm">
-              <p className="mb-2 text-xs font-semibold text-violet-600 uppercase tracking-wide">Tu participación</p>
+            <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4 shadow-sm">
+              <p className="mb-2 text-xs font-semibold text-indigo-600 uppercase tracking-wide">Tu participación</p>
               <ParticipantCard
                 participant={me}
                 currency={event.currency}
@@ -451,7 +473,7 @@ export default function EventoPage() {
                 onReject={rejectPayment}
                 onSubmitPayment={submitPayment}
               />
-              <p className="mt-2 text-xs text-violet-500 text-center">
+              <p className="mt-2 text-xs text-indigo-500 text-center">
                 El monto se actualiza a medida que más personas se unan
               </p>
             </div>
@@ -466,7 +488,7 @@ export default function EventoPage() {
           <div className="flex gap-2">
             <button
               onClick={copyCode}
-              className="flex flex-1 items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-mono text-lg font-bold tracking-widest text-violet-700 hover:bg-gray-100"
+              className="flex flex-1 items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-mono text-lg font-bold tracking-widest text-indigo-700 hover:bg-gray-100"
             >
               {event.code}
               <span className="text-xs font-normal text-gray-400">código</span>
@@ -481,7 +503,7 @@ export default function EventoPage() {
             <div className="border-t border-gray-100 pt-3">
               <button
                 onClick={() => setShowInvite(!showInvite)}
-                className="flex w-full items-center justify-between text-sm font-medium text-violet-700 hover:text-violet-900"
+                className="flex w-full items-center justify-between text-sm font-medium text-indigo-700 hover:text-indigo-900"
               >
                 <span>✉️ Invitar participante</span>
                 <span className="text-gray-400 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
@@ -505,7 +527,7 @@ export default function EventoPage() {
                       onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
                       className={`inline-flex items-center rounded-xl px-3 py-1.5 text-xs font-medium transition ${
                         inviteEmail.trim()
-                          ? "bg-violet-600 text-white hover:bg-violet-700"
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
                           : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       }`}
                     >
@@ -524,13 +546,13 @@ export default function EventoPage() {
           )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-gray-100 p-1 overflow-x-auto">
+        {/* Tabs — segmented control */}
+        <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
           {(["participantes", "qr", "info", "facturas"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 whitespace-nowrap rounded-lg py-2 px-1 text-sm font-medium transition ${
+              className={`flex-1 whitespace-nowrap rounded-lg py-2.5 px-1 text-xs font-semibold transition ${
                 activeTab === tab ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -558,7 +580,7 @@ export default function EventoPage() {
                 {event.participants.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 hover:text-violet-700 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-700 transition"
                   >
                     📊 Generar resumen
                   </button>
@@ -570,12 +592,12 @@ export default function EventoPage() {
                 <p className="text-4xl mb-3">👥</p>
                 <p className="font-medium text-gray-700">Aún no hay participantes</p>
                 <p className="mt-1 text-sm text-gray-400">
-                  Comparte el código <span className="font-mono font-bold text-violet-600">{event.code}</span> para que se unan
+                  Comparte el código <span className="font-mono font-bold text-indigo-600">{event.code}</span> para que se unan
                 </p>
                 {event.amount_per_person ? (
                   <p className="mt-3 text-sm text-gray-500">
                     Cada participante pagará{" "}
-                    <span className="font-semibold text-violet-700">{formatCurrency(event.amount_per_person, event.currency)}</span>
+                    <span className="font-semibold text-indigo-700">{formatCurrency(event.amount_per_person, event.currency)}</span>
                   </p>
                 ) : event.total_amount ? (
                   <p className="mt-3 text-sm text-gray-500">
@@ -586,11 +608,11 @@ export default function EventoPage() {
             ) : (
               <>
                 {event.participants.length > 1 && (
-                  <div className="rounded-xl bg-violet-50 px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-sm text-violet-700">
+                  <div className="rounded-xl bg-indigo-50 px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-sm text-indigo-700">
                       {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
                     </span>
-                    <span className="text-sm font-bold text-violet-800">
+                    <span className="text-sm font-bold text-indigo-800">
                       {formatCurrency(perPerson, event.currency)} c/u
                     </span>
                   </div>
@@ -620,7 +642,7 @@ export default function EventoPage() {
             <div className="rounded-2xl bg-white p-4 shadow-md border">
               <QRCode value={joinUrl} size={200} />
             </div>
-            <p className="mt-4 font-mono text-xl font-bold tracking-widest text-violet-700">{event.code}</p>
+            <p className="mt-4 font-mono text-xl font-bold tracking-widest text-indigo-700">{event.code}</p>
             <p className="mt-1 text-xs text-gray-400 text-center break-all max-w-xs">{joinUrl}</p>
           </div>
         )}
@@ -680,7 +702,7 @@ export default function EventoPage() {
                 {isOrganizer && (
                   <button
                     onClick={() => orgDocRef.current?.click()}
-                    className="mt-3 text-sm text-violet-600 font-medium hover:underline"
+                    className="mt-3 text-sm text-indigo-600 font-medium hover:underline"
                   >
                     + Subir primer archivo
                   </button>
@@ -707,7 +729,7 @@ export default function EventoPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-gray-700 hover:text-violet-700 truncate"
+                          className="flex items-center gap-2 text-sm text-gray-700 hover:text-indigo-700 truncate"
                         >
                           <span>{isPdf ? "📄" : isImage ? "🖼️" : "📎"}</span>
                           <span className="truncate max-w-xs">{doc.originalName}</span>
@@ -717,7 +739,7 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-violet-600 hover:underline"
+                            className="text-xs text-indigo-600 hover:underline"
                           >
                             Ver
                           </a>
@@ -845,41 +867,43 @@ function JoinSection({
   }
 
   return (
-    <div className="rounded-2xl border-2 border-violet-200 bg-white p-6 shadow-sm">
-      <div className="mb-4 text-center">
-        <p className="text-2xl mb-1">🙋</p>
-        <h2 className="text-lg font-bold text-gray-900">Únete a la colecta</h2>
-        <p className="text-sm text-gray-500">Ingresa tu nombre para registrarte y ver cuánto te toca pagar</p>
-        {estimatedShare > 0 && (
-          <div className="mt-3 rounded-xl bg-violet-50 px-4 py-2.5 inline-block">
-            <p className="text-sm text-violet-700">
-              {isFixed ? "Tu cuota:" : "Tu parte estimada:"}{" "}
-              <span className="font-bold text-violet-900">{formatCurrency(Math.ceil(estimatedShare), currency)}</span>
-            </p>
-            {!isFixed && participantCount > 0 && (
-              <p className="text-xs text-violet-500">{formatCurrency(totalAmount, currency)} ÷ {participantCount + 1} personas</p>
-            )}
-            {isFixed && <p className="text-xs text-violet-500">Cuota fija definida por el organizador</p>}
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      {/* Monto hero */}
+      {estimatedShare > 0 && (
+        <div className="bg-indigo-50 border-b border-indigo-100 px-5 py-4 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-indigo-400 mb-1">
+            {isFixed ? "Tu cuota es" : "Tu parte estimada"}
+          </p>
+          <p className="text-4xl font-extrabold text-indigo-700 tracking-tight">
+            {formatCurrency(Math.ceil(estimatedShare), currency)}
+          </p>
+          {!isFixed && participantCount > 0 && (
+            <p className="text-xs text-indigo-400 mt-1">{formatCurrency(totalAmount, currency)} ÷ {participantCount + 1} personas</p>
+          )}
+          {isFixed && <p className="text-xs text-indigo-400 mt-1">Cuota fija definida por el organizador</p>}
+        </div>
+      )}
+      {/* Formulario */}
+      <div className="p-5">
+        <p className="text-sm font-semibold text-gray-800 mb-4">Ingresa tus datos para unirte</p>
+        <form onSubmit={handleJoin} className="space-y-3">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Tu nombre <span className="text-red-400">*</span>
+            </label>
+            <Input placeholder="Ej: María González" value={name} onChange={(e) => setName(e.target.value)} required autoFocus className="h-12 text-base" />
           </div>
-        )}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              Email <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
+            <Input type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base" />
+          </div>
+          <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={joining || !name.trim()}>
+            {joining ? "Uniéndome..." : "Unirme a la colecta 🚀"}
+          </Button>
+        </form>
       </div>
-      <form onSubmit={handleJoin} className="space-y-3">
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            Tu nombre <span className="text-red-400">*</span>
-          </label>
-          <Input placeholder="Ej: María González" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            Email <span className="text-gray-400 font-normal">(opcional)</span>
-          </label>
-          <Input type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <Button type="submit" className="w-full" disabled={joining || !name.trim()}>
-          {joining ? "Uniéndome..." : "Unirme a la colecta 🚀"}
-        </Button>
-      </form>
     </div>
   );
 }
@@ -934,32 +958,36 @@ function ParticipantCard({
     setPreview(null);
   }
 
+  // Iniciales del nombre
+  const initials = participant.name.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase();
+
   return (
     <div className={`rounded-xl border transition ${
-      isPaid ? "border-green-200 bg-green-50"
-      : isPending ? "border-amber-200 bg-amber-50"
-      : isMe ? "border-violet-200 bg-white"
+      isPaid ? "border-emerald-200 bg-emerald-50/40"
+      : isPending ? "border-amber-200 bg-amber-50/40"
+      : isMe ? "border-indigo-200 bg-white"
       : "border-gray-100 bg-white"
     }`}>
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between px-4 py-3.5">
         <div className="flex items-center gap-3">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
-            isPaid ? "bg-green-500 text-white"
+          {/* Avatar con iniciales */}
+          <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold flex-shrink-0 ${
+            isPaid ? "bg-emerald-500 text-white"
             : isPending ? "bg-amber-400 text-white"
-            : isMe ? "bg-violet-600 text-white"
-            : "bg-gray-100 text-gray-600"
+            : isMe ? "bg-indigo-600 text-white"
+            : "bg-gray-200 text-gray-600"
           }`}>
-            {isPaid ? "✓" : isPending ? "⏳" : participant.name[0].toUpperCase()}
+            {isPaid ? "✓" : isPending ? "⏳" : initials}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <p className="font-medium text-gray-900">{participant.name}</p>
+              <p className="font-semibold text-gray-900 text-sm">{participant.name}</p>
               {isMe && !isOrganizer && (
-                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-600">Tú</span>
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">Tú</span>
               )}
             </div>
-            <p className={`text-sm font-semibold ${
-              isPaid ? "text-green-600" : isPending ? "text-amber-600" : "text-violet-600"
+            <p className={`text-sm font-bold ${
+              isPaid ? "text-emerald-600" : isPending ? "text-amber-600" : "text-gray-500"
             }`}>
               {formatCurrency(participant.amount_owed, currency)}
             </p>
@@ -1000,7 +1028,7 @@ function ParticipantCard({
                 <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">⏳ Esperando</span>
               ) : isMe ? (
                 <button onClick={() => setExpanded(!expanded)}
-                  className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700">
+                  className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">
                   Ya pagué
                 </button>
               ) : null}
@@ -1050,11 +1078,11 @@ function ParticipantCard({
 
       {/* Participant: "Ya pagué" form */}
       {isMe && !isOrganizer && !isPaid && !isPending && expanded && (
-        <div className="border-t border-violet-100 px-4 pb-4 pt-3 space-y-3">
+        <div className="border-t border-indigo-100 px-4 pb-4 pt-3 space-y-3">
           <p className="text-sm font-medium text-gray-700">Adjunta tu comprobante (opcional)</p>
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 hover:border-violet-400 hover:bg-violet-50 transition"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 hover:border-indigo-400 hover:bg-indigo-50 transition"
           >
             {preview ? (
               <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
@@ -1186,7 +1214,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-gray-900">Datos de transferencia</p>
-          {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-violet-600 hover:underline">Editar</button>}
+          {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-indigo-600 hover:underline">Editar</button>}
         </div>
         {existingInfo.account_holder && <InfoRow label="Titular" value={existingInfo.account_holder} />}
         {existingInfo.bank_name && <InfoRow label="Banco" value={existingInfo.bank_name} />}
@@ -1234,7 +1262,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function StatCard({ label, value, color }: { label: string; value: string; color: "violet" | "green" | "orange" }) {
-  const colors = { violet: "bg-violet-50 text-violet-700", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
+  const colors = { violet: "bg-indigo-50 text-indigo-700", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
   return (
     <div className={`rounded-xl p-3 ${colors[color]}`}>
       <p className="text-xs opacity-70">{label}</p>
@@ -1258,7 +1286,7 @@ function NotFoundScreen() {
         <p className="mb-2 text-5xl">😕</p>
         <h2 className="text-xl font-bold text-gray-900">Colecta no encontrada</h2>
         <p className="mt-1 text-gray-500">El link puede haber expirado o ser incorrecto.</p>
-        <Link href="/" className="mt-4 inline-block text-violet-600 hover:underline">← Volver al inicio</Link>
+        <Link href="/" className="mt-4 inline-block text-indigo-600 hover:underline">← Volver al inicio</Link>
       </div>
     </div>
   );

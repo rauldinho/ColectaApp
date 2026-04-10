@@ -49,7 +49,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 text-center">
@@ -70,13 +70,13 @@ export default function LoginPage() {
               </h2>
               <p className="text-sm text-gray-500">
                 Enviamos un link mágico a{" "}
-                <span className="font-medium text-violet-600">{email}</span>.
+                <span className="font-medium text-indigo-600">{email}</span>.
                 <br />
                 Haz clic en el link para ingresar.
               </p>
               <button
                 onClick={() => setSent(false)}
-                className="mt-4 text-sm text-violet-600 hover:underline"
+                className="mt-4 text-sm text-indigo-600 hover:underline"
               >
                 ¿No llegó? Reenviar
               </button>
@@ -130,7 +130,7 @@ export default function LoginPage() {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           ¿No tienes cuenta?{" "}
-          <Link href="/signup" className="text-violet-600 hover:underline">
+          <Link href="/signup" className="text-indigo-600 hover:underline">
             Regístrate gratis
           </Link>
         </p>

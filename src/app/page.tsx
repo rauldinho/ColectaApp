@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50 px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
       <div className="mx-auto max-w-2xl text-center">
         {/* Logo / Brand */}
         <div className="mb-6 flex items-center justify-center gap-2">
@@ -17,7 +17,7 @@ export default function HomePage() {
         </div>
 
         {/* Tagline */}
-        <p className="mb-2 text-xl font-medium text-violet-700">
+        <p className="mb-2 text-xl font-medium text-indigo-700">
           Organiza pagos grupales sin complicaciones
         </p>
         <p className="mb-10 text-base text-gray-500">
@@ -29,7 +29,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/dashboard/nuevo"
-            className="w-full rounded-xl bg-violet-600 px-8 py-3 text-base font-semibold text-white shadow-md transition hover:bg-violet-700 sm:w-auto"
+            className="w-full rounded-xl bg-indigo-600 px-8 py-3 text-base font-semibold text-white shadow-md transition hover:bg-indigo-700 sm:w-auto"
           >
             Crear una colecta
           </Link>
@@ -88,11 +88,11 @@ function JoinByCodeButton() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Ej: ABX72K"
         maxLength={8}
-        className="w-36 rounded-xl border border-gray-200 px-4 py-3 font-mono text-lg font-bold uppercase tracking-widest text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400"
+        className="w-36 rounded-xl border border-gray-200 px-4 py-3 font-mono text-lg font-bold uppercase tracking-widest text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
       <button
         type="submit"
-        className="rounded-xl bg-violet-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-violet-700"
+        className="rounded-xl bg-indigo-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-indigo-700"
       >
         Ir →
       </button>
