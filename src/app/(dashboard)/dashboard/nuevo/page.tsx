@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { generateEventCode } from "@/lib/utils";
 import { nanoid } from "nanoid";
@@ -78,12 +79,15 @@ export default function NuevoEventoPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Sticky header */}
       <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
-          <Link href="/" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
-            <span>←</span> Inicio
-          </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-semibold text-gray-900">Nueva colecta</span>
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+              <span>←</span> Inicio
+            </Link>
+            <span className="text-gray-300">/</span>
+            <span className="text-sm font-semibold text-gray-900">Nueva colecta</span>
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 

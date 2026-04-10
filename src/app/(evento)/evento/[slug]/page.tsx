@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatCurrency, splitEqually } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { EventWithDetails, Participant, Payment } from "@/types/database";
 
 type OrgDoc = { name: string; url: string; originalName: string };
@@ -351,6 +352,7 @@ export default function EventoPage() {
             <span className="font-bold text-gray-900">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {isOrganizer ? (
               <>
                 <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">

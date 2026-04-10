@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import type { Event } from "@/types/database";
 import { LogoutButton } from "@/components/layout/logout-button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -27,10 +28,11 @@ export default async function DashboardPage() {
             <span className="text-xl">🪣</span>
             <span className="text-lg font-bold text-gray-900">Colecta</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-gray-400 sm:block truncate max-w-[180px]">
+          <div className="flex items-center gap-2">
+            <span className="hidden text-sm text-gray-400 sm:block truncate max-w-[160px]">
               {user.email}
             </span>
+            <ThemeToggle />
             <LogoutButton />
           </div>
         </div>
