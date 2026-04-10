@@ -57,9 +57,11 @@ CREATE TABLE IF NOT EXISTS public.participants (
   event_id     UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
   user_id      UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   name         TEXT NOT NULL,
-  email        TEXT,
+  email        TEXT,                                             -- obligatorio en el flujo nuevo (validado en app)
   amount_owed  NUMERIC(12, 2) NOT NULL DEFAULT 0,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Deduplicación: un email no puede aparecer dos veces en la misma colecta
+  UNIQUE(event_id, email)
 );
 
 -- ============================================================
@@ -69,8 +71,9 @@ CREATE TABLE IF NOT EXISTS public.payments (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   participant_id  UUID NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE,
   amount          NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
-  status          TEXT NOT NULL DEFAULT 'confirmed',  -- 'pending' | 'confirmed' | 'rejected'
+  status          TEXT NOT NULL DEFAULT 'pending',    -- 'pending' | 'confirmed' | 'rejected'
   receipt_url     TEXT,                               -- URL del comprobante subido por el participante
+  message         TEXT,                               -- mensaje opcional del participante al confirmar pago
   confirmed_at    TIMESTAMPTZ,                        -- NULL si está pendiente
   confirmed_by    TEXT,                               -- admin_token del organizador
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -162,6 +165,11 @@ CREATE POLICY "Insertar pagos" ON public.payments
 CREATE POLICY "Actualizar pagos" ON public.payments
   FOR UPDATE USING (true);
 
+-- Sin esta policy el DELETE falla silenciosamente (RLS lo bloquea sin lanzar error)
+-- Causaba que "Deshacer pago" y "Rechazar" no funcionaran aunque el toast decía éxito
+CREATE POLICY "Eliminar pagos" ON public.payments
+  FOR DELETE USING (true);
+
 -- PAYMENT INFO: lectura y escritura pública
 CREATE POLICY "Leer info de pago" ON public.payment_info
   FOR SELECT USING (true);
@@ -198,3 +206,22 @@ ALTER TABLE public.payments REPLICA IDENTITY FULL;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.participants;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.payments;
+
+-- ============================================================
+-- MIGRACIÓN v3 — Nuevo flujo de participantes
+-- Ejecutar en Supabase Dashboard → SQL Editor
+-- ============================================================
+
+-- 1. Deduplicación por email dentro de una colecta
+--    (el email ahora es obligatorio a nivel de app)
+ALTER TABLE public.participants
+  DROP CONSTRAINT IF EXISTS participants_event_email_unique;
+
+ALTER TABLE public.participants
+  ADD CONSTRAINT participants_event_email_unique
+  UNIQUE (event_id, email);
+
+-- 2. Corregir el default de payments.status
+--    Antes era 'confirmed', debe ser 'pending' (los pagos inician como pendientes)
+ALTER TABLE public.payments
+  ALTER COLUMN status SET DEFAULT 'pending';

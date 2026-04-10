@@ -15,32 +15,35 @@ export default function NuevoEventoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  // Sección 1 — Datos
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [currency, setCurrency] = useState("CLP");
   const [eventDate, setEventDate] = useState("");
+
+  // Sección 2 — Monto
+  const currency = "CLP";
+  const [amountPerPerson, setAmountPerPerson] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+
+  // Facturas / documentos
+  const [uploadInvoices, setUploadInvoices] = useState(false);
+  const [invoiceFiles, setInvoiceFiles] = useState<File[]>([]);
+
+  // Sección 3 — PIN
   const [adminPin, setAdminPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [showPin, setShowPin] = useState(false);
-
-  const [fixedPerPerson, setFixedPerPerson] = useState(false);
-  const [amountPerPerson, setAmountPerPerson] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!name.trim()) { toast.error("El nombre es requerido"); return; }
 
-    const parsedTotal = parseFloat(totalAmount) || 0;
     const parsedPerPerson = parseFloat(amountPerPerson) || 0;
-
-    if (fixedPerPerson && parsedPerPerson <= 0) {
-      toast.error("La cuota por participante debe ser mayor a 0"); return;
+    if (parsedPerPerson <= 0) {
+      toast.error("La cuota por persona debe ser mayor a 0"); return;
     }
-    if (!fixedPerPerson && parsedTotal <= 0) {
-      toast.error("El monto total debe ser mayor a 0"); return;
-    }
+    const parsedTotal = parseFloat(totalAmount) || null;
     if (adminPin.length < 4) { toast.error("El PIN debe tener al menos 4 dígitos"); return; }
     if (adminPin !== confirmPin) { toast.error("Los PINs no coinciden"); return; }
 
@@ -57,8 +60,8 @@ export default function NuevoEventoPage() {
         name: name.trim(),
         description: description.trim() || null,
         event_date: eventDate || null,
-        total_amount: fixedPerPerson ? null : parsedTotal,
-        amount_per_person: fixedPerPerson ? parsedPerPerson : null,
+        total_amount: parsedTotal,
+        amount_per_person: parsedPerPerson,
         currency,
       })
       .select()
@@ -71,188 +74,329 @@ export default function NuevoEventoPage() {
     }
 
     localStorage.setItem(`colecta_organizer_${event.slug}`, "true");
+
+    // Subir facturas si el organizador las adjuntó
+    if (uploadInvoices && invoiceFiles.length > 0) {
+      const uploadPromises = invoiceFiles.map(async (file) => {
+        const ext = file.name.split(".").pop();
+        const safeName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const path = `${event.id}/organizer/${safeName}`;
+        await supabase.storage.from("receipts").upload(path, file, { upsert: false });
+      });
+      await Promise.all(uploadPromises);
+    }
+
     toast.success("¡Colecta creada! Comparte el link con los participantes.");
     router.push(`/evento/${event.slug}`);
   }
 
+  const pinMatch = confirmPin.length > 0 && adminPin === confirmPin;
+  const pinMismatch = confirmPin.length > 0 && adminPin !== confirmPin;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Sticky header */}
-      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur px-4 py-3">
+        <div className="mx-auto flex max-w-lg items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gray-700">
-              <span>←</span> Inicio
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Inicio
             </Link>
-            <span className="text-border">/</span>
+            <span className="text-border/60">·</span>
             <span className="text-sm font-semibold text-foreground">Nueva colecta</span>
           </div>
           <ThemeToggle />
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-5 pb-28">
-        <div className="mb-5">
-          <h1 className="text-2xl font-bold text-foreground">Nueva colecta 🪣</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">Completa los datos y comparte el link con tus participantes.</p>
+      <main className="mx-auto max-w-lg px-4 py-6 pb-32">
+        {/* Page title */}
+        <div className="mb-7">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Nueva colecta</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Completa los 3 pasos y comparte el link con tus participantes.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ── Datos básicos ── */}
-          <Section title="¿Para qué es la colecta?">
-            <FormField label="Nombre *">
+        <form onSubmit={handleSubmit} className="space-y-3">
+
+          {/* ════════════════════════════════════════
+              SECCIÓN 1 — Datos de la colecta
+          ════════════════════════════════════════ */}
+          <StepCard step={1} title="Datos de la colecta">
+            {/* Nombre */}
+            <FieldGroup label="Nombre *">
               <Input
-                placeholder="Ej: Asado del sábado, Viaje a Mendoza..."
+                placeholder="Ej: Asado del sábado, Regalo de cumpleaños..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required autoFocus className="h-12 text-base"
+                required
+                autoFocus
+                className="h-11 text-sm"
               />
-            </FormField>
-            <FormField label="Descripción (opcional)">
+            </FieldGroup>
+
+            {/* Descripción */}
+            <FieldGroup label="Descripción">
               <Input
-                placeholder="Agrega un detalle..."
+                placeholder="Añade un detalle opcional..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="h-12 text-base"
+                className="h-11 text-sm"
               />
-            </FormField>
-            <FormField label="Fecha del evento (opcional)">
+            </FieldGroup>
+
+            {/* Fecha */}
+            <FieldGroup
+              label="Fecha del evento"
+              hint={!eventDate ? "Puede ser pasada o futura. Si no se indica, se usará la de hoy." : undefined}
+            >
               <Input
                 type="date"
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-                className="h-12 text-base"
+                className="h-11 text-sm"
               />
-              {!eventDate && (
-                <p className="mt-1 text-xs text-muted-foreground/70">Si no se indica, se usará la fecha de hoy.</p>
-              )}
-            </FormField>
-          </Section>
+            </FieldGroup>
+          </StepCard>
 
-          {/* ── Monto ── */}
-          <Section title="¿Cuánto hay que juntar?">
-            <FormField label="Moneda">
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="flex h-12 w-full rounded-xl border border-input bg-background px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <option value="CLP">🇨🇱 CLP — Peso chileno</option>
-                <option value="ARS">🇦🇷 ARS — Peso argentino</option>
-                <option value="USD">🇺🇸 USD — Dólar</option>
-                <option value="EUR">🇪🇺 EUR — Euro</option>
-                <option value="MXN">🇲🇽 MXN — Peso mexicano</option>
-                <option value="COP">🇨🇴 COP — Peso colombiano</option>
-              </select>
-            </FormField>
+          {/* ════════════════════════════════════════
+              SECCIÓN 2 — Monto y comprobantes
+          ════════════════════════════════════════ */}
+          <StepCard step={2} title="Monto a pagar">
 
-            {/* Toggle cuota fija */}
-            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3.5 hover:bg-muted transition">
-              <div className="relative shrink-0">
-                <input
-                  type="checkbox"
-                  checked={fixedPerPerson}
-                  onChange={(e) => setFixedPerPerson(e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`h-6 w-11 rounded-full transition-colors ${fixedPerPerson ? "bg-indigo-600" : "bg-muted-foreground/30"}`} />
-                <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${fixedPerPerson ? "translate-x-6" : "translate-x-1"}`} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Definir cuota por participante</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {fixedPerPerson
-                    ? "Cada persona paga un monto fijo. El total crece según cuántos se unan."
-                    : "Se divide el monto total en partes iguales entre todos."}
-                </p>
-              </div>
-            </label>
-
-            {fixedPerPerson ? (
-              <FormField label="Cuota por participante *">
+            {/* Monto total */}
+            <FieldGroup
+              label="Monto total de la colecta"
+              hint={
+                parseFloat(totalAmount) > 0
+                  ? undefined
+                  : "Opcional. El total general de gastos a cubrir entre todos."
+              }
+            >
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">
+                  $
+                </span>
                 <Input
-                  type="number" min="1" placeholder="Ej: 5000"
-                  value={amountPerPerson}
-                  onChange={(e) => setAmountPerPerson(e.target.value)}
-                  className="h-12 text-base" autoFocus
-                />
-                {parseFloat(amountPerPerson) > 0 && (
-                  <p className="mt-1.5 text-xs text-indigo-500 font-medium">
-                    💡 Total = {currency} {parseFloat(amountPerPerson).toLocaleString()} × participantes
-                  </p>
-                )}
-              </FormField>
-            ) : (
-              <FormField label="Monto total *">
-                <Input
-                  type="number" min="1" placeholder="Ej: 50000"
+                  type="number" min="1"
+                  placeholder="0"
                   value={totalAmount}
                   onChange={(e) => setTotalAmount(e.target.value)}
-                  className="h-12 text-base"
+                  className="h-12 pl-8 text-lg font-bold tracking-tight"
                 />
-                {parseFloat(totalAmount) > 0 && (
-                  <p className="mt-1.5 text-xs text-indigo-500 font-medium">
-                    💡 Se divide en partes iguales entre todos los que se unan
-                  </p>
-                )}
-              </FormField>
-            )}
-          </Section>
+              </div>
+              {parseFloat(totalAmount) > 0 && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {currency} <span className="font-semibold text-foreground">{parseFloat(totalAmount).toLocaleString("es-CL")}</span> en total
+                  {parseFloat(amountPerPerson) > 0 && parseFloat(totalAmount) > 0 && (
+                    <span className="ml-1">
+                      · {Math.ceil(parseFloat(totalAmount) / parseFloat(amountPerPerson))} participantes estimados
+                    </span>
+                  )}
+                </p>
+              )}
+            </FieldGroup>
 
-          {/* ── PIN ── */}
-          <Section title="🔐 PIN del organizador">
-            <p className="text-xs text-muted-foreground -mt-1">
+            {/* Cuota por persona */}
+            <FieldGroup
+              label="Cuota por persona *"
+              hint={
+                parseFloat(amountPerPerson) > 0
+                  ? undefined
+                  : "Cada participante pagará este monto al unirse a la colecta."
+              }
+            >
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">
+                  $
+                </span>
+                <Input
+                  type="number" min="1"
+                  placeholder="0"
+                  value={amountPerPerson}
+                  onChange={(e) => setAmountPerPerson(e.target.value)}
+                  className="h-12 pl-8 text-lg font-bold tracking-tight"
+                />
+              </div>
+              {parseFloat(amountPerPerson) > 0 && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {currency} <span className="font-semibold text-foreground">{parseFloat(amountPerPerson).toLocaleString("es-CL")}</span> por persona
+                </p>
+              )}
+            </FieldGroup>
+
+            {/* Divisor */}
+            <div className="border-t border-border" />
+
+            {/* Toggle facturas */}
+            <Toggle
+              label="Adjuntar facturas o documentos"
+              description={
+                uploadInvoices
+                  ? "Los archivos se subirán al crear la colecta."
+                  : "Podrás subirlos desde la pantalla de la colecta después."
+              }
+              checked={uploadInvoices}
+              onChange={(v) => { setUploadInvoices(v); if (!v) setInvoiceFiles([]); }}
+            />
+
+            {/* Zona de carga — visible solo si toggle ON */}
+            {uploadInvoices && (
+              <div className="space-y-2">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/30 px-4 py-5 text-center hover:bg-muted/50 transition">
+                  <span className="text-2xl">📎</span>
+                  <span className="text-sm font-medium text-foreground">Seleccionar archivos</span>
+                  <span className="text-xs text-muted-foreground">Imágenes o PDF · múltiples archivos</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const newFiles = Array.from(e.target.files ?? []);
+                      setInvoiceFiles((prev) => {
+                        const existing = new Set(prev.map((f) => f.name));
+                        return [...prev, ...newFiles.filter((f) => !existing.has(f.name))];
+                      });
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+
+                {/* Lista de archivos seleccionados */}
+                {invoiceFiles.length > 0 && (
+                  <ul className="space-y-1">
+                    {invoiceFiles.map((file, i) => (
+                      <li key={i} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
+                          <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {(file.size / 1024).toFixed(0)} KB
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setInvoiceFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                          className="ml-2 shrink-0 text-muted-foreground hover:text-foreground transition"
+                          aria-label="Eliminar"
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </StepCard>
+
+          {/* ════════════════════════════════════════
+              SECCIÓN 3 — PIN del organizador
+          ════════════════════════════════════════ */}
+          <StepCard step={3} title="PIN del organizador">
+            <p className="text-xs text-muted-foreground -mt-1 mb-1">
               Te permite gestionar la colecta desde cualquier dispositivo. Solo tú lo sabes.
             </p>
+
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="PIN (mín. 4 dígitos) *">
+              <FieldGroup label="PIN (mín. 4 dígitos) *">
                 <div className="relative">
                   <Input
-                    type={showPin ? "text" : "password"}
-                    inputMode="numeric" placeholder="••••"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="••••"
                     value={adminPin}
                     onChange={(e) => setAdminPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                    required maxLength={8}
-                    className="h-12 text-base text-center tracking-widest font-bold"
+                    required
+                    maxLength={8}
+                    autoComplete="off"
+                    name="colecta-pin"
+                    style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
+                    className="h-11 text-center tracking-widest font-bold text-base pr-14"
                   />
                   <button
-                    type="button" onClick={() => setShowPin(!showPin)}
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground"
                   >
                     {showPin ? "Ocultar" : "Ver"}
                   </button>
                 </div>
-              </FormField>
-              <FormField label="Confirmar PIN *">
-                <Input
-                  type={showPin ? "text" : "password"}
-                  inputMode="numeric" placeholder="••••"
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                  required maxLength={8}
-                  className={`h-12 text-base text-center tracking-widest font-bold ${confirmPin && adminPin !== confirmPin ? "border-red-400 focus-visible:ring-red-400" : ""}`}
-                />
-              </FormField>
+              </FieldGroup>
+
+              <FieldGroup label="Confirmar PIN *">
+                <div className="relative">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="••••"
+                    value={confirmPin}
+                    onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                    required
+                    maxLength={8}
+                    autoComplete="off"
+                    name="colecta-pin-confirm"
+                    style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
+                    className={`h-11 text-center tracking-widest font-bold text-base ${
+                      pinMismatch
+                        ? "border-red-400 focus-visible:ring-red-400"
+                        : pinMatch
+                        ? "border-green-500 focus-visible:ring-green-400"
+                        : ""
+                    }`}
+                  />
+                  {pinMatch && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-green-600 font-medium">✓</span>
+                  )}
+                </div>
+              </FieldGroup>
             </div>
-            {confirmPin && adminPin !== confirmPin && (
-              <p className="text-xs text-red-500 font-medium">Los PINs no coinciden</p>
+
+            {pinMismatch && (
+              <p className="flex items-center gap-1 text-xs text-red-500 font-medium">
+                <span>⚠</span> Los PINs no coinciden
+              </p>
             )}
-          </Section>
+            {pinMatch && adminPin.length >= 4 && (
+              <p className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                <span>✓</span> PINs coinciden
+              </p>
+            )}
+          </StepCard>
+
         </form>
       </main>
 
-      {/* Sticky bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-card/95 backdrop-blur px-4 py-3">
-        <div className="mx-auto flex max-w-2xl gap-3">
+      {/* CTA fijo al fondo */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-card/95 backdrop-blur">
+        <div className="mx-auto flex max-w-lg gap-3 px-4 py-3">
           <Link href="/" className="flex-none">
-            <Button variant="outline" className="h-12 px-5" type="button">Cancelar</Button>
+            <Button variant="outline" className="h-11 px-5 text-sm" type="button">
+              Cancelar
+            </Button>
           </Link>
           <Button
-            type="submit" className="flex-1 h-12 text-base font-semibold"
-            disabled={loading} onClick={handleSubmit}
+            type="submit"
+            className="flex-1 h-11 text-sm font-semibold"
+            disabled={loading}
+            onClick={handleSubmit}
           >
-            {loading ? "Creando..." : "Crear colecta 🚀"}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Creando...
+              </span>
+            ) : (
+              "Crear colecta →"
+            )}
           </Button>
         </div>
       </div>
@@ -260,20 +404,93 @@ export default function NuevoEventoPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+/* ─── Componentes reutilizables ─────────────────────────── */
+
+function StepCard({
+  step,
+  title,
+  children,
+}: {
+  step: number;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <h2 className="mb-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</h2>
-      <div className="space-y-4">{children}</div>
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
+      {/* Header de la sección */}
+      <div className="flex items-center gap-3 border-b border-border bg-muted/40 px-4 py-3">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+          {step}
+        </span>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      </div>
+      {/* Contenido */}
+      <div className="px-4 py-4 space-y-4">
+        {children}
+      </div>
     </div>
   );
 }
 
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+function FieldGroup({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
+    <div className="space-y-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </label>
       {children}
+      {hint && (
+        <p className="text-xs text-muted-foreground/70 leading-relaxed">{hint}</p>
+      )}
     </div>
+  );
+}
+
+function Toggle({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-background px-3 py-3 hover:bg-muted/40 transition-colors">
+      {/* Switch */}
+      <div className="relative shrink-0">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="sr-only"
+        />
+        <div
+          className={`h-5 w-9 rounded-full transition-colors ${
+            checked ? "bg-foreground" : "bg-muted-foreground/25"
+          }`}
+        />
+        <div
+          className={`absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform ${
+            checked ? "translate-x-4 bg-background" : "translate-x-0.5 bg-white"
+          }`}
+        />
+      </div>
+      {/* Texto */}
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{description}</p>
+      </div>
+    </label>
   );
 }

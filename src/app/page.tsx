@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function HomePage() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-4 py-16">
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16">
       {/* Toggle arriba a la derecha */}
       <div className="absolute right-4 top-4">
         <ThemeToggle />
@@ -23,7 +23,7 @@ export default function HomePage() {
         </div>
 
         {/* Tagline */}
-        <p className="mb-2 text-xl font-medium text-indigo-500">
+        <p className="mb-2 text-xl font-medium text-primary">
           Organiza pagos grupales sin complicaciones
         </p>
         <p className="mb-10 text-base text-muted-foreground">
@@ -35,31 +35,40 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/dashboard/nuevo"
-            className="w-full rounded-xl bg-indigo-600 px-8 py-3 text-base font-semibold text-white shadow-md transition hover:bg-indigo-700 sm:w-auto"
+            className="block w-full rounded-xl bg-primary px-8 py-3 text-center text-base font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 sm:w-auto"
           >
             Crear una colecta
           </Link>
           <JoinByCodeButton />
         </div>
 
-        {/* Features */}
-        <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <FeatureCard
-            icon="✂️"
-            title="Divide fácil"
-            description="Igual o personalizado entre todos los participantes"
-          />
-          <FeatureCard
-            icon="📲"
-            title="QR de pago"
-            description="Genera un QR con los datos de transferencia al instante"
-          />
-          <FeatureCard
-            icon="✅"
-            title="Seguimiento"
-            description="Lleva el registro de quién pagó y quién falta"
-          />
+        {/* ¿Cómo funciona? — infograma */}
+        <div className="mt-14">
+          <p className="mb-6 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            ¿Cómo funciona?
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <StepCard
+              step={1}
+              icon="✏️"
+              title="El organizador crea"
+              description="Define el nombre, la cuota o monto total, y un PIN para gestionar la colecta."
+            />
+            <StepCard
+              step={2}
+              icon="👥"
+              title="Los participantes se unen"
+              description="Entran con el código, ven su parte y adjuntan su comprobante de pago."
+            />
+            <StepCard
+              step={3}
+              icon="✅"
+              title="El organizador confirma"
+              description="Revisa los comprobantes y marca quién pagó. El resumen se actualiza en tiempo real."
+            />
+          </div>
         </div>
+
       </div>
     </main>
   );
@@ -94,11 +103,11 @@ function JoinByCodeButton() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Ej: ABX72K"
         maxLength={8}
-        className="w-36 rounded-xl border border-border bg-card px-4 py-3 text-lg font-bold uppercase tracking-wider text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="min-w-0 flex-1 rounded-xl border border-border bg-card px-4 py-3 text-lg font-bold uppercase tracking-wider text-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-36 sm:flex-none"
       />
       <button
         type="submit"
-        className="rounded-xl bg-indigo-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-indigo-700"
+        className="shrink-0 rounded-xl bg-primary px-5 py-3 text-base font-semibold text-primary-foreground transition hover:bg-primary/90"
       >
         Ir →
       </button>
@@ -106,20 +115,27 @@ function JoinByCodeButton() {
   );
 }
 
-function FeatureCard({
+
+function StepCard({
+  step,
   icon,
   title,
   description,
 }: {
+  step: number;
   icon: string;
   title: string;
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="mb-2 text-3xl">{icon}</div>
-      <h3 className="mb-1 font-semibold text-foreground">{title}</h3>
-      <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="relative flex flex-col items-center rounded-2xl border border-border bg-card p-5 shadow-sm text-center">
+      {/* Número de paso */}
+      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+        {step}
+      </div>
+      <div className="mb-2 text-2xl">{icon}</div>
+      <h3 className="mb-1.5 font-semibold text-foreground text-sm">{title}</h3>
+      <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }

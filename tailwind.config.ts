@@ -50,11 +50,24 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /* Tokens de estado — usados en badges y tarjetas */
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          bg: "hsl(var(--success-bg))",
+          text: "hsl(var(--success-text))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          bg: "hsl(var(--warning-bg))",
+          text: "hsl(var(--warning-text))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) + 2px)",   /* 8px */
+        sm: "calc(var(--radius) - 2px)",   /* 4px */
+        xl: "calc(var(--radius) + 6px)",   /* 12px */
+        "2xl": "calc(var(--radius) + 10px)", /* 16px */
       },
       keyframes: {
         "accordion-down": {

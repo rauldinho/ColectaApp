@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Sora } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"] });
+const sora = Sora({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800"] });
 
 export const metadata: Metadata = {
   title: "Colecta — Organiza pagos grupales",
@@ -28,11 +28,11 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('colecta-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('colecta-theme');if(t==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})();`,
           }}
         />
       </head>
-      <body className={outfit.className}>
+      <body className={sora.className}>
         {children}
         <Toaster richColors position="top-right" />
       </body>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { formatCurrency, splitEqually } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -38,6 +38,10 @@ export default function EventoPage() {
 
   // Summary modal
   const [showSummary, setShowSummary] = useState(false);
+
+  // Edit amount
+  const [editingAmount, setEditingAmount] = useState(false);
+  const [newAmountValue, setNewAmountValue] = useState("");
 
   const joinUrl = typeof window !== "undefined"
     ? `${window.location.origin}/unirse/${event?.code}`
@@ -130,40 +134,81 @@ export default function EventoPage() {
     loadOrgDocs();
   }
 
-  // ── Join colecta ──
-  async function joinColecta(name: string, email: string) {
+  // ── Registrar pago (nuevo flujo: participant + payment en un solo paso) ──
+  async function registerPayment(
+    name: string,
+    email: string,
+    amount: number,
+    file: File | null,
+    message: string
+  ) {
     if (!event) return;
     const supabase = createClient();
-    const currentCount = event.participants.length;
-    const newCount = currentCount + 1;
-    let myAmount: number;
 
-    if (event.amount_per_person) {
-      myAmount = event.amount_per_person;
-      const { data: newParticipant, error } = await supabase
-        .from("participants")
-        .insert({ event_id: event.id, name: name.trim(), email: email.trim() || null, amount_owed: myAmount })
-        .select().single();
-      if (error || !newParticipant) { toast.error("Error al unirte a la colecta"); return; }
-      await supabase.from("events").update({ total_amount: event.amount_per_person * newCount }).eq("id", event.id);
-      localStorage.setItem(`colecta_participant_${slug}`, newParticipant.id);
-      setMyParticipantId(newParticipant.id);
-      toast.success(`¡Te uniste! Tu parte: ${formatCurrency(myAmount, event.currency)}`);
-    } else {
-      const amounts = splitEqually(Math.round(event.total_amount ?? 0), newCount);
-      myAmount = amounts[newCount - 1];
-      const { data: newParticipant, error } = await supabase
-        .from("participants")
-        .insert({ event_id: event.id, name: name.trim(), email: email.trim() || null, amount_owed: myAmount })
-        .select().single();
-      if (error || !newParticipant) { toast.error("Error al unirte a la colecta"); return; }
-      for (let i = 0; i < currentCount; i++) {
-        await supabase.from("participants").update({ amount_owed: amounts[i] }).eq("id", event.participants[i].id);
-      }
-      localStorage.setItem(`colecta_participant_${slug}`, newParticipant.id);
-      setMyParticipantId(newParticipant.id);
-      toast.success(`¡Te uniste! Tu parte: ${formatCurrency(myAmount, event.currency)}`);
+    // Deduplicación por email
+    const emailLower = email.trim().toLowerCase();
+    const duplicate = event.participants.find(
+      (p) => p.email && p.email.trim().toLowerCase() === emailLower
+    );
+    if (duplicate) {
+      toast.error("Ya existe un pago registrado con este correo en esta colecta.");
+      return;
     }
+
+    // Crear participante
+    const { data: newParticipant, error: partError } = await supabase
+      .from("participants")
+      .insert({
+        event_id: event.id,
+        name: name.trim(),
+        email: email.trim(),
+        amount_owed: amount,
+      })
+      .select()
+      .single();
+
+    if (partError || !newParticipant) {
+      toast.error("Error al registrar: " + partError?.message);
+      return;
+    }
+
+    // Subir comprobante si lo hay
+    let receiptUrl: string | null = null;
+    if (file) {
+      const ext = file.name.split(".").pop();
+      const path = `${event.id}/${newParticipant.id}/receipt.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("receipts")
+        .upload(path, file, { upsert: true });
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(path);
+        receiptUrl = urlData.publicUrl;
+      }
+    }
+
+    // Crear pago
+    const { error: payError } = await supabase.from("payments").insert({
+      participant_id: newParticipant.id,
+      amount,
+      status: "pending",
+      receipt_url: receiptUrl,
+      message: message.trim() || null,
+    });
+
+    if (payError) {
+      toast.error("Error al registrar el pago: " + payError.message);
+      return;
+    }
+
+    // Actualizar total del evento si hay cuota fija
+    if (event.amount_per_person) {
+      const newCount = event.participants.length + 1;
+      await supabase.from("events").update({ total_amount: event.amount_per_person * newCount }).eq("id", event.id);
+    }
+
+    localStorage.setItem(`colecta_participant_${slug}`, newParticipant.id);
+    setMyParticipantId(newParticipant.id);
+    toast.success("¡Pago registrado! El organizador lo revisará pronto.");
     loadEvent();
   }
 
@@ -189,6 +234,30 @@ export default function EventoPage() {
     loadEvent();
   }
 
+  async function saveAmount() {
+    if (!isOrganizer || !event) return;
+    const parsed = Math.round(parseFloat(newAmountValue));
+    if (!parsed || parsed <= 0) { toast.error("Ingresa un monto válido"); return; }
+    const supabase = createClient();
+    const { error: evtErr } = await supabase
+      .from("events")
+      .update({ amount_per_person: parsed })
+      .eq("id", event.id);
+    if (evtErr) { toast.error("Error al actualizar la cuota"); return; }
+    // Update amount_owed for all participants that still haven't confirmed
+    const unconfirmed = event.participants.filter(
+      (p) => !p.payments?.some((pay) => pay.status === "confirmed")
+    );
+    await Promise.all(
+      unconfirmed.map((p) =>
+        supabase.from("participants").update({ amount_owed: parsed }).eq("id", p.id)
+      )
+    );
+    toast.success("Cuota actualizada");
+    setEditingAmount(false);
+    await loadEvent();
+  }
+
   async function rejectPayment(paymentId: string) {
     if (!isOrganizer) return;
     const supabase = createClient();
@@ -204,13 +273,22 @@ export default function EventoPage() {
     const participant = event.participants.find((p) => p.id === participantId);
     const confirmedPayment = participant?.payments?.find((p) => p.status === "confirmed");
     if (!confirmedPayment) return;
-    const { error } = await supabase.from("payments").delete().eq("id", confirmedPayment.id);
-    if (error) { toast.error("Error al deshacer"); return; }
+    // Usamos .select() para detectar fallos silenciosos de RLS (Supabase no lanza error si RLS bloquea)
+    const { data: deleted, error } = await supabase
+      .from("payments")
+      .delete()
+      .eq("id", confirmedPayment.id)
+      .select();
+    if (error) { toast.error("Error al deshacer el pago: " + error.message); return; }
+    if (!deleted || deleted.length === 0) {
+      toast.error("No se pudo deshacer el pago. Verifica los permisos en la base de datos.");
+      return;
+    }
     toast.success("Pago deshecho");
-    loadEvent();
+    await loadEvent();
   }
 
-  async function submitPayment(participantId: string, amount: number, file: File | null) {
+  async function submitPayment(participantId: string, amount: number, file: File | null, message: string) {
     if (!event) return;
     const supabase = createClient();
     let receiptUrl: string | null = null;
@@ -223,7 +301,11 @@ export default function EventoPage() {
       receiptUrl = urlData.publicUrl;
     }
     const { error } = await supabase.from("payments").insert({
-      participant_id: participantId, amount, status: "pending", receipt_url: receiptUrl,
+      participant_id: participantId,
+      amount,
+      status: "pending",
+      receipt_url: receiptUrl,
+      message: message.trim() || null,
     });
     if (error) { toast.error("Error al registrar pago"); return; }
     toast.success("¡Pago enviado! El organizador lo confirmará pronto.");
@@ -355,7 +437,7 @@ export default function EventoPage() {
             <ThemeToggle />
             {isOrganizer ? (
               <>
-                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-500">
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-primary">
                   👑 Organizador
                 </span>
                 <button
@@ -364,7 +446,7 @@ export default function EventoPage() {
                     setIsOrganizer(false);
                     toast.success("Saliste del modo organizador");
                   }}
-                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground/70 hover:border-red-200 hover:text-red-500 transition"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition"
                 >
                   Salir
                 </button>
@@ -400,46 +482,89 @@ export default function EventoPage() {
           </div>
 
           {/* Big number — cuota o total */}
-          <div className="px-5 pb-3 border-b border-border">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-0.5">
-              {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
-            </p>
-            <span className="text-4xl font-extrabold text-foreground tracking-tight">
-              {formatCurrency(event.amount_per_person ?? event.total_amount ?? 0, event.currency)}
-            </span>
+          <div className="px-5 pb-4 border-b border-border">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
+              </p>
+              {isOrganizer && !editingAmount && (
+                <button
+                  onClick={() => {
+                    setNewAmountValue(String(event.amount_per_person ?? event.total_amount ?? ""));
+                    setEditingAmount(true);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+                >
+                  ✏ Editar
+                </button>
+              )}
+            </div>
+            {editingAmount ? (
+              <div className="flex items-center gap-2 mt-1">
+                <div className="relative flex-1">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                  <Input
+                    type="number" min="1"
+                    value={newAmountValue}
+                    onChange={(e) => setNewAmountValue(e.target.value)}
+                    className="h-11 pl-8 text-xl font-bold tracking-tight"
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
+                  />
+                </div>
+                <button
+                  onClick={saveAmount}
+                  className="h-11 shrink-0 rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 transition"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setEditingAmount(false)}
+                  className="h-11 shrink-0 rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-muted transition"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <span className="text-4xl font-extrabold text-foreground tracking-tight">
+                {formatCurrency(event.amount_per_person ?? event.total_amount ?? 0, event.currency)}
+              </span>
+            )}
           </div>
 
           {/* Stats row */}
           <div className="grid grid-cols-3 divide-x divide-border">
             <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500 mb-0.5">Total</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Por persona</p>
+              <p className="text-sm font-bold text-foreground">
+                {event.amount_per_person ? formatCurrency(event.amount_per_person, event.currency) : "—"}
+              </p>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Total</p>
               <p className="text-sm font-bold text-foreground">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
             </div>
             <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 mb-0.5">Cobrado</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 mb-0.5">Acumulado</p>
               <p className="text-sm font-bold text-emerald-600">{formatCurrency(totalConfirmed, event.currency)}</p>
-            </div>
-            <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-400 mb-0.5">Falta</p>
-              <p className="text-sm font-bold text-rose-500">{formatCurrency(totalPending, event.currency)}</p>
             </div>
           </div>
 
           {/* Progress bar */}
           {event.participants.length > 0 && (
-            <div className="px-5 py-3 border-t border-gray-50">
+            <div className="px-5 py-3 border-t border-border">
               <div className="flex justify-between text-xs text-muted-foreground/70 mb-1.5">
                 <span>
                   {confirmedCount} de {event.participants.length} pagaron
                   {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} por confirmar</span>}
                 </span>
-                <span className="font-semibold text-indigo-500">
+                <span className="font-semibold text-primary">
                   {event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                  className="h-full rounded-full bg-muted0 transition-all duration-500"
                   style={{ width: `${event.total_amount ? (totalConfirmed / event.total_amount) * 100 : 0}%` }}
                 />
               </div>
@@ -447,37 +572,47 @@ export default function EventoPage() {
           )}
         </div>
 
-        {/* Join section */}
+        {/* Formulario de registro de pago (solo participantes que aún no registraron) */}
         {!isOrganizer && !hasJoined && (
           <JoinSection
             currency={event.currency}
-            totalAmount={event.total_amount ?? 0}
             amountPerPerson={event.amount_per_person ?? null}
-            participantCount={event.participants.length}
-            onJoin={joinColecta}
+            onRegister={registerPayment}
           />
         )}
 
-        {/* Mi card (si ya me uní) */}
+        {/* Confirmación después de registrar */}
         {!isOrganizer && hasJoined && myParticipantId && (() => {
           const me = event.participants.find((p) => p.id === myParticipantId);
           if (!me) return null;
+          const myPayment = me.payments?.[0];
+          const isConfirmed = myPayment?.status === "confirmed";
           return (
-            <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4 shadow-sm">
-              <p className="mb-2 text-xs font-semibold text-indigo-500 uppercase tracking-wide">Tu participación</p>
-              <ParticipantCard
-                participant={me}
-                currency={event.currency}
-                isOrganizer={false}
-                isMe={true}
-                onConfirmDirect={confirmDirect}
-                onUndo={undoPayment}
-                onReject={rejectPayment}
-                onSubmitPayment={submitPayment}
-              />
-              <p className="mt-2 text-xs text-indigo-500 text-center">
-                El monto se actualiza a medida que más personas se unan
-              </p>
+            <div className={`rounded-lg border-2 p-4 ${isConfirmed ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30" : "border-border bg-muted/40"}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Tu pago</p>
+                  <p className="font-semibold text-foreground">{me.name}</p>
+                  <p className="text-lg font-bold text-foreground mt-0.5">
+                    {formatCurrency(myPayment?.amount ?? me.amount_owed, event.currency)}
+                  </p>
+                  {myPayment?.message && (
+                    <p className="mt-1 text-xs text-muted-foreground italic">"{myPayment.message}"</p>
+                  )}
+                </div>
+                <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+                  isConfirmed
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
+                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+                }`}>
+                  {isConfirmed ? "✓ Confirmado" : "⏳ Pendiente"}
+                </span>
+              </div>
+              {!isConfirmed && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  El organizador revisará tu pago y lo confirmará en breve.
+                </p>
+              )}
             </div>
           );
         })()}
@@ -490,12 +625,12 @@ export default function EventoPage() {
           <div className="flex gap-2">
             <button
               onClick={copyCode}
-              className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-lg font-bold tracking-wider text-indigo-500 hover:bg-muted"
+              className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-lg font-bold tracking-wider text-primary hover:bg-muted"
             >
               {event.code}
               <span className="text-xs font-normal text-muted-foreground/70">código</span>
             </button>
-            <Button onClick={copyLink} variant="outline" className="shrink-0">
+            <Button onClick={copyLink} className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90">
               {copied ? "✓ Copiado" : "📋 Link"}
             </Button>
           </div>
@@ -505,7 +640,7 @@ export default function EventoPage() {
             <div className="border-t border-border pt-3">
               <button
                 onClick={() => setShowInvite(!showInvite)}
-                className="flex w-full items-center justify-between text-sm font-medium text-indigo-500 hover:text-indigo-600"
+                className="flex w-full items-center justify-between text-sm font-medium text-primary hover:text-primary"
               >
                 <span>✉️ Invitar participante</span>
                 <span className="text-muted-foreground/70 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
@@ -529,7 +664,7 @@ export default function EventoPage() {
                       onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
                       className={`inline-flex items-center rounded-xl px-3 py-1.5 text-xs font-medium transition ${
                         inviteEmail.trim()
-                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
                           : "bg-muted text-muted-foreground/70 cursor-not-allowed"
                       }`}
                     >
@@ -538,7 +673,7 @@ export default function EventoPage() {
                   </div>
                   <button
                     onClick={copyInviteText}
-                    className="w-full rounded-xl border border-border py-2 text-xs text-muted-foreground hover:bg-muted/50 transition"
+                    className="w-full rounded-xl bg-primary py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition"
                   >
                     📋 Copiar texto de invitación
                   </button>
@@ -570,19 +705,13 @@ export default function EventoPage() {
         {/* Tab: Participantes */}
         {activeTab === "participantes" && (
           <div className="space-y-2">
-            {/* Organizer: summary + refresh buttons */}
+            {/* Organizer: summary button */}
             {isOrganizer && (
               <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => loadEvent()}
-                  className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 transition"
-                >
-                  🔄 Actualizar
-                </button>
                 {event.participants.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-indigo-500 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-primary transition"
                   >
                     📊 Generar resumen
                   </button>
@@ -594,12 +723,12 @@ export default function EventoPage() {
                 <p className="text-4xl mb-3">👥</p>
                 <p className="font-medium text-foreground">Aún no hay participantes</p>
                 <p className="mt-1 text-sm text-muted-foreground/70">
-                  Comparte el código <span className="font-mono font-bold text-indigo-500">{event.code}</span> para que se unan
+                  Comparte el código <span className="font-mono font-bold text-primary">{event.code}</span> para que se unan
                 </p>
                 {event.amount_per_person ? (
                   <p className="mt-3 text-sm text-muted-foreground">
                     Cada participante pagará{" "}
-                    <span className="font-semibold text-indigo-500">{formatCurrency(event.amount_per_person, event.currency)}</span>
+                    <span className="font-semibold text-primary">{formatCurrency(event.amount_per_person, event.currency)}</span>
                   </p>
                 ) : event.total_amount ? (
                   <p className="mt-3 text-sm text-muted-foreground">
@@ -610,28 +739,38 @@ export default function EventoPage() {
             ) : (
               <>
                 {event.participants.length > 1 && (
-                  <div className="rounded-xl bg-indigo-50 px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-sm text-indigo-500">
+                  <div className="rounded-xl bg-muted px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-sm text-primary">
                       {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
                     </span>
-                    <span className="text-sm font-bold text-indigo-500">
+                    <span className="text-sm font-bold text-primary">
                       {formatCurrency(perPerson, event.currency)} c/u
                     </span>
                   </div>
                 )}
-                {event.participants.map((participant) => (
-                  <ParticipantCard
-                    key={participant.id}
-                    participant={participant}
-                    currency={event.currency}
-                    isOrganizer={isOrganizer}
-                    isMe={participant.id === myParticipantId}
-                    onConfirmDirect={confirmDirect}
-                    onUndo={undoPayment}
-                    onReject={rejectPayment}
-                    onSubmitPayment={submitPayment}
-                  />
-                ))}
+                {event.participants.map((participant) =>
+                  isOrganizer ? (
+                    <ParticipantCard
+                      key={participant.id}
+                      participant={participant}
+                      currency={event.currency}
+                      isOrganizer={true}
+                      isMe={false}
+                      onConfirmDirect={confirmDirect}
+                      onUndo={undoPayment}
+                      onReject={rejectPayment}
+                      onSubmitPayment={submitPayment}
+                    />
+                  ) : (
+                    /* Vista simplificada para participantes: solo nombre + estado */
+                    <PaymentRow
+                      key={participant.id}
+                      participant={participant}
+                      currency={event.currency}
+                      isMe={participant.id === myParticipantId}
+                    />
+                  )
+                )}
               </>
             )}
           </div>
@@ -644,7 +783,7 @@ export default function EventoPage() {
             <div className="rounded-2xl bg-card p-4 shadow-md border">
               <QRCode value={joinUrl} size={200} />
             </div>
-            <p className="mt-4 text-xl font-bold tracking-wider text-indigo-500">{event.code}</p>
+            <p className="mt-4 text-xl font-bold tracking-wider text-primary">{event.code}</p>
             <p className="mt-1 text-xs text-muted-foreground/70 text-center break-all max-w-xs">{joinUrl}</p>
           </div>
         )}
@@ -704,7 +843,7 @@ export default function EventoPage() {
                 {isOrganizer && (
                   <button
                     onClick={() => orgDocRef.current?.click()}
-                    className="mt-3 text-sm text-indigo-500 font-medium hover:underline"
+                    className="mt-3 text-sm text-primary font-medium hover:underline"
                   >
                     + Subir primer archivo
                   </button>
@@ -731,7 +870,7 @@ export default function EventoPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-foreground hover:text-indigo-500 truncate"
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-primary truncate"
                         >
                           <span>{isPdf ? "📄" : isImage ? "🖼️" : "📎"}</span>
                           <span className="truncate max-w-xs">{doc.originalName}</span>
@@ -741,7 +880,7 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center rounded-lg bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition"
+                            className="inline-flex items-center rounded-lg bg-muted dark:bg-muted px-3 py-1.5 text-xs font-medium text-primary dark:text-primary hover:bg-muted dark:hover:bg-muted transition"
                           >
                             Ver
                           </a>
@@ -840,72 +979,232 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
 }
 
 // ──────────────────────────────────────────────
-// Join Section
+// Payment Row — Vista simplificada para participantes
+// ──────────────────────────────────────────────
+function PaymentRow({
+  participant,
+  currency,
+  isMe,
+}: {
+  participant: Participant & { payments: Payment[] };
+  currency: string;
+  isMe: boolean;
+}) {
+  const payment = participant.payments?.[0];
+  const isConfirmed = payment?.status === "confirmed";
+  const isPending = payment?.status === "pending";
+
+  return (
+    <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition ${
+      isMe ? "border-foreground/20 bg-muted/60" : "border-border bg-card"
+    }`}>
+      {/* Avatar inicial */}
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+        isConfirmed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
+        : isPending  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+        : "bg-muted text-muted-foreground"
+      }`}>
+        {participant.name.charAt(0).toUpperCase()}
+      </div>
+      {/* Nombre */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground truncate">
+          {participant.name}
+          {isMe && <span className="ml-1.5 text-xs font-normal text-muted-foreground">(tú)</span>}
+        </p>
+        {payment && (
+          <p className="text-xs text-muted-foreground">
+            {formatCurrency(payment.amount, currency)}
+          </p>
+        )}
+      </div>
+      {/* Status badge */}
+      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+        isConfirmed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
+        : isPending  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+        : "bg-muted text-muted-foreground"
+      }`}>
+        {isConfirmed ? "✓ Confirmado" : isPending ? "⏳ Pendiente" : "Sin pago"}
+      </span>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Join Section — Registro de pago en un solo paso
 // ──────────────────────────────────────────────
 function JoinSection({
-  currency, totalAmount, amountPerPerson, participantCount, onJoin,
+  currency,
+  amountPerPerson,
+  onRegister,
 }: {
   currency: string;
-  totalAmount: number;
   amountPerPerson: number | null;
-  participantCount: number;
-  onJoin: (name: string, email: string) => Promise<void>;
+  onRegister: (name: string, email: string, amount: number, file: File | null, message: string) => Promise<void>;
 }) {
+  const defaultAmount = amountPerPerson ?? 0;
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [joining, setJoining] = useState(false);
+  const [amount, setAmount] = useState(defaultAmount > 0 ? String(defaultAmount) : "");
+  const [file, setFile] = useState<File | null>(null);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const isFixed = !!amountPerPerson;
-  const estimatedShare = isFixed
-    ? amountPerPerson
-    : participantCount > 0 ? totalAmount / (participantCount + 1) : totalAmount;
+  const parsedAmount = parseFloat(amount) || 0;
+  const canSubmit = name.trim() && email.trim() && parsedAmount > 0 && !submitting;
 
-  async function handleJoin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
-    setJoining(true);
-    await onJoin(name, email);
-    setJoining(false);
+    if (!canSubmit) return;
+    // Validar email básico
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Ingresa un email válido");
+      return;
+    }
+    setSubmitting(true);
+    await onRegister(name, email, Math.round(parsedAmount), file, message);
+    setSubmitting(false);
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-      {/* Monto hero */}
-      {estimatedShare > 0 && (
-        <div className="bg-indigo-50 border-b border-indigo-100 px-5 py-4 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-indigo-400 mb-1">
-            {isFixed ? "Tu cuota es" : "Tu parte estimada"}
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
+      {/* Header con cuota */}
+      {defaultAmount > 0 && (
+        <div className="border-b border-border bg-muted/40 px-5 py-4 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+            Cuota por persona
           </p>
-          <p className="text-4xl font-extrabold text-indigo-500 tracking-tight">
-            {formatCurrency(Math.ceil(estimatedShare), currency)}
+          <p className="text-3xl font-extrabold text-foreground tracking-tight">
+            {formatCurrency(defaultAmount, currency)}
           </p>
-          {!isFixed && participantCount > 0 && (
-            <p className="text-xs text-indigo-400 mt-1">{formatCurrency(totalAmount, currency)} ÷ {participantCount + 1} personas</p>
-          )}
-          {isFixed && <p className="text-xs text-indigo-400 mt-1">Cuota fija definida por el organizador</p>}
         </div>
       )}
-      {/* Formulario */}
-      <div className="p-5">
-        <p className="text-sm font-semibold text-foreground mb-4">Ingresa tus datos para unirte</p>
-        <form onSubmit={handleJoin} className="space-y-3">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Tu nombre <span className="text-red-400">*</span>
-            </label>
-            <Input placeholder="Ej: María González" value={name} onChange={(e) => setName(e.target.value)} required autoFocus className="h-12 text-base" />
+
+      <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <p className="text-sm font-semibold text-foreground">Registra tu pago</p>
+
+        {/* Nombre */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Tu nombre *
+          </label>
+          <Input
+            placeholder="Ej: María González"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            autoFocus
+            className="h-11 text-sm"
+          />
+        </div>
+
+        {/* Email */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Email *
+          </label>
+          <Input
+            type="email"
+            placeholder="tu@correo.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="h-11 text-sm"
+          />
+          <p className="text-xs text-muted-foreground/70">
+            Solo para evitar duplicados, no se muestra públicamente.
+          </p>
+        </div>
+
+        {/* Monto */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Monto que transferiste *
+          </label>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
+              $
+            </span>
+            <Input
+              type="number"
+              min="1"
+              placeholder={defaultAmount > 0 ? String(defaultAmount) : "0"}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              className="h-11 pl-7 text-sm font-bold"
+            />
           </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Email <span className="text-muted-foreground/70 font-normal">(opcional)</span>
+        </div>
+
+        {/* Comprobante */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Comprobante de pago
+          </label>
+          {file ? (
+            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
+                <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFile(null)}
+                className="ml-2 shrink-0 text-muted-foreground hover:text-foreground transition text-xs"
+              >
+                ✕ Quitar
+              </button>
+            </div>
+          ) : (
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/20 px-4 py-4 text-center hover:bg-muted/40 transition">
+              <span className="text-xl">📎</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Adjuntar imagen o PDF <span className="text-muted-foreground/50">(opcional)</span>
+              </span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                className="sr-only"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
             </label>
-            <Input type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base" />
-          </div>
-          <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={joining || !name.trim()}>
-            {joining ? "Uniéndome..." : "Unirme a la colecta 🚀"}
-          </Button>
-        </form>
-      </div>
+          )}
+        </div>
+
+        {/* Mensaje */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Mensaje <span className="font-normal normal-case text-muted-foreground/60">(opcional)</span>
+          </label>
+          <textarea
+            placeholder="Ej: Pagué ayer a las 3pm..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={2}
+            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full h-11 text-sm font-semibold"
+          disabled={!canSubmit}
+        >
+          {submitting ? (
+            <span className="flex items-center gap-2">
+              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Registrando...
+            </span>
+          ) : (
+            `Registrar pago · ${parsedAmount > 0 ? formatCurrency(Math.round(parsedAmount), currency) : currency}`
+          )}
+        </Button>
+      </form>
     </div>
   );
 }
@@ -923,13 +1222,16 @@ function ParticipantCard({
   onConfirmDirect: (id: string, amount: number) => void;
   onUndo: (id: string) => void;
   onReject: (paymentId: string) => void;
-  onSubmitPayment: (id: string, amount: number, file: File | null) => Promise<void>;
+  onSubmitPayment: (id: string, amount: number, file: File | null, message: string) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [useCustomAmount, setUseCustomAmount] = useState(false);
+  const [customAmount, setCustomAmount] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const confirmedPayment = participant.payments?.find((p) => p.status === "confirmed");
@@ -943,6 +1245,9 @@ function ParticipantCard({
     setSelectedFile(null);
     setPreview(null);
     setShowReceipt(false);
+    setPaymentMessage("");
+    setUseCustomAmount(false);
+    setCustomAmount("");
   }, [isPaid, isPending]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -952,12 +1257,19 @@ function ParticipantCard({
   }
 
   async function handleSubmit() {
+    const finalAmount = useCustomAmount && customAmount
+      ? parseFloat(customAmount)
+      : participant.amount_owed;
+    if (!finalAmount || finalAmount <= 0) return;
     setSubmitting(true);
-    await onSubmitPayment(participant.id, participant.amount_owed, selectedFile);
+    await onSubmitPayment(participant.id, finalAmount, selectedFile, paymentMessage);
     setSubmitting(false);
     setExpanded(false);
     setSelectedFile(null);
     setPreview(null);
+    setPaymentMessage("");
+    setUseCustomAmount(false);
+    setCustomAmount("");
   }
 
   // Iniciales del nombre
@@ -965,59 +1277,91 @@ function ParticipantCard({
 
   return (
     <div className={`rounded-xl border transition ${
-      isPaid ? "border-emerald-200 bg-emerald-50/40"
-      : isPending ? "border-amber-200 bg-amber-50/40"
-      : isMe ? "border-indigo-200 bg-indigo-50/30 dark:bg-indigo-950/30"
-      : "border-border bg-card"
+      isPaid
+        ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20"
+        : isPending
+        ? "border-amber-200 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20"
+        : isMe
+        ? "border-border dark:border-border bg-muted/30 dark:bg-muted/50"
+        : "border-border bg-card"
     }`}>
-      <div className="flex items-center justify-between px-4 py-3.5">
-        <div className="flex items-center gap-3">
-          {/* Avatar con iniciales */}
-          <div className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold flex-shrink-0 ${
-            isPaid ? "bg-emerald-500 text-white"
-            : isPending ? "bg-amber-400 text-white"
-            : isMe ? "bg-indigo-600 text-white"
-            : "bg-muted text-muted-foreground"
-          }`}>
-            {isPaid ? "✓" : isPending ? "⏳" : initials}
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <p className="font-semibold text-foreground text-sm">{participant.name}</p>
-              {isMe && !isOrganizer && (
-                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-500">Tú</span>
-              )}
-            </div>
-            <p className={`text-sm font-bold ${
-              isPaid ? "text-emerald-600" : isPending ? "text-amber-600" : "text-muted-foreground"
-            }`}>
-              {formatCurrency(participant.amount_owed, currency)}
-            </p>
-          </div>
+      {/* Fila principal del participante */}
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        {/* Avatar con iniciales */}
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+          isPaid ? "bg-emerald-500 text-white"
+          : isPending ? "bg-amber-400 text-white"
+          : isMe ? "bg-primary text-primary-foreground"
+          : "bg-muted text-muted-foreground"
+        }`}>
+          {isPaid ? "✓" : isPending ? "⏳" : initials}
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Nombre + monto */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate font-semibold text-foreground text-sm">{participant.name}</p>
+            {isMe && !isOrganizer && (
+              <span className="shrink-0 rounded-full bg-muted dark:bg-muted px-2 py-0.5 text-xs font-semibold text-primary dark:text-primary">
+                Tú
+              </span>
+            )}
+          </div>
+          {/* Monto: muestra lo que pagó realmente si difiere de la cuota asignada */}
+          {(() => {
+            const activePayment = confirmedPayment ?? pendingPayment ?? null;
+            const displayAmount = activePayment ? activePayment.amount : participant.amount_owed;
+            const differsFromOwed = activePayment && activePayment.amount !== participant.amount_owed;
+            return (
+              <div>
+                <p className={`text-sm font-bold ${
+                  isPaid ? "text-emerald-600 dark:text-emerald-400"
+                  : isPending ? "text-amber-600 dark:text-amber-400"
+                  : "text-muted-foreground"
+                }`}>
+                  {formatCurrency(displayAmount, currency)}
+                </p>
+                {differsFromOwed && (
+                  <p className="text-[11px] text-muted-foreground/60 leading-tight">
+                    cuota: {formatCurrency(participant.amount_owed, currency)}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Acciones */}
+        <div className="flex shrink-0 items-center gap-1.5">
           {isOrganizer ? (
             <>
               {isPaid ? (
-                <button onClick={() => onUndo(participant.id)}
-                  className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted">
+                <button
+                  onClick={() => onUndo(participant.id)}
+                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition"
+                >
                   Deshacer
                 </button>
               ) : isPending ? (
                 <>
-                  <button onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                    className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600">
+                  <button
+                    onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
+                    className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600 transition"
+                  >
                     Aprobar ✓
                   </button>
-                  <button onClick={() => onReject(pendingPayment!.id)}
-                    className="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50">
+                  <button
+                    onClick={() => onReject(pendingPayment!.id)}
+                    className="rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition"
+                  >
                     Rechazar
                   </button>
                 </>
               ) : (
-                <button onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                  className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600">
+                <button
+                  onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
+                  className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600 transition"
+                >
                   Confirmar ✓
                 </button>
               )}
@@ -1025,12 +1369,18 @@ function ParticipantCard({
           ) : (
             <>
               {isPaid ? (
-                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Pagado ✓</span>
+                <span className="rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
+                  Pagado ✓
+                </span>
               ) : isPending ? (
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">⏳ Esperando</span>
+                <span className="rounded-full bg-amber-100 dark:bg-amber-900/40 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                  ⏳ Esperando
+                </span>
               ) : isMe ? (
-                <button onClick={() => setExpanded(!expanded)}
-                  className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition"
+                >
                   Ya pagué
                 </button>
               ) : null}
@@ -1039,28 +1389,45 @@ function ParticipantCard({
         </div>
       </div>
 
-      {/* Organizer: receipt on pending payment */}
-      {isOrganizer && isPending && pendingPayment?.receipt_url && (
-        <div className="border-t border-amber-200 px-4 pb-4 pt-3">
-          <p className="mb-2 text-xs font-medium text-amber-700">📎 Comprobante del participante:</p>
-          <a href={pendingPayment.receipt_url} target="_blank" rel="noopener noreferrer">
-            <img src={pendingPayment.receipt_url} alt="Comprobante"
-              className="max-h-48 w-full rounded-xl object-contain border border-amber-200 bg-card" />
-          </a>
-        </div>
-      )}
-      {isOrganizer && isPending && !pendingPayment?.receipt_url && (
-        <div className="border-t border-amber-200 px-4 pb-3 pt-2">
-          <p className="text-xs text-amber-600">El participante declaró que pagó (sin comprobante adjunto)</p>
+      {/* Organizer: mensaje del participante en pago pendiente */}
+      {isOrganizer && isPending && (pendingPayment as Payment & { message?: string | null })?.message && (
+        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-3 pt-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
+            💬 Mensaje del participante
+          </p>
+          <p className="text-sm text-foreground bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+            {(pendingPayment as Payment & { message?: string | null })?.message}
+          </p>
         </div>
       )}
 
-      {/* Organizer: receipt toggle on confirmed payment */}
+      {/* Organizer: comprobante en pago pendiente */}
+      {isOrganizer && isPending && pendingPayment?.receipt_url && (
+        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-4 pt-3">
+          <p className="mb-2 text-xs font-medium text-amber-700 dark:text-amber-400">📎 Comprobante del participante:</p>
+          <a href={pendingPayment.receipt_url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={pendingPayment.receipt_url}
+              alt="Comprobante"
+              className="max-h-48 w-full rounded-xl object-contain border border-amber-200 dark:border-amber-800 bg-card"
+            />
+          </a>
+        </div>
+      )}
+      {isOrganizer && isPending && !pendingPayment?.receipt_url && !(pendingPayment as Payment & { message?: string | null })?.message && (
+        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-3 pt-2">
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            El participante declaró que pagó (sin comprobante adjunto)
+          </p>
+        </div>
+      )}
+
+      {/* Organizer: recibo en pago confirmado */}
       {isOrganizer && isPaid && confirmedPayment?.receipt_url && (
-        <div className="border-t border-green-100 px-4 pb-3 pt-2">
+        <div className="border-t border-emerald-100 dark:border-emerald-900 px-4 pb-3 pt-2">
           <button
             onClick={() => setShowReceipt(!showReceipt)}
-            className="text-xs text-green-600 hover:text-green-800 hover:underline"
+            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
           >
             {showReceipt ? "▲ Ocultar recibo" : "▼ Ver recibo de pago"}
           </button>
@@ -1070,7 +1437,7 @@ function ParticipantCard({
                 <img
                   src={confirmedPayment.receipt_url}
                   alt="Comprobante confirmado"
-                  className="max-h-48 w-full rounded-xl object-contain border border-green-200 bg-card"
+                  className="max-h-48 w-full rounded-xl object-contain border border-emerald-200 dark:border-emerald-800 bg-card"
                 />
               </a>
             </div>
@@ -1078,32 +1445,125 @@ function ParticipantCard({
         </div>
       )}
 
-      {/* Participant: "Ya pagué" form */}
+      {/* Participant: formulario "Ya pagué" */}
       {isMe && !isOrganizer && !isPaid && !isPending && expanded && (
-        <div className="border-t border-indigo-100 px-4 pb-4 pt-3 space-y-3">
-          <p className="text-sm font-medium text-foreground">Adjunta tu comprobante (opcional)</p>
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 p-4 hover:border-indigo-400 hover:bg-indigo-50 transition"
-          >
-            {preview ? (
-              <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
-            ) : (
-              <>
-                <span className="text-2xl mb-1">📸</span>
-                <p className="text-sm text-muted-foreground">Toca para subir foto</p>
-                <p className="text-xs text-muted-foreground/70">JPG, PNG o PDF</p>
-              </>
+        <div className="border-t border-border dark:border-border bg-muted/30 dark:bg-muted/50 px-4 pb-4 pt-3 space-y-3 rounded-b-xl">
+          {/* Comprobante */}
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">Adjunta tu comprobante (opcional)</p>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border dark:border-border bg-card p-4 hover:border-foreground/30 hover:bg-muted dark:hover:bg-muted transition"
+            >
+              {preview ? (
+                <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
+              ) : (
+                <>
+                  <span className="text-2xl mb-1">📸</span>
+                  <p className="text-sm text-muted-foreground">Toca para subir foto</p>
+                  <p className="text-xs text-muted-foreground/70">JPG, PNG o PDF</p>
+                </>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {selectedFile && (
+              <p className="mt-1 text-xs text-muted-foreground truncate">📎 {selectedFile.name}</p>
             )}
           </div>
-          <input ref={fileInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
-          {selectedFile && <p className="text-xs text-muted-foreground truncate">📎 {selectedFile.name}</p>}
+
+          {/* Toggle: pagué otro monto */}
+          <div className="rounded-xl border border-border dark:border-border bg-card overflow-hidden">
+            <label className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/40 transition">
+              <div>
+                <p className="text-sm font-medium text-foreground">Pagué un monto diferente</p>
+                <p className="text-xs text-muted-foreground/70 mt-0.5">
+                  {useCustomAmount
+                    ? "Ingresa el monto exacto que transferiste"
+                    : `Tu cuota asignada: ${formatCurrency(participant.amount_owed, currency)}`}
+                </p>
+              </div>
+              <div className="relative shrink-0 ml-3">
+                <input
+                  type="checkbox"
+                  checked={useCustomAmount}
+                  onChange={(e) => {
+                    setUseCustomAmount(e.target.checked);
+                    if (!e.target.checked) setCustomAmount("");
+                  }}
+                  className="sr-only"
+                />
+                <div className={`h-6 w-11 rounded-full transition-colors ${useCustomAmount ? "bg-primary" : "bg-muted-foreground/30"}`} />
+                <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${useCustomAmount ? "translate-x-6" : "translate-x-1"}`} />
+              </div>
+            </label>
+            {useCustomAmount && (
+              <div className="border-t border-border dark:border-border px-4 pb-3 pt-2.5">
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  Monto que pagaste
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder={`Ej: ${participant.amount_owed}`}
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  autoFocus
+                  className="w-full rounded-xl border border-border dark:border-border bg-background px-3 py-2.5 text-base font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+                />
+                {customAmount && parseFloat(customAmount) > 0 && (
+                  <p className="mt-1.5 text-xs text-primary font-medium">
+                    💡 El organizador verá que pagaste {formatCurrency(parseFloat(customAmount), currency)}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mensaje opcional */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
+              Mensaje para el organizador{" "}
+              <span className="text-muted-foreground/60 font-normal">(opcional)</span>
+            </label>
+            <textarea
+              value={paymentMessage}
+              onChange={(e) => setPaymentMessage(e.target.value)}
+              placeholder="Ej: Transferí el jueves a las 14:00 desde Banco Estado"
+              rows={2}
+              maxLength={300}
+              className="w-full resize-none rounded-xl border border-border dark:border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            />
+          </div>
+
+          {/* Botones */}
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1"
-              onClick={() => { setExpanded(false); setSelectedFile(null); setPreview(null); }}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setExpanded(false);
+                setSelectedFile(null);
+                setPreview(null);
+                setPaymentMessage("");
+                setUseCustomAmount(false);
+                setCustomAmount("");
+              }}
+            >
               Cancelar
             </Button>
-            <Button size="sm" className="flex-1" onClick={handleSubmit} disabled={submitting}>
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={submitting || (useCustomAmount && (!customAmount || parseFloat(customAmount) <= 0))}
+            >
               {submitting ? "Enviando..." : "Confirmar pago"}
             </Button>
           </div>
@@ -1143,15 +1603,18 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
           <h3 className="text-lg font-bold text-foreground">Acceso de organizador</h3>
           <p className="text-sm text-muted-foreground">Ingresa el PIN que definiste al crear la colecta</p>
         </div>
-        <form onSubmit={handleVerify} className="space-y-4">
+        <form onSubmit={handleVerify} className="space-y-4" autoComplete="off">
           <div className="relative">
             <Input
-              type={showPin ? "text" : "password"}
+              type="text"
               inputMode="numeric"
-              placeholder="Ingresa tu PIN"
+              placeholder="••••"
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
               autoFocus
+              autoComplete="off"
+              name="colecta-pin-verify"
+              style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
               className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
@@ -1179,6 +1642,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 }) {
   const [editing, setEditing] = useState(!existingInfo);
   const [saving, setSaving] = useState(false);
+  const [copiedInfo, setCopiedInfo] = useState(false);
   const [form, setForm] = useState({
     account_holder: existingInfo?.account_holder ?? "",
     bank_name: existingInfo?.bank_name ?? "",
@@ -1211,12 +1675,43 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
     );
   }
 
+  function copyTransferData() {
+    if (!existingInfo) return;
+    const lines: string[] = [];
+    if (existingInfo.rut) lines.push(existingInfo.rut.replace(/\./g, ""));
+    if (existingInfo.account_holder) lines.push(existingInfo.account_holder);
+    if (existingInfo.bank_name) lines.push(existingInfo.bank_name);
+    if (existingInfo.account_type) lines.push(existingInfo.account_type);
+    if (existingInfo.account_number) lines.push(existingInfo.account_number);
+    if (existingInfo.email) lines.push(existingInfo.email);
+    if (existingInfo.notes) lines.push(existingInfo.notes);
+    navigator.clipboard.writeText(lines.join("\n"));
+    setCopiedInfo(true);
+    setTimeout(() => setCopiedInfo(false), 2500);
+  }
+
   if (!editing && existingInfo) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-foreground">Datos de transferencia</p>
-          {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-indigo-500 hover:underline">Editar</button>}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyTransferData}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                copiedInfo
+                  ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
+                  : "bg-muted dark:bg-muted text-primary dark:text-primary hover:bg-muted dark:hover:bg-muted"
+              }`}
+            >
+              {copiedInfo ? "✓ Copiado" : "📋 Copiar datos"}
+            </button>
+            {isOrganizer && (
+              <button onClick={() => setEditing(true)} className="text-sm text-primary hover:underline">
+                Editar
+              </button>
+            )}
+          </div>
         </div>
         {existingInfo.account_holder && <InfoRow label="Titular" value={existingInfo.account_holder} />}
         {existingInfo.bank_name && <InfoRow label="Banco" value={existingInfo.bank_name} />}
@@ -1224,7 +1719,9 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         {existingInfo.account_number && <InfoRow label="N° de cuenta" value={existingInfo.account_number} />}
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
-        {existingInfo.notes && <div className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>}
+        {existingInfo.notes && (
+          <div className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>
+        )}
       </div>
     );
   }
@@ -1264,7 +1761,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function StatCard({ label, value, color }: { label: string; value: string; color: "violet" | "green" | "orange" }) {
-  const colors = { violet: "bg-indigo-50 text-indigo-500", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
+  const colors = { violet: "bg-muted text-primary", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
   return (
     <div className={`rounded-xl p-3 ${colors[color]}`}>
       <p className="text-xs opacity-70">{label}</p>
@@ -1288,7 +1785,7 @@ function NotFoundScreen() {
         <p className="mb-2 text-5xl">😕</p>
         <h2 className="text-xl font-bold text-foreground">Colecta no encontrada</h2>
         <p className="mt-1 text-muted-foreground">El link puede haber expirado o ser incorrecto.</p>
-        <Link href="/" className="mt-4 inline-block text-indigo-500 hover:underline">← Volver al inicio</Link>
+        <Link href="/" className="mt-4 inline-block text-primary hover:underline">← Volver al inicio</Link>
       </div>
     </div>
   );

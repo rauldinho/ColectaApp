@@ -106,6 +106,7 @@ export interface Database {
           amount: number;
           status: "pending" | "confirmed" | "rejected";
           receipt_url: string | null;
+          message: string | null;
           confirmed_at: string | null;
           confirmed_by: string | null;
           created_at: string;
@@ -116,6 +117,7 @@ export interface Database {
           amount: number;
           status?: "pending" | "confirmed" | "rejected";
           receipt_url?: string | null;
+          message?: string | null;
           confirmed_at?: string | null;
           confirmed_by?: string | null;
           created_at?: string;
@@ -123,6 +125,7 @@ export interface Database {
         Update: {
           status?: "pending" | "confirmed" | "rejected";
           receipt_url?: string | null;
+          message?: string | null;
           confirmed_at?: string | null;
           confirmed_by?: string | null;
         };

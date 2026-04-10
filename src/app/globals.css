@@ -3,51 +3,92 @@
 @tailwind utilities;
 
 @layer base {
-  /* ── Slate Light ── */
+  /* ══════════════════════════════════════════════════════
+     LINEN — Modo claro
+     Inspirado en Notion: blanco cálido, acento negro,
+     bordes sutiles, cero ruido visual.
+  ══════════════════════════════════════════════════════ */
   :root {
-    --background: 210 40% 96%;        /* #f1f5f9 slate-100 */
-    --foreground: 222 47% 11%;        /* #0f172a slate-900 */
-    --card: 0 0% 100%;                /* #ffffff */
-    --card-foreground: 222 47% 11%;
+    --background: 48 60% 99%;           /* #FFFEF9 — warm white */
+    --foreground: 38 10% 20%;           /* #37352F — Notion text */
+
+    --card: 0 0% 100%;                  /* #FFFFFF */
+    --card-foreground: 38 10% 20%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 243 75% 59%;           /* #4f46e5 indigo-600 */
+    --popover-foreground: 38 10% 20%;
+
+    --primary: 0 0% 0%;                 /* #000000 — acento negro */
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 32% 95%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 214 32% 95%;
-    --muted-foreground: 215 16% 47%;  /* #64748b slate-500 */
-    --accent: 214 32% 95%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+
+    --secondary: 48 14% 96%;            /* #F7F6F1 — surface-2 */
+    --secondary-foreground: 38 10% 20%;
+
+    --muted: 48 14% 96%;                /* #F7F6F1 */
+    --muted-foreground: 34 4% 41%;      /* #6B6862 — text-2 */
+
+    --accent: 48 14% 96%;
+    --accent-foreground: 38 10% 20%;
+
+    --destructive: 357 53% 53%;         /* #C9454B */
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;            /* #e2e8f0 slate-200 */
-    --input: 214 32% 91%;
-    --ring: 243 75% 59%;              /* #4f46e5 indigo-600 */
-    --radius: 0.875rem;
+
+    --border: 44 13% 88%;               /* #E9E7DF */
+    --input: 44 13% 88%;
+    --ring: 0 0% 0%;                    /* foco negro */
+
+    --radius: 0.375rem;                 /* 6px — minimalista Notion */
+
+    /* Extras para badges / status */
+    --success: 174 78% 27%;             /* #0F7B6C */
+    --success-bg: 170 42% 91%;          /* #DFF3EF */
+    --success-text: 174 70% 19%;        /* #0A5A52 */
+
+    --warning: 27 56% 52%;              /* #C87941 */
+    --warning-bg: 30 90% 94%;           /* #FEF0E3 */
+    --warning-text: 27 56% 38%;         /* #9A5A2A */
   }
 
-  /* ── Slate Dark — activado por clase .dark en <html> ── */
+  /* ══════════════════════════════════════════════════════
+     DUSK — Modo oscuro (Notion dark)
+     Gris profundo sin drama, blanco limpio, misma estructura.
+  ══════════════════════════════════════════════════════ */
   html.dark {
-    --background: 222 47% 11%;        /* #0f172a slate-900 */
-    --foreground: 214 32% 91%;        /* #e2e8f0 slate-200 */
-    --card: 215 28% 17%;              /* #1e293b slate-800 */
-    --card-foreground: 214 32% 91%;
-    --popover: 215 28% 17%;
-    --popover-foreground: 214 32% 91%;
-    --primary: 238 91% 73%;           /* #818cf8 indigo-400 */
-    --primary-foreground: 222 47% 11%;
-    --secondary: 215 25% 20%;
-    --secondary-foreground: 214 32% 91%;
-    --muted: 215 25% 20%;
-    --muted-foreground: 215 20% 65%;  /* #8fa4c0 — más claro para bg oscuro */
-    --accent: 215 25% 20%;
-    --accent-foreground: 214 32% 91%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 214 32% 91%;
-    --border: 215 25% 27%;            /* #334155 slate-700 */
-    --input: 215 25% 27%;
-    --ring: 238 91% 73%;              /* #818cf8 indigo-400 */
+    --background: 0 0% 10%;             /* #191919 */
+    --foreground: 0 0% 100%;            /* #FFFFFE */
+
+    --card: 0 0% 13%;                   /* #202020 */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;               /* #FFFFFF */
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 18%;              /* #2F2F2F */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 18%;                  /* #2F2F2F */
+    --muted-foreground: 0 0% 61%;       /* #9B9B9B */
+
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 357 58% 58%;         /* #D9565C */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 22%;                 /* #373737 */
+    --input: 0 0% 22%;
+    --ring: 0 0% 100%;
+
+    --success: 146 39% 47%;             /* #4DAA76 */
+    --success-bg: 148 23% 14%;          /* #1A2B22 */
+    --success-text: 146 45% 64%;        /* #6DD89A */
+
+    --warning: 18 47% 58%;              /* #D4875A */
+    --warning-bg: 24 34% 12%;           /* #2B1F14 */
+    --warning-text: 28 62% 67%;         /* #E4A87A */
   }
 }
 
