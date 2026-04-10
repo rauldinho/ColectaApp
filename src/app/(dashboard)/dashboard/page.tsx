@@ -20,16 +20,16 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Sticky header */}
-      <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-4 py-3">
+      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl">🪣</span>
-            <span className="text-lg font-bold text-gray-900">Colecta</span>
+            <span className="text-lg font-bold text-foreground">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-gray-400 sm:block truncate max-w-[160px]">
+            <span className="hidden text-sm text-muted-foreground/70 sm:block truncate max-w-[160px]">
               {user.email}
             </span>
             <ThemeToggle />
@@ -41,8 +41,8 @@ export default async function DashboardPage() {
       {/* Main */}
       <main className="mx-auto max-w-4xl px-4 py-5 pb-24">
         <div className="mb-5">
-          <h1 className="text-2xl font-bold text-gray-900">Mis Colectas</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Mis Colectas</h1>
+          <p className="text-sm text-muted-foreground/70 mt-0.5">
             {events?.length ?? 0} colecta{(events?.length ?? 0) !== 1 ? "s" : ""} creada{(events?.length ?? 0) !== 1 ? "s" : ""}
           </p>
         </div>
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
       </main>
 
       {/* FAB sticky */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-gray-100 bg-white/95 backdrop-blur px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto max-w-4xl">
           <Link href="/dashboard/nuevo">
             <Button className="w-full h-12 text-base font-semibold">+ Nueva colecta</Button>
@@ -72,10 +72,10 @@ export default async function DashboardPage() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white px-8 py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-card px-8 py-16 text-center">
       <span className="mb-4 text-5xl">🪣</span>
-      <h3 className="mb-1 text-lg font-bold text-gray-900">Aún no tienes colectas</h3>
-      <p className="text-sm text-gray-500">Crea tu primera colecta y compártela con tus participantes.</p>
+      <h3 className="mb-1 text-lg font-bold text-foreground">Aún no tienes colectas</h3>
+      <p className="text-sm text-muted-foreground">Crea tu primera colecta y compártela con tus participantes.</p>
     </div>
   );
 }
@@ -85,22 +85,22 @@ function EventCard({ event }: { event: Event & { participants: { count: number }
 
   return (
     <Link href={`/evento/${event.slug}`}>
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden transition hover:shadow-md active:scale-[0.99]">
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden transition hover:shadow-md active:scale-[0.99]">
         {event.is_active && <div className="h-1 bg-indigo-500" />}
         <div className="p-4">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <p className="font-bold text-gray-900 text-base leading-snug line-clamp-1">{event.name}</p>
+            <p className="font-bold text-foreground text-base leading-snug line-clamp-1">{event.name}</p>
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-              event.is_active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+              event.is_active ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"
             }`}>
               {event.is_active ? "Activa" : "Cerrada"}
             </span>
           </div>
           {event.description && (
-            <p className="text-sm text-gray-400 line-clamp-1 mb-2">{event.description}</p>
+            <p className="text-sm text-muted-foreground/70 line-clamp-1 mb-2">{event.description}</p>
           )}
           <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-3 text-sm text-gray-400">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground/70">
               <span>👥 {participantCount} persona{participantCount !== 1 ? "s" : ""}</span>
               <span className="text-gray-200">·</span>
               <span className="font-mono text-xs">{event.code}</span>
@@ -112,7 +112,7 @@ function EventCard({ event }: { event: Event & { participants: { count: number }
             ) : event.amount_per_person ? (
               <span className="text-sm font-semibold text-indigo-600">
                 {formatCurrency(event.amount_per_person, event.currency)}
-                <span className="text-xs font-normal text-gray-400"> c/u</span>
+                <span className="text-xs font-normal text-muted-foreground/70"> c/u</span>
               </span>
             ) : null}
           </div>

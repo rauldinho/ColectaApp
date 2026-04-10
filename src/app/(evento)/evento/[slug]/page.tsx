@@ -343,13 +343,13 @@ export default function EventoPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-4 py-3">
+      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl">🪣</span>
-            <span className="font-bold text-gray-900">Colecta</span>
+            <span className="font-bold text-foreground">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -364,7 +364,7 @@ export default function EventoPage() {
                     setIsOrganizer(false);
                     toast.success("Saliste del modo organizador");
                   }}
-                  className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-400 hover:border-red-200 hover:text-red-500 transition"
+                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground/70 hover:border-red-200 hover:text-red-500 transition"
                 >
                   Salir
                 </button>
@@ -372,7 +372,7 @@ export default function EventoPage() {
             ) : (
               <button
                 onClick={() => setShowPinModal(true)}
-                className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 transition"
+                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-gray-600 hover:bg-muted/50 transition"
               >
                 🔐 Soy el organizador
               </button>
@@ -383,14 +383,14 @@ export default function EventoPage() {
 
       <main className="mx-auto max-w-2xl px-4 py-4 space-y-3">
         {/* Hero card — monto prominente + progress */}
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           {/* Nombre + fecha */}
           <div className="px-5 pt-5 pb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Colecta</p>
-            <h1 className="text-xl font-bold text-gray-900 leading-tight">{event.name}</h1>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-0.5">Colecta</p>
+            <h1 className="text-xl font-bold text-foreground leading-tight">{event.name}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              {event.description && <p className="text-sm text-gray-500">{event.description}</p>}
-              <span className="text-xs text-gray-400">
+              {event.description && <p className="text-sm text-muted-foreground">{event.description}</p>}
+              <span className="text-xs text-muted-foreground/70">
                 📅{" "}
                 {event.event_date
                   ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
@@ -400,11 +400,11 @@ export default function EventoPage() {
           </div>
 
           {/* Big number — cuota o total */}
-          <div className="px-5 pb-3 border-b border-gray-100">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
+          <div className="px-5 pb-3 border-b border-border">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-0.5">
               {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
             </p>
-            <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
+            <span className="text-4xl font-extrabold text-foreground tracking-tight">
               {formatCurrency(event.amount_per_person ?? event.total_amount ?? 0, event.currency)}
             </span>
           </div>
@@ -413,7 +413,7 @@ export default function EventoPage() {
           <div className="grid grid-cols-3 divide-x divide-gray-100">
             <div className="px-4 py-3 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500 mb-0.5">Total</p>
-              <p className="text-sm font-bold text-gray-900">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
+              <p className="text-sm font-bold text-foreground">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
             </div>
             <div className="px-4 py-3 text-center">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 mb-0.5">Cobrado</p>
@@ -428,7 +428,7 @@ export default function EventoPage() {
           {/* Progress bar */}
           {event.participants.length > 0 && (
             <div className="px-5 py-3 border-t border-gray-50">
-              <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+              <div className="flex justify-between text-xs text-muted-foreground/70 mb-1.5">
                 <span>
                   {confirmedCount} de {event.participants.length} pagaron
                   {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} por confirmar</span>}
@@ -437,7 +437,7 @@ export default function EventoPage() {
                   {event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                   style={{ width: `${event.total_amount ? (totalConfirmed / event.total_amount) * 100 : 0}%` }}
@@ -483,17 +483,17 @@ export default function EventoPage() {
         })()}
 
         {/* Compartir + Invitar */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-3">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
           <p className="text-sm font-semibold text-gray-700">📤 Compartir colecta</p>
 
           {/* Código + link */}
           <div className="flex gap-2">
             <button
               onClick={copyCode}
-              className="flex flex-1 items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-mono text-lg font-bold tracking-widest text-indigo-700 hover:bg-gray-100"
+              className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 font-mono text-lg font-bold tracking-widest text-indigo-700 hover:bg-muted"
             >
               {event.code}
-              <span className="text-xs font-normal text-gray-400">código</span>
+              <span className="text-xs font-normal text-muted-foreground/70">código</span>
             </button>
             <Button onClick={copyLink} variant="outline" className="shrink-0">
               {copied ? "✓ Copiado" : "📋 Link"}
@@ -502,18 +502,18 @@ export default function EventoPage() {
 
           {/* Invitar (organizer only) */}
           {isOrganizer && (
-            <div className="border-t border-gray-100 pt-3">
+            <div className="border-t border-border pt-3">
               <button
                 onClick={() => setShowInvite(!showInvite)}
                 className="flex w-full items-center justify-between text-sm font-medium text-indigo-700 hover:text-indigo-900"
               >
                 <span>✉️ Invitar participante</span>
-                <span className="text-gray-400 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
+                <span className="text-muted-foreground/70 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
               </button>
 
               {showInvite && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Ingresa el email de la persona y se abrirá tu app de correo con el mensaje listo.
                   </p>
                   <div className="flex gap-2">
@@ -530,7 +530,7 @@ export default function EventoPage() {
                       className={`inline-flex items-center rounded-xl px-3 py-1.5 text-xs font-medium transition ${
                         inviteEmail.trim()
                           ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-muted text-muted-foreground/70 cursor-not-allowed"
                       }`}
                     >
                       Enviar
@@ -538,7 +538,7 @@ export default function EventoPage() {
                   </div>
                   <button
                     onClick={copyInviteText}
-                    className="w-full rounded-xl border border-gray-200 py-2 text-xs text-gray-600 hover:bg-gray-50 transition"
+                    className="w-full rounded-xl border border-border py-2 text-xs text-gray-600 hover:bg-muted/50 transition"
                   >
                     📋 Copiar texto de invitación
                   </button>
@@ -549,13 +549,13 @@ export default function EventoPage() {
         </div>
 
         {/* Tabs — segmented control */}
-        <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+        <div className="flex gap-1 rounded-xl bg-muted p-1">
           {(["participantes", "qr", "info", "facturas"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 whitespace-nowrap rounded-lg py-2.5 px-1 text-xs font-semibold transition ${
-                activeTab === tab ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"
+                activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-gray-700"
               }`}
             >
               {tab === "participantes"
@@ -575,14 +575,14 @@ export default function EventoPage() {
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => loadEvent()}
-                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-500 shadow-sm hover:bg-gray-50 transition"
+                  className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 transition"
                 >
                   🔄 Actualizar
                 </button>
                 {event.participants.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-700 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm hover:bg-muted/50 hover:text-indigo-700 transition"
                   >
                     📊 Generar resumen
                   </button>
@@ -590,19 +590,19 @@ export default function EventoPage() {
               </div>
             )}
             {event.participants.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
+              <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
                 <p className="text-4xl mb-3">👥</p>
                 <p className="font-medium text-gray-700">Aún no hay participantes</p>
-                <p className="mt-1 text-sm text-gray-400">
+                <p className="mt-1 text-sm text-muted-foreground/70">
                   Comparte el código <span className="font-mono font-bold text-indigo-600">{event.code}</span> para que se unan
                 </p>
                 {event.amount_per_person ? (
-                  <p className="mt-3 text-sm text-gray-500">
+                  <p className="mt-3 text-sm text-muted-foreground">
                     Cada participante pagará{" "}
                     <span className="font-semibold text-indigo-700">{formatCurrency(event.amount_per_person, event.currency)}</span>
                   </p>
                 ) : event.total_amount ? (
-                  <p className="mt-3 text-sm text-gray-500">
+                  <p className="mt-3 text-sm text-muted-foreground">
                     {formatCurrency(event.total_amount, event.currency)} se dividirá automáticamente entre todos
                   </p>
                 ) : null}
@@ -639,13 +639,13 @@ export default function EventoPage() {
 
         {/* Tab: QR */}
         {activeTab === "qr" && (
-          <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-            <p className="mb-4 text-sm text-gray-500 text-center">Escanea para acceder a la colecta</p>
-            <div className="rounded-2xl bg-white p-4 shadow-md border">
+          <div className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p className="mb-4 text-sm text-muted-foreground text-center">Escanea para acceder a la colecta</p>
+            <div className="rounded-2xl bg-card p-4 shadow-md border">
               <QRCode value={joinUrl} size={200} />
             </div>
             <p className="mt-4 font-mono text-xl font-bold tracking-widest text-indigo-700">{event.code}</p>
-            <p className="mt-1 text-xs text-gray-400 text-center break-all max-w-xs">{joinUrl}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70 text-center break-all max-w-xs">{joinUrl}</p>
           </div>
         )}
 
@@ -661,11 +661,11 @@ export default function EventoPage() {
 
         {/* Tab: Facturas del evento */}
         {activeTab === "facturas" && (
-          <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-gray-900">Facturas y comprobantes</p>
-                <p className="text-xs text-gray-400 mt-0.5">Documentos del evento subidos por el organizador</p>
+                <p className="font-semibold text-foreground">Facturas y comprobantes</p>
+                <p className="text-xs text-muted-foreground/70 mt-0.5">Documentos del evento subidos por el organizador</p>
               </div>
               {isOrganizer && (
                 <>
@@ -692,11 +692,11 @@ export default function EventoPage() {
             </div>
 
             {loadingDocs ? (
-              <div className="py-6 text-center text-sm text-gray-400">Cargando...</div>
+              <div className="py-6 text-center text-sm text-muted-foreground/70">Cargando...</div>
             ) : orgDocs.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-muted/50 p-8 text-center">
                 <p className="text-3xl mb-2">📄</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {isOrganizer
                     ? "Sube las facturas o comprobantes del evento para que todos los participantes puedan verlos."
                     : "El organizador aún no subió facturas del evento."}
@@ -716,13 +716,13 @@ export default function EventoPage() {
                   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.name);
                   const isPdf = /\.pdf$/i.test(doc.name);
                   return (
-                    <div key={doc.name} className="rounded-xl border border-gray-100 bg-gray-50 overflow-hidden">
+                    <div key={doc.name} className="rounded-xl border border-border bg-muted/50 overflow-hidden">
                       {isImage && (
                         <a href={doc.url} target="_blank" rel="noopener noreferrer">
                           <img
                             src={doc.url}
                             alt="Factura"
-                            className="w-full max-h-64 object-contain bg-white border-b border-gray-100"
+                            className="w-full max-h-64 object-contain bg-white border-b border-border"
                           />
                         </a>
                       )}
@@ -803,19 +803,19 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4 backdrop-blur-sm">
       <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
-            <h3 className="font-bold text-gray-900">📊 Resumen de pagos</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Listo para copiar y pegar en WhatsApp</p>
+            <h3 className="font-bold text-foreground">📊 Resumen de pagos</h3>
+            <p className="text-xs text-muted-foreground/70 mt-0.5">Listo para copiar y pegar en WhatsApp</p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-muted hover:text-gray-600">
             ✕
           </button>
         </div>
 
         {/* Preview */}
         <div className="px-5 py-4">
-          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 max-h-72 overflow-y-auto">
+          <div className="rounded-2xl border border-border bg-muted/50 p-4 max-h-72 overflow-y-auto">
             <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans leading-relaxed">
               {summaryText}
             </pre>
@@ -823,7 +823,7 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 border-t border-gray-100 px-5 py-4">
+        <div className="flex gap-3 border-t border-border px-5 py-4">
           <Button variant="outline" className="flex-1" onClick={onClose}>
             Cerrar
           </Button>
@@ -869,7 +869,7 @@ function JoinSection({
   }
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Monto hero */}
       {estimatedShare > 0 && (
         <div className="bg-indigo-50 border-b border-indigo-100 px-5 py-4 text-center">
@@ -897,7 +897,7 @@ function JoinSection({
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-              Email <span className="text-gray-400 font-normal">(opcional)</span>
+              Email <span className="text-muted-foreground/70 font-normal">(opcional)</span>
             </label>
             <Input type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 text-base" />
           </div>
@@ -968,7 +968,7 @@ function ParticipantCard({
       isPaid ? "border-emerald-200 bg-emerald-50/40"
       : isPending ? "border-amber-200 bg-amber-50/40"
       : isMe ? "border-indigo-200 bg-white"
-      : "border-gray-100 bg-white"
+      : "border-border bg-card"
     }`}>
       <div className="flex items-center justify-between px-4 py-3.5">
         <div className="flex items-center gap-3">
@@ -983,13 +983,13 @@ function ParticipantCard({
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <p className="font-semibold text-gray-900 text-sm">{participant.name}</p>
+              <p className="font-semibold text-foreground text-sm">{participant.name}</p>
               {isMe && !isOrganizer && (
                 <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">Tú</span>
               )}
             </div>
             <p className={`text-sm font-bold ${
-              isPaid ? "text-emerald-600" : isPending ? "text-amber-600" : "text-gray-500"
+              isPaid ? "text-emerald-600" : isPending ? "text-amber-600" : "text-muted-foreground"
             }`}>
               {formatCurrency(participant.amount_owed, currency)}
             </p>
@@ -1001,7 +1001,7 @@ function ParticipantCard({
             <>
               {isPaid ? (
                 <button onClick={() => onUndo(participant.id)}
-                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50">
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted">
                   Deshacer
                 </button>
               ) : isPending ? (
@@ -1084,20 +1084,20 @@ function ParticipantCard({
           <p className="text-sm font-medium text-gray-700">Adjunta tu comprobante (opcional)</p>
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 hover:border-indigo-400 hover:bg-indigo-50 transition"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 p-4 hover:border-indigo-400 hover:bg-indigo-50 transition"
           >
             {preview ? (
               <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
             ) : (
               <>
                 <span className="text-2xl mb-1">📸</span>
-                <p className="text-sm text-gray-500">Toca para subir foto</p>
-                <p className="text-xs text-gray-400">JPG, PNG o PDF</p>
+                <p className="text-sm text-muted-foreground">Toca para subir foto</p>
+                <p className="text-xs text-muted-foreground/70">JPG, PNG o PDF</p>
               </>
             )}
           </div>
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
-          {selectedFile && <p className="text-xs text-gray-500 truncate">📎 {selectedFile.name}</p>}
+          {selectedFile && <p className="text-xs text-muted-foreground truncate">📎 {selectedFile.name}</p>}
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="flex-1"
               onClick={() => { setExpanded(false); setSelectedFile(null); setPreview(null); }}>
@@ -1137,11 +1137,11 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+      <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
         <div className="mb-5 text-center">
           <p className="mb-1 text-3xl">🔐</p>
-          <h3 className="text-lg font-bold text-gray-900">Acceso de organizador</h3>
-          <p className="text-sm text-gray-500">Ingresa el PIN que definiste al crear la colecta</p>
+          <h3 className="text-lg font-bold text-foreground">Acceso de organizador</h3>
+          <p className="text-sm text-muted-foreground">Ingresa el PIN que definiste al crear la colecta</p>
         </div>
         <form onSubmit={handleVerify} className="space-y-4">
           <div className="relative">
@@ -1155,7 +1155,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
               className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-gray-600">
               {showPin ? "Ocultar" : "Ver"}
             </button>
           </div>
@@ -1204,18 +1204,18 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 
   if (!existingInfo && !isOrganizer) {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
         <p className="text-4xl mb-3">💳</p>
-        <p className="text-gray-500 text-sm">El organizador aún no cargó los datos de transferencia.</p>
+        <p className="text-muted-foreground text-sm">El organizador aún no cargó los datos de transferencia.</p>
       </div>
     );
   }
 
   if (!editing && existingInfo) {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-3">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
-          <p className="font-semibold text-gray-900">Datos de transferencia</p>
+          <p className="font-semibold text-foreground">Datos de transferencia</p>
           {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-indigo-600 hover:underline">Editar</button>}
         </div>
         {existingInfo.account_holder && <InfoRow label="Titular" value={existingInfo.account_holder} />}
@@ -1224,7 +1224,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         {existingInfo.account_number && <InfoRow label="N° de cuenta" value={existingInfo.account_number} />}
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
-        {existingInfo.notes && <div className="rounded-xl bg-gray-50 p-3 text-sm text-gray-600">{existingInfo.notes}</div>}
+        {existingInfo.notes && <div className="rounded-xl bg-muted/50 p-3 text-sm text-gray-600">{existingInfo.notes}</div>}
       </div>
     );
   }
@@ -1232,8 +1232,8 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
   if (!isOrganizer) return null;
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-      <p className="font-semibold text-gray-900">Datos de transferencia</p>
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+      <p className="font-semibold text-foreground">Datos de transferencia</p>
       {[
         { key: "account_holder", label: "Nombre del titular" },
         { key: "bank_name", label: "Banco" },
@@ -1257,8 +1257,8 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium text-foreground">{value}</span>
     </div>
   );
 }
@@ -1276,7 +1276,7 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 function LoadingScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center"><div className="mb-3 text-4xl animate-bounce">🪣</div><p className="text-gray-500">Cargando colecta...</p></div>
+      <div className="text-center"><div className="mb-3 text-4xl animate-bounce">🪣</div><p className="text-muted-foreground">Cargando colecta...</p></div>
     </div>
   );
 }
@@ -1286,8 +1286,8 @@ function NotFoundScreen() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="text-center">
         <p className="mb-2 text-5xl">😕</p>
-        <h2 className="text-xl font-bold text-gray-900">Colecta no encontrada</h2>
-        <p className="mt-1 text-gray-500">El link puede haber expirado o ser incorrecto.</p>
+        <h2 className="text-xl font-bold text-foreground">Colecta no encontrada</h2>
+        <p className="mt-1 text-muted-foreground">El link puede haber expirado o ser incorrecto.</p>
         <Link href="/" className="mt-4 inline-block text-indigo-600 hover:underline">← Volver al inicio</Link>
       </div>
     </div>

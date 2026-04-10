@@ -76,16 +76,16 @@ export default function NuevoEventoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Sticky header */}
-      <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur px-4 py-3">
+      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+            <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gray-700">
               <span>←</span> Inicio
             </Link>
             <span className="text-gray-300">/</span>
-            <span className="text-sm font-semibold text-gray-900">Nueva colecta</span>
+            <span className="text-sm font-semibold text-foreground">Nueva colecta</span>
           </div>
           <ThemeToggle />
         </div>
@@ -93,8 +93,8 @@ export default function NuevoEventoPage() {
 
       <main className="mx-auto max-w-2xl px-4 py-5 pb-28">
         <div className="mb-5">
-          <h1 className="text-2xl font-bold text-gray-900">Nueva colecta 🪣</h1>
-          <p className="mt-0.5 text-sm text-gray-500">Completa los datos y comparte el link con tus participantes.</p>
+          <h1 className="text-2xl font-bold text-foreground">Nueva colecta 🪣</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Completa los datos y comparte el link con tus participantes.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -125,7 +125,7 @@ export default function NuevoEventoPage() {
                 className="h-12 text-base"
               />
               {!eventDate && (
-                <p className="mt-1 text-xs text-gray-400">Si no se indica, se usará la fecha de hoy.</p>
+                <p className="mt-1 text-xs text-muted-foreground/70">Si no se indica, se usará la fecha de hoy.</p>
               )}
             </FormField>
           </Section>
@@ -148,7 +148,7 @@ export default function NuevoEventoPage() {
             </FormField>
 
             {/* Toggle cuota fija */}
-            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 hover:bg-gray-100 transition">
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3.5 hover:bg-muted transition">
               <div className="relative shrink-0">
                 <input
                   type="checkbox"
@@ -161,7 +161,7 @@ export default function NuevoEventoPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-800">Definir cuota por participante</p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {fixedPerPerson
                     ? "Cada persona paga un monto fijo. El total crece según cuántos se unan."
                     : "Se divide el monto total en partes iguales entre todos."}
@@ -202,7 +202,7 @@ export default function NuevoEventoPage() {
 
           {/* ── PIN ── */}
           <Section title="🔐 PIN del organizador">
-            <p className="text-xs text-gray-500 -mt-1">
+            <p className="text-xs text-muted-foreground -mt-1">
               Te permite gestionar la colecta desde cualquier dispositivo. Solo tú lo sabes.
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -218,7 +218,7 @@ export default function NuevoEventoPage() {
                   />
                   <button
                     type="button" onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-gray-600"
                   >
                     {showPin ? "Ocultar" : "Ver"}
                   </button>
@@ -243,7 +243,7 @@ export default function NuevoEventoPage() {
       </main>
 
       {/* Sticky bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white/95 backdrop-blur px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-2xl gap-3">
           <Link href="/" className="flex-none">
             <Button variant="outline" className="h-12 px-5" type="button">Cancelar</Button>
@@ -262,8 +262,8 @@ export default function NuevoEventoPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-xs font-bold text-gray-500 uppercase tracking-widest">{title}</h2>
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <h2 className="mb-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</h2>
       <div className="space-y-4">{children}</div>
     </div>
   );

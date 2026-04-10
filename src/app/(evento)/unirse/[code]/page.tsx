@@ -36,8 +36,8 @@ export default function UnirsePage() {
       <div className="flex min-h-screen items-center justify-center px-4 bg-gray-50">
         <div className="text-center">
           <p className="mb-3 text-5xl">😕</p>
-          <h2 className="text-xl font-bold text-gray-900">Código no válido</h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-foreground">Código no válido</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
             El código <span className="font-mono font-bold text-indigo-700">{code}</span> no corresponde a ninguna colecta activa.
           </p>
           <button

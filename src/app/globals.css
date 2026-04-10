@@ -40,7 +40,7 @@
     --secondary: 215 25% 20%;
     --secondary-foreground: 214 32% 91%;
     --muted: 215 25% 20%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 20% 65%;  /* #8fa4c0 — más claro para bg oscuro */
     --accent: 215 25% 20%;
     --accent-foreground: 214 32% 91%;
     --destructive: 0 63% 31%;
