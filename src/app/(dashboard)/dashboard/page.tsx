@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/utils";
 import type { Event } from "@/types/database";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ColectaLogo } from "@/components/ui/colecta-logo";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl">🪣</span>
+            <ColectaLogo size={28} />
             <span className="text-lg font-bold text-foreground">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-card px-8 py-16 text-center">
-      <span className="mb-4 text-5xl">🪣</span>
+      <span className="mb-4 opacity-20"><ColectaLogo size={52} /></span>
       <h3 className="mb-1 text-lg font-bold text-foreground">Aún no tienes colectas</h3>
       <p className="text-sm text-muted-foreground">Crea tu primera colecta y compártela con tus participantes.</p>
     </div>

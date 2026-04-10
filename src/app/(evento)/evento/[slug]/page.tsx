@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ColectaLogo } from "@/components/ui/colecta-logo";
 import type { EventWithDetails, Participant, Payment } from "@/types/database";
 
 type OrgDoc = { name: string; url: string; originalName: string };
@@ -430,7 +431,7 @@ export default function EventoPage() {
       <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl">🪣</span>
+            <ColectaLogo size={26} />
             <span className="font-bold text-foreground">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -1773,7 +1774,7 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 function LoadingScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center"><div className="mb-3 text-4xl animate-bounce">🪣</div><p className="text-muted-foreground">Cargando colecta...</p></div>
+      <div className="text-center"><div className="mb-3 animate-bounce"><ColectaLogo size={40} /></div><p className="text-muted-foreground">Cargando colecta...</p></div>
     </div>
   );
 }

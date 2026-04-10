@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { ColectaLogo } from "@/components/ui/colecta-logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -54,7 +55,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="text-3xl">🪣</span>
+            <ColectaLogo size={36} />
             <span className="text-2xl font-bold text-foreground">Colecta</span>
           </Link>
           <p className="mt-2 text-sm text-muted-foreground">Inicia sesión para continuar</p>

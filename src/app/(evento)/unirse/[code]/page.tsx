@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ColectaLogo } from "@/components/ui/colecta-logo";
 
 export default function UnirsePage() {
   const params = useParams();
@@ -54,7 +55,7 @@ export default function UnirsePage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <div className="mb-3 text-4xl animate-bounce">🪣</div>
+        <div className="mb-3 animate-bounce"><ColectaLogo size={40} /></div>
         <p className="text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-indigo-500">{code}</span>...</p>
       </div>
     </div>

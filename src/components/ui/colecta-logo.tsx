@@ -1,0 +1,22 @@
+export function ColectaLogo({ size = 32 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 72 72"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Colecta"
+    >
+      <circle cx="36" cy="36" r="36" className="fill-foreground" />
+      {/* Letter C as path — no font dependency */}
+      <path
+        d="M50 26.5C47.2 21.8 42 18.5 36 18.5C26.3 18.5 18.5 26.3 18.5 36C18.5 45.7 26.3 53.5 36 53.5C42 53.5 47.2 50.2 50 45.5"
+        stroke="white"
+        strokeWidth="7.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ColectaLogo } from "@/components/ui/colecta-logo";
 
 export default function HomePage() {
   return (
@@ -15,8 +16,8 @@ export default function HomePage() {
 
       <div className="mx-auto max-w-2xl text-center">
         {/* Logo / Brand */}
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <span className="text-5xl">🪣</span>
+        <div className="mb-6 flex items-center justify-center gap-3">
+          <ColectaLogo size={52} />
           <h1 className="text-5xl font-bold tracking-tight text-foreground">
             Colecta
           </h1>
