@@ -549,7 +549,7 @@ export default function EventoPage() {
         </div>
 
         {/* Tabs — segmented control */}
-        <div className="flex gap-1 rounded-xl bg-muted p-1">
+        <div className="flex gap-1 rounded-xl bg-slate-200 dark:bg-slate-700/60 p-1">
           {(["participantes", "qr", "info", "facturas"] as const).map((tab) => (
             <button
               key={tab}
@@ -741,14 +741,14 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-indigo-500 hover:underline"
+                            className="inline-flex items-center rounded-lg bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition"
                           >
                             Ver
                           </a>
                           {isOrganizer && (
                             <button
                               onClick={() => deleteOrgDoc(doc.name)}
-                              className="text-xs text-red-400 hover:text-red-600"
+                              className="inline-flex items-center rounded-lg bg-red-50 dark:bg-red-950/50 px-3 py-1.5 text-xs font-medium text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition"
                             >
                               Eliminar
                             </button>

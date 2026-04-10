@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function HomePage() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-4">
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 px-4 py-16">
       {/* Toggle arriba a la derecha */}
       <div className="absolute right-4 top-4">
         <ThemeToggle />
@@ -94,7 +94,7 @@ function JoinByCodeButton() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Ej: ABX72K"
         maxLength={8}
-        className="w-36 rounded-xl border border-border px-4 py-3 font-mono text-lg font-bold uppercase tracking-widest text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-36 rounded-xl border border-border bg-card px-4 py-3 text-lg font-bold uppercase tracking-wider text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
       <button
         type="submit"
