@@ -17,7 +17,7 @@ export default function HomePage() {
         </div>
 
         {/* Tagline */}
-        <p className="mb-2 text-xl font-medium text-indigo-700">
+        <p className="mb-2 text-xl font-medium text-indigo-500">
           Organiza pagos grupales sin complicaciones
         </p>
         <p className="mb-10 text-base text-muted-foreground">
@@ -88,7 +88,7 @@ function JoinByCodeButton() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Ej: ABX72K"
         maxLength={8}
-        className="w-36 rounded-xl border border-border px-4 py-3 font-mono text-lg font-bold uppercase tracking-widest text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-36 rounded-xl border border-border px-4 py-3 font-mono text-lg font-bold uppercase tracking-widest text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
       <button
         type="submit"

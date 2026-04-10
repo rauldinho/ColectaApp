@@ -178,7 +178,7 @@ export default function NuevoEventoPage() {
                   className="h-12 text-base" autoFocus
                 />
                 {parseFloat(amountPerPerson) > 0 && (
-                  <p className="mt-1.5 text-xs text-indigo-600 font-medium">
+                  <p className="mt-1.5 text-xs text-indigo-500 font-medium">
                     💡 Total = {currency} {parseFloat(amountPerPerson).toLocaleString()} × participantes
                   </p>
                 )}
@@ -192,7 +192,7 @@ export default function NuevoEventoPage() {
                   className="h-12 text-base"
                 />
                 {parseFloat(totalAmount) > 0 && (
-                  <p className="mt-1.5 text-xs text-indigo-600 font-medium">
+                  <p className="mt-1.5 text-xs text-indigo-500 font-medium">
                     💡 Se divide en partes iguales entre todos los que se unan
                   </p>
                 )}

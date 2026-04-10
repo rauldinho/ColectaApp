@@ -38,11 +38,11 @@ export default function UnirsePage() {
           <p className="mb-3 text-5xl">😕</p>
           <h2 className="text-xl font-bold text-foreground">Código no válido</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            El código <span className="font-mono font-bold text-indigo-700">{code}</span> no corresponde a ninguna colecta activa.
+            El código <span className="font-mono font-bold text-indigo-500">{code}</span> no corresponde a ninguna colecta activa.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-4 text-sm text-indigo-600 hover:underline"
+            className="mt-4 text-sm text-indigo-500 hover:underline"
           >
             ← Volver al inicio
           </button>
@@ -55,7 +55,7 @@ export default function UnirsePage() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
         <div className="mb-3 text-4xl animate-bounce">🪣</div>
-        <p className="text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-indigo-600">{code}</span>...</p>
+        <p className="text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-indigo-500">{code}</span>...</p>
       </div>
     </div>
   );

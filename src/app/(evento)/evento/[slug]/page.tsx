@@ -355,7 +355,7 @@ export default function EventoPage() {
             <ThemeToggle />
             {isOrganizer ? (
               <>
-                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">
+                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-500">
                   👑 Organizador
                 </span>
                 <button
@@ -433,7 +433,7 @@ export default function EventoPage() {
                   {confirmedCount} de {event.participants.length} pagaron
                   {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} por confirmar</span>}
                 </span>
-                <span className="font-semibold text-indigo-600">
+                <span className="font-semibold text-indigo-500">
                   {event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%
                 </span>
               </div>
@@ -464,7 +464,7 @@ export default function EventoPage() {
           if (!me) return null;
           return (
             <div className="rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-4 shadow-sm">
-              <p className="mb-2 text-xs font-semibold text-indigo-600 uppercase tracking-wide">Tu participación</p>
+              <p className="mb-2 text-xs font-semibold text-indigo-500 uppercase tracking-wide">Tu participación</p>
               <ParticipantCard
                 participant={me}
                 currency={event.currency}
@@ -505,7 +505,7 @@ export default function EventoPage() {
             <div className="border-t border-border pt-3">
               <button
                 onClick={() => setShowInvite(!showInvite)}
-                className="flex w-full items-center justify-between text-sm font-medium text-indigo-700 hover:text-indigo-900"
+                className="flex w-full items-center justify-between text-sm font-medium text-indigo-500 hover:text-indigo-600"
               >
                 <span>✉️ Invitar participante</span>
                 <span className="text-muted-foreground/70 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
@@ -582,7 +582,7 @@ export default function EventoPage() {
                 {event.participants.length > 0 && (
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-indigo-600 transition"
+                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-indigo-500 transition"
                   >
                     📊 Generar resumen
                   </button>
@@ -594,12 +594,12 @@ export default function EventoPage() {
                 <p className="text-4xl mb-3">👥</p>
                 <p className="font-medium text-foreground">Aún no hay participantes</p>
                 <p className="mt-1 text-sm text-muted-foreground/70">
-                  Comparte el código <span className="font-mono font-bold text-indigo-600">{event.code}</span> para que se unan
+                  Comparte el código <span className="font-mono font-bold text-indigo-500">{event.code}</span> para que se unan
                 </p>
                 {event.amount_per_person ? (
                   <p className="mt-3 text-sm text-muted-foreground">
                     Cada participante pagará{" "}
-                    <span className="font-semibold text-indigo-700">{formatCurrency(event.amount_per_person, event.currency)}</span>
+                    <span className="font-semibold text-indigo-500">{formatCurrency(event.amount_per_person, event.currency)}</span>
                   </p>
                 ) : event.total_amount ? (
                   <p className="mt-3 text-sm text-muted-foreground">
@@ -611,10 +611,10 @@ export default function EventoPage() {
               <>
                 {event.participants.length > 1 && (
                   <div className="rounded-xl bg-indigo-50 px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-sm text-indigo-700">
+                    <span className="text-sm text-indigo-500">
                       {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
                     </span>
-                    <span className="text-sm font-bold text-indigo-800">
+                    <span className="text-sm font-bold text-indigo-500">
                       {formatCurrency(perPerson, event.currency)} c/u
                     </span>
                   </div>
@@ -704,7 +704,7 @@ export default function EventoPage() {
                 {isOrganizer && (
                   <button
                     onClick={() => orgDocRef.current?.click()}
-                    className="mt-3 text-sm text-indigo-600 font-medium hover:underline"
+                    className="mt-3 text-sm text-indigo-500 font-medium hover:underline"
                   >
                     + Subir primer archivo
                   </button>
@@ -731,7 +731,7 @@ export default function EventoPage() {
                           href={doc.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-foreground hover:text-indigo-600 truncate"
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-indigo-500 truncate"
                         >
                           <span>{isPdf ? "📄" : isImage ? "🖼️" : "📎"}</span>
                           <span className="truncate max-w-xs">{doc.originalName}</span>
@@ -741,7 +741,7 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-indigo-600 hover:underline"
+                            className="text-xs text-indigo-500 hover:underline"
                           >
                             Ver
                           </a>
@@ -876,7 +876,7 @@ function JoinSection({
           <p className="text-[11px] font-semibold uppercase tracking-widest text-indigo-400 mb-1">
             {isFixed ? "Tu cuota es" : "Tu parte estimada"}
           </p>
-          <p className="text-4xl font-extrabold text-indigo-700 tracking-tight">
+          <p className="text-4xl font-extrabold text-indigo-500 tracking-tight">
             {formatCurrency(Math.ceil(estimatedShare), currency)}
           </p>
           {!isFixed && participantCount > 0 && (
@@ -985,7 +985,7 @@ function ParticipantCard({
             <div className="flex items-center gap-1.5">
               <p className="font-semibold text-foreground text-sm">{participant.name}</p>
               {isMe && !isOrganizer && (
-                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">Tú</span>
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-500">Tú</span>
               )}
             </div>
             <p className={`text-sm font-bold ${
@@ -1216,7 +1216,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-foreground">Datos de transferencia</p>
-          {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-indigo-600 hover:underline">Editar</button>}
+          {isOrganizer && <button onClick={() => setEditing(true)} className="text-sm text-indigo-500 hover:underline">Editar</button>}
         </div>
         {existingInfo.account_holder && <InfoRow label="Titular" value={existingInfo.account_holder} />}
         {existingInfo.bank_name && <InfoRow label="Banco" value={existingInfo.bank_name} />}
@@ -1264,7 +1264,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function StatCard({ label, value, color }: { label: string; value: string; color: "violet" | "green" | "orange" }) {
-  const colors = { violet: "bg-indigo-50 text-indigo-700", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
+  const colors = { violet: "bg-indigo-50 text-indigo-500", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
   return (
     <div className={`rounded-xl p-3 ${colors[color]}`}>
       <p className="text-xs opacity-70">{label}</p>
@@ -1288,7 +1288,7 @@ function NotFoundScreen() {
         <p className="mb-2 text-5xl">😕</p>
         <h2 className="text-xl font-bold text-foreground">Colecta no encontrada</h2>
         <p className="mt-1 text-muted-foreground">El link puede haber expirado o ser incorrecto.</p>
-        <Link href="/" className="mt-4 inline-block text-indigo-600 hover:underline">← Volver al inicio</Link>
+        <Link href="/" className="mt-4 inline-block text-indigo-500 hover:underline">← Volver al inicio</Link>
       </div>
     </div>
   );

@@ -106,11 +106,11 @@ function EventCard({ event }: { event: Event & { participants: { count: number }
               <span className="font-mono text-xs">{event.code}</span>
             </div>
             {event.total_amount ? (
-              <span className="text-base font-extrabold text-indigo-600 tracking-tight">
+              <span className="text-base font-extrabold text-indigo-500 tracking-tight">
                 {formatCurrency(event.total_amount, event.currency)}
               </span>
             ) : event.amount_per_person ? (
-              <span className="text-sm font-semibold text-indigo-600">
+              <span className="text-sm font-semibold text-indigo-500">
                 {formatCurrency(event.amount_per_person, event.currency)}
                 <span className="text-xs font-normal text-muted-foreground/70"> c/u</span>
               </span>

@@ -70,13 +70,13 @@ export default function LoginPage() {
               </h2>
               <p className="text-sm text-muted-foreground">
                 Enviamos un link mágico a{" "}
-                <span className="font-medium text-indigo-600">{email}</span>.
+                <span className="font-medium text-indigo-500">{email}</span>.
                 <br />
                 Haz clic en el link para ingresar.
               </p>
               <button
                 onClick={() => setSent(false)}
-                className="mt-4 text-sm text-indigo-600 hover:underline"
+                className="mt-4 text-sm text-indigo-500 hover:underline"
               >
                 ¿No llegó? Reenviar
               </button>
@@ -130,7 +130,7 @@ export default function LoginPage() {
 
         <p className="mt-4 text-center text-sm text-muted-foreground">
           ¿No tienes cuenta?{" "}
-          <Link href="/signup" className="text-indigo-600 hover:underline">
+          <Link href="/signup" className="text-indigo-500 hover:underline">
             Regístrate gratis
           </Link>
         </p>
