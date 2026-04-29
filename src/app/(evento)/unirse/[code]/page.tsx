@@ -54,9 +54,9 @@ export default function UnirsePage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <div className="mb-3 animate-bounce"><ColectaLogo size={40} /></div>
-        <p className="text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-indigo-500">{code}</span>...</p>
+      <div className="flex flex-col items-center gap-3">
+        <div className="animate-bounce"><ColectaLogo size={40} /></div>
+        <p className="text-sm text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-primary">{code}</span>...</p>
       </div>
     </div>
   );

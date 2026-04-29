@@ -104,4 +104,10 @@
   button, a {
     min-height: 36px;
   }
+
+  /* Date picker icon — invert in dark mode so it's visible */
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.6);
+    cursor: pointer;
+  }
 }

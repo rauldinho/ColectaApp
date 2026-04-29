@@ -11,6 +11,18 @@ import { createClient } from "@/lib/supabase/client";
 import { generateEventCode } from "@/lib/utils";
 import { nanoid } from "nanoid";
 
+/** Formatea dígitos como número chileno: "20000" → "20.000" */
+function fmtCLP(raw: string): string {
+  if (!raw) return "";
+  const n = parseInt(raw, 10);
+  return isNaN(n) ? "" : n.toLocaleString("es-CL");
+}
+
+/** Extrae solo los dígitos de un string */
+function digitsOnly(val: string): string {
+  return val.replace(/\D/g, "");
+}
+
 export default function NuevoEventoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -22,8 +34,11 @@ export default function NuevoEventoPage() {
 
   // Sección 2 — Monto
   const currency = "CLP";
+  // "person" = cuota por persona como base | "total" = monto total como base
+  const [amountMode, setAmountMode] = useState<"person" | "total">("person");
   const [amountPerPerson, setAmountPerPerson] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
+  const [numPeople, setNumPeople] = useState("");
 
   // Facturas / documentos
   const [uploadInvoices, setUploadInvoices] = useState(false);
@@ -39,11 +54,21 @@ export default function NuevoEventoPage() {
 
     if (!name.trim()) { toast.error("El nombre es requerido"); return; }
 
-    const parsedPerPerson = parseFloat(amountPerPerson) || 0;
-    if (parsedPerPerson <= 0) {
-      toast.error("La cuota por persona debe ser mayor a 0"); return;
+    const n = parseFloat(numPeople) || null;
+
+    let parsedPerPerson: number;
+    let parsedTotal: number | null;
+
+    if (amountMode === "person") {
+      parsedPerPerson = parseFloat(amountPerPerson) || 0;
+      if (parsedPerPerson <= 0) { toast.error("La cuota por persona debe ser mayor a 0"); return; }
+      parsedTotal = n && n > 0 ? Math.round(parsedPerPerson * n) : null;
+    } else {
+      parsedTotal = parseFloat(totalAmount) || 0;
+      if (parsedTotal <= 0) { toast.error("El monto total debe ser mayor a 0"); return; }
+      // numPeople is optional — if not provided, per-person stays null
+      parsedPerPerson = n && n > 0 ? Math.round(parsedTotal / n) : 0;
     }
-    const parsedTotal = parseFloat(totalAmount) || null;
     if (adminPin.length < 4) { toast.error("El PIN debe tener al menos 4 dígitos"); return; }
     if (adminPin !== confirmPin) { toast.error("Los PINs no coinciden"); return; }
 
@@ -61,7 +86,7 @@ export default function NuevoEventoPage() {
         description: description.trim() || null,
         event_date: eventDate || null,
         total_amount: parsedTotal,
-        amount_per_person: parsedPerPerson,
+        amount_per_person: parsedPerPerson > 0 ? parsedPerPerson : null,
         currency,
       })
       .select()
@@ -168,66 +193,123 @@ export default function NuevoEventoPage() {
           ════════════════════════════════════════ */}
           <StepCard step={2} title="Monto a pagar">
 
-            {/* Monto total */}
-            <FieldGroup
-              label="Monto total de la colecta"
-              hint={
-                parseFloat(totalAmount) > 0
-                  ? undefined
-                  : "Opcional. El total general de gastos a cubrir entre todos."
-              }
-            >
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">
-                  $
-                </span>
-                <Input
-                  type="number" min="1"
-                  placeholder="0"
-                  value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
-                  className="h-12 pl-8 text-lg font-bold tracking-tight"
-                />
-              </div>
-              {parseFloat(totalAmount) > 0 && (
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {currency} <span className="font-semibold text-foreground">{parseFloat(totalAmount).toLocaleString("es-CL")}</span> en total
-                  {parseFloat(amountPerPerson) > 0 && parseFloat(totalAmount) > 0 && (
-                    <span className="ml-1">
-                      · {Math.ceil(parseFloat(totalAmount) / parseFloat(amountPerPerson))} participantes estimados
-                    </span>
-                  )}
-                </p>
-              )}
-            </FieldGroup>
+            {/* Selector de modo — segmented control */}
+            <div className="flex rounded-lg border border-border bg-muted/40 p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => setAmountMode("person")}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-all ${
+                  amountMode === "person"
+                    ? "bg-foreground text-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Cuota por persona
+              </button>
+              <button
+                type="button"
+                onClick={() => setAmountMode("total")}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-all ${
+                  amountMode === "total"
+                    ? "bg-foreground text-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Monto total
+              </button>
+            </div>
 
-            {/* Cuota por persona */}
-            <FieldGroup
-              label="Cuota por persona *"
-              hint={
-                parseFloat(amountPerPerson) > 0
-                  ? undefined
-                  : "Cada participante pagará este monto al unirse a la colecta."
-              }
-            >
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">
-                  $
-                </span>
-                <Input
-                  type="number" min="1"
-                  placeholder="0"
-                  value={amountPerPerson}
-                  onChange={(e) => setAmountPerPerson(e.target.value)}
-                  className="h-12 pl-8 text-lg font-bold tracking-tight"
-                />
-              </div>
-              {parseFloat(amountPerPerson) > 0 && (
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {currency} <span className="font-semibold text-foreground">{parseFloat(amountPerPerson).toLocaleString("es-CL")}</span> por persona
-                </p>
-              )}
-            </FieldGroup>
+            {/* Modo: cuota por persona */}
+            {amountMode === "person" && (
+              <>
+                <FieldGroup label="Cuota por persona *" hint="Cada participante pagará este monto al unirse.">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={fmtCLP(amountPerPerson)}
+                      onChange={(e) => setAmountPerPerson(digitsOnly(e.target.value))}
+                      className="h-12 pl-8 text-lg font-bold tracking-tight"
+                    />
+                  </div>
+                </FieldGroup>
+
+                <FieldGroup label="Número de personas (opcional)" hint="Si lo indicas, calcularemos el total estimado.">
+                  <Input
+                    type="number" min="1"
+                    placeholder="Ej: 10"
+                    value={numPeople}
+                    onChange={(e) => setNumPeople(e.target.value)}
+                    className="h-11 text-sm"
+                  />
+                </FieldGroup>
+
+                {/* Resultado calculado */}
+                {parseFloat(amountPerPerson) > 0 && (
+                  <div className="rounded-lg bg-muted/50 px-4 py-3 text-sm">
+                    <p className="text-muted-foreground">
+                      Cuota: <span className="font-bold text-foreground">{currency} {parseFloat(amountPerPerson).toLocaleString("es-CL")}</span> por persona
+                    </p>
+                    {parseFloat(numPeople) > 0 && (
+                      <p className="mt-0.5 text-muted-foreground">
+                        Total estimado: <span className="font-bold text-foreground">
+                          {currency} {(parseFloat(amountPerPerson) * parseFloat(numPeople)).toLocaleString("es-CL")}
+                        </span>
+                        <span className="ml-1">para {parseFloat(numPeople)} personas</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Modo: monto total */}
+            {amountMode === "total" && (
+              <>
+                <FieldGroup label="Monto total de la colecta *" hint="El total general de gastos a cubrir entre todos.">
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={fmtCLP(totalAmount)}
+                      onChange={(e) => setTotalAmount(digitsOnly(e.target.value))}
+                      className="h-12 pl-8 text-lg font-bold tracking-tight"
+                    />
+                  </div>
+                </FieldGroup>
+
+                <FieldGroup label="Número de personas (opcional)" hint="Si lo indicas, calcularemos la cuota individual automáticamente.">
+                  <Input
+                    type="number" min="1"
+                    placeholder="Ej: 10"
+                    value={numPeople}
+                    onChange={(e) => setNumPeople(e.target.value)}
+                    className="h-11 text-sm"
+                  />
+                </FieldGroup>
+
+                {/* Resultado calculado */}
+                {parseFloat(totalAmount) > 0 && (
+                  <div className="rounded-lg bg-muted/50 px-4 py-3 text-sm">
+                    <p className="text-muted-foreground">
+                      Total: <span className="font-bold text-foreground">{currency} {parseFloat(totalAmount).toLocaleString("es-CL")}</span>
+                    </p>
+                    {parseFloat(numPeople) > 0 && (
+                      <p className="mt-0.5 text-muted-foreground">
+                        Cuota por persona: <span className="font-bold text-foreground">
+                          {currency} {Math.round(parseFloat(totalAmount) / parseFloat(numPeople)).toLocaleString("es-CL")}
+                        </span>
+                        <span className="ml-1">para {parseFloat(numPeople)} personas</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Divisor */}
             <div className="border-t border-border" />

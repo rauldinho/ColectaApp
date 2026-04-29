@@ -25,7 +25,8 @@ export default function EventoPage() {
   const [myParticipantId, setMyParticipantId] = useState<string | null>(null);
   const [showPinModal, setShowPinModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"participantes" | "qr" | "info" | "facturas">("participantes");
+  const [activeTab, setActiveTab] = useState<"participantes" | "info" | "facturas">("participantes");
+  const [shareTab, setShareTab] = useState<"codigo" | "qr" | "email">("codigo");
 
   // Organizer docs (facturas del evento)
   const [orgDocs, setOrgDocs] = useState<OrgDoc[]>([]);
@@ -528,7 +529,7 @@ export default function EventoPage() {
               </div>
             ) : (
               <span className="text-4xl font-extrabold text-foreground tracking-tight">
-                {formatCurrency(event.amount_per_person ?? event.total_amount ?? 0, event.currency)}
+                {formatCurrency(event.amount_per_person || event.total_amount || 0, event.currency)}
               </span>
             )}
           </div>
@@ -618,75 +619,99 @@ export default function EventoPage() {
           );
         })()}
 
-        {/* Compartir + Invitar */}
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-foreground">📤 Compartir colecta</p>
+        {/* Compartir colecta — tabbed */}
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <p className="px-5 pt-4 pb-3 text-sm font-semibold text-foreground">📤 Compartir colecta</p>
 
-          {/* Código + link */}
-          <div className="flex gap-2">
-            <button
-              onClick={copyCode}
-              className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-lg font-bold tracking-wider text-primary hover:bg-muted"
-            >
-              {event.code}
-              <span className="text-xs font-normal text-muted-foreground/70">código</span>
-            </button>
-            <Button onClick={copyLink} className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90">
-              {copied ? "✓ Copiado" : "📋 Link"}
-            </Button>
+          {/* Sub-tabs */}
+          <div className="flex gap-1 mx-5 mb-4 rounded-lg border border-border bg-muted/40 p-1">
+            {(["codigo", "qr", "email"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setShareTab(t)}
+                className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-all ${
+                  shareTab === t
+                    ? "bg-foreground text-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t === "codigo" ? "🔑 Código" : t === "qr" ? "📲 QR" : "✉️ Email"}
+              </button>
+            ))}
           </div>
 
-          {/* Invitar (organizer only) */}
-          {isOrganizer && (
-            <div className="border-t border-border pt-3">
-              <button
-                onClick={() => setShowInvite(!showInvite)}
-                className="flex w-full items-center justify-between text-sm font-medium text-primary hover:text-primary"
-              >
-                <span>✉️ Invitar participante</span>
-                <span className="text-muted-foreground/70 text-xs">{showInvite ? "▲ Cerrar" : "▼ Abrir"}</span>
-              </button>
-
-              {showInvite && (
-                <div className="mt-3 space-y-2">
-                  <p className="text-xs text-muted-foreground">
-                    Ingresa el email de la persona y se abrirá tu app de correo con el mensaje listo.
-                  </p>
-                  <div className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      className="flex-1 h-9 text-sm"
-                    />
-                    <a
-                      href={inviteEmail.trim() ? `mailto:${inviteEmail}?subject=${inviteSubject}&body=${inviteBody}` : "#"}
-                      onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
-                      className={`inline-flex items-center rounded-xl px-3 py-1.5 text-xs font-medium transition ${
-                        inviteEmail.trim()
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                          : "bg-muted text-muted-foreground/70 cursor-not-allowed"
-                      }`}
-                    >
-                      Enviar
-                    </a>
-                  </div>
+          <div className="px-5 pb-5">
+            {/* Tab: Código */}
+            {shareTab === "codigo" && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
                   <button
-                    onClick={copyInviteText}
-                    className="w-full rounded-xl bg-primary py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition"
+                    onClick={copyCode}
+                    className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-lg font-bold tracking-wider text-primary hover:bg-muted transition"
                   >
-                    📋 Copiar texto de invitación
+                    {event.code}
+                    <span className="text-xs font-normal text-muted-foreground/70">código</span>
                   </button>
+                  <Button onClick={copyLink} className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90">
+                    {copied ? "✓ Copiado" : "📋 Link"}
+                  </Button>
                 </div>
-              )}
-            </div>
-          )}
+                <p className="text-xs text-muted-foreground">Comparte el código o el link directo para que los participantes se unan.</p>
+              </div>
+            )}
+
+            {/* Tab: QR */}
+            {shareTab === "qr" && (
+              <div className="flex flex-col items-center gap-3">
+                <div className="rounded-xl bg-white p-4 shadow-sm border border-border">
+                  <QRCode value={joinUrl} size={180} />
+                </div>
+                <p className="text-sm font-bold tracking-wider text-primary">{event.code}</p>
+                <p className="text-xs text-muted-foreground text-center break-all max-w-xs">{joinUrl}</p>
+              </div>
+            )}
+
+            {/* Tab: Email */}
+            {shareTab === "email" && (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Escribe el email del participante y se abrirá tu app de correo con el mensaje listo para enviar.
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="flex-1 h-10 text-sm"
+                  />
+                  <a
+                    href={inviteEmail.trim() ? `mailto:${inviteEmail}?subject=${inviteSubject}&body=${inviteBody}` : "#"}
+                    onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
+                    className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                      inviteEmail.trim()
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-muted text-muted-foreground/70 cursor-not-allowed"
+                    }`}
+                  >
+                    Enviar
+                  </a>
+                </div>
+                <button
+                  onClick={copyInviteText}
+                  className="w-full rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+                >
+                  📋 Copiar texto de invitación
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tabs — segmented control */}
         <div className="flex gap-1 rounded-xl bg-slate-200 dark:bg-slate-700/60 p-1">
-          {(["participantes", "qr", "info", "facturas"] as const).map((tab) => (
+          {(["participantes", "info", "facturas"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -696,7 +721,6 @@ export default function EventoPage() {
             >
               {tab === "participantes"
                 ? `👥 Participantes${pendingCount > 0 && isOrganizer ? ` (${pendingCount})` : ""}`
-                : tab === "qr" ? "📲 QR"
                 : tab === "info" ? "💳 Pago"
                 : "📄 Facturas"}
             </button>
@@ -774,18 +798,6 @@ export default function EventoPage() {
                 )}
               </>
             )}
-          </div>
-        )}
-
-        {/* Tab: QR */}
-        {activeTab === "qr" && (
-          <div className="flex flex-col items-center rounded-2xl border border-border bg-card p-8 shadow-sm">
-            <p className="mb-4 text-sm text-muted-foreground text-center">Escanea para acceder a la colecta</p>
-            <div className="rounded-2xl bg-card p-4 shadow-md border">
-              <QRCode value={joinUrl} size={200} />
-            </div>
-            <p className="mt-4 text-xl font-bold tracking-wider text-primary">{event.code}</p>
-            <p className="mt-1 text-xs text-muted-foreground/70 text-center break-all max-w-xs">{joinUrl}</p>
           </div>
         )}
 
@@ -1635,6 +1647,42 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
 }
 
 // ──────────────────────────────────────────────
+// Chilean banks & account types
+// ──────────────────────────────────────────────
+export const CHILE_BANKS = [
+  "Banco de Chile",
+  "BancoEstado",
+  "Banco Santander",
+  "BCI",
+  "Banco Itaú",
+  "Scotiabank",
+  "BICE",
+  "Banco Security",
+  "Banco Falabella",
+  "Banco Ripley",
+  "Banco Consorcio",
+  "Banco Internacional",
+  "BTG Pactual Chile",
+  "HSBC Chile",
+  "Coopeuch",
+  "Mercado Pago",
+  "MACH",
+  "Tenpo",
+  "Prepago Los Héroes",
+] as const;
+
+export const CHILE_ACCOUNT_TYPES = [
+  "Cuenta Corriente",
+  "Cuenta Vista",
+  "Cuenta RUT",
+  "Cuenta de Ahorro",
+  "Cuenta Joven",
+  "Cuenta Empresas",
+] as const;
+
+const selectCls = "flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+// ──────────────────────────────────────────────
 // Payment Info Tab
 // ──────────────────────────────────────────────
 function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
@@ -1644,6 +1692,18 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
   const [editing, setEditing] = useState(!existingInfo);
   const [saving, setSaving] = useState(false);
   const [copiedInfo, setCopiedInfo] = useState(false);
+
+  // Detect if saved value is a custom (not in list) bank or type
+  const savedBank = existingInfo?.bank_name ?? "";
+  const savedType = existingInfo?.account_type ?? "";
+  const initBankSel = CHILE_BANKS.includes(savedBank as typeof CHILE_BANKS[number]) ? savedBank : savedBank ? "otro" : "";
+  const initTypeSel = CHILE_ACCOUNT_TYPES.includes(savedType as typeof CHILE_ACCOUNT_TYPES[number]) ? savedType : savedType ? "otro" : "";
+
+  const [bankSel, setBankSel] = useState(initBankSel);
+  const [bankCustom, setBankCustom] = useState(initBankSel === "otro" ? savedBank : "");
+  const [typeSel, setTypeSel] = useState(initTypeSel);
+  const [typeCustom, setTypeCustom] = useState(initTypeSel === "otro" ? savedType : "");
+
   const [form, setForm] = useState({
     account_holder: existingInfo?.account_holder ?? "",
     bank_name: existingInfo?.bank_name ?? "",
@@ -1732,21 +1792,103 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
       <p className="font-semibold text-foreground">Datos de transferencia</p>
-      {[
-        { key: "account_holder", label: "Nombre del titular" },
-        { key: "bank_name", label: "Banco" },
-        { key: "account_type", label: "Tipo de cuenta" },
-        { key: "account_number", label: "N° de cuenta" },
-        { key: "rut", label: "RUT / DNI / CUIT" },
-        { key: "email", label: "Email de transferencia" },
-        { key: "notes", label: "Notas adicionales" },
-      ].map(({ key, label }) => (
-        <div key={key}>
-          <label className="mb-1 block text-sm font-medium text-foreground">{label}</label>
-          <input value={form[key as keyof typeof form]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-        </div>
-      ))}
+
+      {/* Titular */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nombre del titular</label>
+        <input value={form.account_holder} onChange={(e) => setForm({ ...form, account_holder: e.target.value })}
+          placeholder="Ej: Juan Pérez" className={selectCls} />
+      </div>
+
+      {/* Banco */}
+      <div className="space-y-2">
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Banco</label>
+        <select
+          value={bankSel}
+          onChange={(e) => {
+            setBankSel(e.target.value);
+            if (e.target.value !== "otro") {
+              setBankCustom("");
+              setForm({ ...form, bank_name: e.target.value });
+            } else {
+              setForm({ ...form, bank_name: bankCustom });
+            }
+          }}
+          className={selectCls}
+        >
+          <option value="">Selecciona un banco...</option>
+          {CHILE_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+          <option value="otro">Otro (escribir)</option>
+        </select>
+        {bankSel === "otro" && (
+          <input
+            autoFocus
+            value={bankCustom}
+            onChange={(e) => { setBankCustom(e.target.value); setForm({ ...form, bank_name: e.target.value }); }}
+            placeholder="Escribe el nombre del banco..."
+            className={selectCls}
+          />
+        )}
+      </div>
+
+      {/* Tipo de cuenta */}
+      <div className="space-y-2">
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tipo de cuenta</label>
+        <select
+          value={typeSel}
+          onChange={(e) => {
+            setTypeSel(e.target.value);
+            if (e.target.value !== "otro") {
+              setTypeCustom("");
+              setForm({ ...form, account_type: e.target.value });
+            } else {
+              setForm({ ...form, account_type: typeCustom });
+            }
+          }}
+          className={selectCls}
+        >
+          <option value="">Selecciona un tipo...</option>
+          {CHILE_ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          <option value="otro">Otro (escribir)</option>
+        </select>
+        {typeSel === "otro" && (
+          <input
+            value={typeCustom}
+            onChange={(e) => { setTypeCustom(e.target.value); setForm({ ...form, account_type: e.target.value }); }}
+            placeholder="Escribe el tipo de cuenta..."
+            className={selectCls}
+          />
+        )}
+      </div>
+
+      {/* N° de cuenta */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">N° de cuenta</label>
+        <input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })}
+          placeholder="Ej: 00123456789" className={selectCls} />
+      </div>
+
+      {/* RUT */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">RUT</label>
+        <input value={form.rut} onChange={(e) => setForm({ ...form, rut: e.target.value })}
+          placeholder="Ej: 12.345.678-9" className={selectCls} />
+      </div>
+
+      {/* Email */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email de transferencia</label>
+        <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+          placeholder="correo@ejemplo.com" className={selectCls} />
+      </div>
+
+      {/* Notas */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notas adicionales</label>
+        <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          placeholder="Ej: Transferir hasta el viernes" className={selectCls} />
+      </div>
+
       <Button onClick={saveInfo} disabled={saving} className="w-full">{saving ? "Guardando..." : "Guardar datos"}</Button>
     </div>
   );
@@ -1774,7 +1916,10 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 function LoadingScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center"><div className="mb-3 animate-bounce"><ColectaLogo size={40} /></div><p className="text-muted-foreground">Cargando colecta...</p></div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="animate-bounce"><ColectaLogo size={40} /></div>
+        <p className="text-sm text-muted-foreground">Cargando colecta...</p>
+      </div>
     </div>
   );
 }
