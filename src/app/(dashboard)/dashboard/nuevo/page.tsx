@@ -413,7 +413,7 @@ export default function NuevoEventoPage() {
           ════════════════════════════════════════ */}
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             {/* Toggle header */}
-            <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/60 transition-colors">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-b border-border bg-secondary px-4 py-3 hover:bg-secondary/70 transition-colors">
               <div className="flex items-center gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                   3
