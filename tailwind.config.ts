@@ -63,11 +63,13 @@ const config: Config = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) + 2px)",   /* 8px */
-        sm: "calc(var(--radius) - 2px)",   /* 4px */
-        xl: "calc(var(--radius) + 6px)",   /* 12px */
-        "2xl": "calc(var(--radius) + 10px)", /* 16px */
+        lg: "var(--radius)",                   /* 12px */
+        md: "calc(var(--radius) - 2px)",       /* 10px */
+        sm: "calc(var(--radius) - 4px)",       /* 8px */
+        xl: "calc(var(--radius) + 4px)",       /* 16px */
+        "2xl": "calc(var(--radius) + 8px)",    /* 20px */
+        "3xl": "calc(var(--radius) + 12px)",   /* 24px */
+        full: "9999px",                        /* pill */
       },
       keyframes: {
         "accordion-down": {

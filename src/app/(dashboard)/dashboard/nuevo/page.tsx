@@ -6,10 +6,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { generateEventCode } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 /** Formatea dígitos como número chileno: "20000" → "20.000" */
 function fmtCLP(raw: string): string {
@@ -48,6 +49,17 @@ export default function NuevoEventoPage() {
   const [adminPin, setAdminPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [showPin, setShowPin] = useState(false);
+
+  // Sección 4 — Datos bancarios (opcional)
+  const [showBankInfo, setShowBankInfo] = useState(false);
+  const [bankSel, setBankSel] = useState("");
+  const [bankCustom, setBankCustom] = useState("");
+  const [typeSel, setTypeSel] = useState("");
+  const [typeCustom, setTypeCustom] = useState("");
+  const [bankHolder, setBankHolder] = useState("");
+  const [bankNumber, setBankNumber] = useState("");
+  const [bankRut, setBankRut] = useState("");
+  const [bankEmail, setBankEmail] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,6 +112,25 @@ export default function NuevoEventoPage() {
 
     localStorage.setItem(`colecta_organizer_${event.slug}`, "true");
 
+    // Insertar datos bancarios opcionales
+    if (showBankInfo) {
+      const bankName = bankSel === "otro" ? bankCustom.trim() : bankSel;
+      const accountType = typeSel === "otro" ? typeCustom.trim() : typeSel;
+      const hasAnyData = bankHolder || bankName || accountType || bankNumber || bankRut || bankEmail;
+      if (hasAnyData) {
+        await supabase.from("payment_info").insert({
+          event_id: event.id,
+          account_holder: bankHolder.trim() || null,
+          bank_name: bankName || null,
+          account_type: accountType || null,
+          account_number: bankNumber.trim() || null,
+          rut: bankRut.trim() || null,
+          email: bankEmail.trim() || null,
+          notes: null,
+        });
+      }
+    }
+
     // Subir facturas si el organizador las adjuntó
     if (uploadInvoices && invoiceFiles.length > 0) {
       const uploadPromises = invoiceFiles.map(async (file) => {
@@ -119,9 +150,9 @@ export default function NuevoEventoPage() {
   const pinMismatch = confirmPin.length > 0 && adminPin !== confirmPin;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-secondary">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur px-4 py-3">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-xl px-4 py-3">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -142,7 +173,7 @@ export default function NuevoEventoPage() {
         <div className="mb-7">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Nueva colecta</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Completa los 3 pasos y comparte el link con tus participantes.
+            Completa los pasos y comparte el link con tus participantes.
           </p>
         </div>
 
@@ -160,7 +191,7 @@ export default function NuevoEventoPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 autoFocus
-                className="h-11 text-sm"
+                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
 
@@ -170,7 +201,7 @@ export default function NuevoEventoPage() {
                 placeholder="Añade un detalle opcional..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="h-11 text-sm"
+                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
 
@@ -183,7 +214,7 @@ export default function NuevoEventoPage() {
                 type="date"
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                className="h-11 text-sm"
+                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
           </StepCard>
@@ -194,13 +225,13 @@ export default function NuevoEventoPage() {
           <StepCard step={2} title="Monto a pagar">
 
             {/* Selector de modo — segmented control */}
-            <div className="flex rounded-lg border border-border bg-muted/40 p-1 gap-1">
+            <div className="flex rounded-xl border border-border bg-secondary p-1 gap-1">
               <button
                 type="button"
                 onClick={() => setAmountMode("person")}
-                className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-all ${
+                className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                   amountMode === "person"
-                    ? "bg-foreground text-background shadow-sm"
+                    ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -209,9 +240,9 @@ export default function NuevoEventoPage() {
               <button
                 type="button"
                 onClick={() => setAmountMode("total")}
-                className={`flex-1 rounded-md px-3 py-2 text-sm font-semibold transition-all ${
+                className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                   amountMode === "total"
-                    ? "bg-foreground text-background shadow-sm"
+                    ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -231,7 +262,7 @@ export default function NuevoEventoPage() {
                       placeholder="0"
                       value={fmtCLP(amountPerPerson)}
                       onChange={(e) => setAmountPerPerson(digitsOnly(e.target.value))}
-                      className="h-12 pl-8 text-lg font-bold tracking-tight"
+                      className="bg-secondary border-0 rounded-xl h-12 pl-8 text-lg font-bold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                     />
                   </div>
                 </FieldGroup>
@@ -242,13 +273,13 @@ export default function NuevoEventoPage() {
                     placeholder="Ej: 10"
                     value={numPeople}
                     onChange={(e) => setNumPeople(e.target.value)}
-                    className="h-11 text-sm"
+                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                   />
                 </FieldGroup>
 
                 {/* Resultado calculado */}
                 {parseFloat(amountPerPerson) > 0 && (
-                  <div className="rounded-lg bg-muted/50 px-4 py-3 text-sm">
+                  <div className="rounded-xl bg-primary/[0.08] px-4 py-3 text-sm">
                     <p className="text-muted-foreground">
                       Cuota: <span className="font-bold text-foreground">{currency} {parseFloat(amountPerPerson).toLocaleString("es-CL")}</span> por persona
                     </p>
@@ -277,7 +308,7 @@ export default function NuevoEventoPage() {
                       placeholder="0"
                       value={fmtCLP(totalAmount)}
                       onChange={(e) => setTotalAmount(digitsOnly(e.target.value))}
-                      className="h-12 pl-8 text-lg font-bold tracking-tight"
+                      className="bg-secondary border-0 rounded-xl h-12 pl-8 text-lg font-bold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                     />
                   </div>
                 </FieldGroup>
@@ -288,13 +319,13 @@ export default function NuevoEventoPage() {
                     placeholder="Ej: 10"
                     value={numPeople}
                     onChange={(e) => setNumPeople(e.target.value)}
-                    className="h-11 text-sm"
+                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                   />
                 </FieldGroup>
 
                 {/* Resultado calculado */}
                 {parseFloat(totalAmount) > 0 && (
-                  <div className="rounded-lg bg-muted/50 px-4 py-3 text-sm">
+                  <div className="rounded-xl bg-primary/[0.08] px-4 py-3 text-sm">
                     <p className="text-muted-foreground">
                       Total: <span className="font-bold text-foreground">{currency} {parseFloat(totalAmount).toLocaleString("es-CL")}</span>
                     </p>
@@ -329,7 +360,7 @@ export default function NuevoEventoPage() {
             {/* Zona de carga — visible solo si toggle ON */}
             {uploadInvoices && (
               <div className="space-y-2">
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/30 px-4 py-5 text-center hover:bg-muted/50 transition">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary/50 px-4 py-5 text-center hover:bg-secondary/80 transition">
                   <span className="text-2xl">📎</span>
                   <span className="text-sm font-medium text-foreground">Seleccionar archivos</span>
                   <span className="text-xs text-muted-foreground">Imágenes o PDF · múltiples archivos</span>
@@ -353,7 +384,7 @@ export default function NuevoEventoPage() {
                 {invoiceFiles.length > 0 && (
                   <ul className="space-y-1">
                     {invoiceFiles.map((file, i) => (
-                      <li key={i} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+                      <li key={i} className="flex items-center justify-between rounded-xl border border-border bg-card px-3 py-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
                           <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
@@ -378,9 +409,144 @@ export default function NuevoEventoPage() {
           </StepCard>
 
           {/* ════════════════════════════════════════
-              SECCIÓN 3 — PIN del organizador
+              SECCIÓN 3 — Datos bancarios (opcional)
           ════════════════════════════════════════ */}
-          <StepCard step={3} title="PIN del organizador">
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            {/* Toggle header */}
+            <label className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/60 transition-colors">
+              <div className="flex items-center gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                  3
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-foreground leading-tight">Datos de transferencia</h2>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Opcional
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                    {showBankInfo
+                      ? "Se guardarán al crear la colecta."
+                      : "¿Dónde deben pagarte? Puedes agregarlo después."}
+                  </p>
+                </div>
+              </div>
+              {/* Switch */}
+              <div className="relative shrink-0">
+                <input
+                  type="checkbox"
+                  checked={showBankInfo}
+                  onChange={(e) => setShowBankInfo(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`h-5 w-9 rounded-full transition-colors ${showBankInfo ? "bg-primary" : "bg-muted-foreground/25"}`} />
+                <div className={`absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform ${showBankInfo ? "translate-x-4 bg-white" : "translate-x-0.5 bg-white"}`} />
+              </div>
+            </label>
+
+            {/* Campos — solo cuando toggle ON */}
+            {showBankInfo && (
+              <div className="border-t border-border px-4 py-4 space-y-4">
+                <FieldGroup label="Nombre del titular">
+                  <input
+                    value={bankHolder}
+                    onChange={(e) => setBankHolder(e.target.value)}
+                    placeholder="Ej: Juan Pérez"
+                    className={fieldCls}
+                  />
+                </FieldGroup>
+
+                <FieldGroup label="Banco">
+                  <div className="space-y-2">
+                    <select
+                      value={bankSel}
+                      onChange={(e) => { setBankSel(e.target.value); if (e.target.value !== "otro") setBankCustom(""); }}
+                      className={fieldCls}
+                    >
+                      <option value="">Selecciona un banco...</option>
+                      {CHILE_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+                      <option value="otro">Otro (escribir)</option>
+                    </select>
+                    {bankSel === "otro" && (
+                      <input
+                        autoFocus
+                        value={bankCustom}
+                        onChange={(e) => setBankCustom(e.target.value)}
+                        placeholder="Nombre del banco"
+                        className={fieldCls}
+                      />
+                    )}
+                  </div>
+                </FieldGroup>
+
+                <FieldGroup label="Tipo de cuenta">
+                  <div className="space-y-2">
+                    <select
+                      value={typeSel}
+                      onChange={(e) => { setTypeSel(e.target.value); if (e.target.value !== "otro") setTypeCustom(""); }}
+                      className={fieldCls}
+                    >
+                      <option value="">Selecciona un tipo...</option>
+                      {CHILE_ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                      <option value="otro">Otro (escribir)</option>
+                    </select>
+                    {typeSel === "otro" && (
+                      <input
+                        value={typeCustom}
+                        onChange={(e) => setTypeCustom(e.target.value)}
+                        placeholder="Tipo de cuenta"
+                        className={fieldCls}
+                      />
+                    )}
+                  </div>
+                </FieldGroup>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <FieldGroup label="N° de cuenta">
+                    <input
+                      value={bankNumber}
+                      onChange={(e) => setBankNumber(e.target.value)}
+                      placeholder="00123456789"
+                      className={fieldCls}
+                    />
+                  </FieldGroup>
+                  <FieldGroup label="RUT">
+                    <input
+                      value={bankRut}
+                      onChange={(e) => setBankRut(e.target.value)}
+                      placeholder="12.345.678-9"
+                      className={fieldCls}
+                    />
+                  </FieldGroup>
+                </div>
+
+                <FieldGroup label="Email de transferencia">
+                  <input
+                    type="email"
+                    value={bankEmail}
+                    onChange={(e) => setBankEmail(e.target.value)}
+                    placeholder="correo@ejemplo.com"
+                    className={fieldCls}
+                  />
+                </FieldGroup>
+              </div>
+            )}
+
+            {/* Hint cuando está colapsado */}
+            {!showBankInfo && (
+              <div className="border-t border-border/50 px-4 py-2.5">
+                <p className="text-xs text-muted-foreground/70">
+                  💡 Si no los agregas ahora, podrás hacerlo después desde la pantalla de tu colecta.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* ════════════════════════════════════════
+              SECCIÓN 4 — PIN del organizador
+          ════════════════════════════════════════ */}
+          <StepCard step={4} title="PIN del organizador">
             <p className="text-xs text-muted-foreground -mt-1 mb-1">
               Te permite gestionar la colecta desde cualquier dispositivo. Solo tú lo sabes.
             </p>
@@ -399,7 +565,7 @@ export default function NuevoEventoPage() {
                     autoComplete="off"
                     name="colecta-pin"
                     style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-                    className="h-11 text-center tracking-widest font-bold text-base pr-14"
+                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-center tracking-widest font-bold text-base pr-14 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                   />
                   <button
                     type="button"
@@ -424,28 +590,28 @@ export default function NuevoEventoPage() {
                     autoComplete="off"
                     name="colecta-pin-confirm"
                     style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-                    className={`h-11 text-center tracking-widest font-bold text-base ${
+                    className={`bg-secondary border-0 rounded-xl h-11 px-4 text-center tracking-widest font-bold text-base focus-visible:ring-2 focus-visible:ring-offset-0 ${
                       pinMismatch
-                        ? "border-red-400 focus-visible:ring-red-400"
+                        ? "border border-destructive focus-visible:ring-destructive"
                         : pinMatch
-                        ? "border-green-500 focus-visible:ring-green-400"
+                        ? "border border-success focus-visible:ring-success"
                         : ""
                     }`}
                   />
                   {pinMatch && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-green-600 font-medium">✓</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-success font-medium">✓</span>
                   )}
                 </div>
               </FieldGroup>
             </div>
 
             {pinMismatch && (
-              <p className="flex items-center gap-1 text-xs text-red-500 font-medium">
+              <p className="flex items-center gap-1 text-xs text-destructive font-medium">
                 <span>⚠</span> Los PINs no coinciden
               </p>
             )}
             {pinMatch && adminPin.length >= 4 && (
-              <p className="flex items-center gap-1 text-xs text-green-600 font-medium">
+              <p className="flex items-center gap-1 text-xs text-success font-medium">
                 <span>✓</span> PINs coinciden
               </p>
             )}
@@ -455,16 +621,20 @@ export default function NuevoEventoPage() {
       </main>
 
       {/* CTA fijo al fondo */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-card/95 backdrop-blur">
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg gap-3 px-4 py-3">
           <Link href="/" className="flex-none">
-            <Button variant="outline" className="h-11 px-5 text-sm" type="button">
+            <Button
+              variant="outline"
+              className="h-11 rounded-full px-5 text-sm border border-border bg-background text-foreground"
+              type="button"
+            >
               Cancelar
             </Button>
           </Link>
           <Button
             type="submit"
-            className="flex-1 h-11 text-sm font-semibold"
+            className="flex-1 h-11 rounded-full text-sm font-semibold bg-primary text-white"
             disabled={loading}
             onClick={handleSubmit}
           >
@@ -486,6 +656,10 @@ export default function NuevoEventoPage() {
   );
 }
 
+/* ─── Estilos de campos ──────────────────────────────────── */
+const fieldCls =
+  "flex h-11 w-full rounded-xl border-0 bg-secondary px-4 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors placeholder:text-muted-foreground";
+
 /* ─── Componentes reutilizables ─────────────────────────── */
 
 function StepCard({
@@ -498,10 +672,10 @@ function StepCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden">
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
       {/* Header de la sección */}
-      <div className="flex items-center gap-3 border-b border-border bg-muted/40 px-4 py-3">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+      <div className="flex items-center gap-3 border-b border-border bg-secondary px-4 py-3">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
           {step}
         </span>
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
@@ -525,7 +699,7 @@ function FieldGroup({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
         {label}
       </label>
       {children}
@@ -548,7 +722,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-background px-3 py-3 hover:bg-muted/40 transition-colors">
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 hover:bg-secondary/60 transition-colors">
       {/* Switch */}
       <div className="relative shrink-0">
         <input
@@ -559,12 +733,12 @@ function Toggle({
         />
         <div
           className={`h-5 w-9 rounded-full transition-colors ${
-            checked ? "bg-foreground" : "bg-muted-foreground/25"
+            checked ? "bg-primary" : "bg-muted-foreground/25"
           }`}
         />
         <div
-          className={`absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform ${
-            checked ? "translate-x-4 bg-background" : "translate-x-0.5 bg-white"
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-4" : "translate-x-0.5"
           }`}
         />
       </div>

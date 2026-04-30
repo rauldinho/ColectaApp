@@ -4,91 +4,93 @@
 
 @layer base {
   /* ══════════════════════════════════════════════════════
-     LINEN — Modo claro
-     Inspirado en Notion: blanco cálido, acento negro,
-     bordes sutiles, cero ruido visual.
+     CUPERTINO — Modo claro
+     Apple Human Interface Guidelines: blanco puro,
+     azul #0071E3, grises neutros, radio generoso.
   ══════════════════════════════════════════════════════ */
   :root {
-    --background: 48 60% 99%;           /* #FFFEF9 — warm white */
-    --foreground: 38 10% 20%;           /* #37352F — Notion text */
+    --background: 0 0% 100%;              /* #FFFFFF */
+    --foreground: 240 3% 12%;             /* #1D1D1F — Apple dark gray */
 
-    --card: 0 0% 100%;                  /* #FFFFFF */
-    --card-foreground: 38 10% 20%;
+    --card: 0 0% 100%;                    /* #FFFFFF */
+    --card-foreground: 240 3% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 38 10% 20%;
+    --popover-foreground: 240 3% 12%;
 
-    --primary: 0 0% 0%;                 /* #000000 — acento negro */
-    --primary-foreground: 0 0% 100%;
+    --primary: 211 100% 45%;              /* #0071E3 — Apple blue */
+    --primary-foreground: 0 0% 100%;      /* #FFFFFF */
 
-    --secondary: 48 14% 96%;            /* #F7F6F1 — surface-2 */
-    --secondary-foreground: 38 10% 20%;
+    --secondary: 240 5% 96%;             /* #F5F5F7 — Apple light gray */
+    --secondary-foreground: 240 3% 12%;
 
-    --muted: 48 14% 96%;                /* #F7F6F1 */
-    --muted-foreground: 34 4% 41%;      /* #6B6862 — text-2 */
+    --muted: 240 5% 96%;                  /* #F5F5F7 */
+    --muted-foreground: 240 2% 44%;       /* #6E6E73 — Apple secondary text */
 
-    --accent: 48 14% 96%;
-    --accent-foreground: 38 10% 20%;
+    --accent: 210 63% 95%;               /* #EBF3FB — blue tint */
+    --accent-foreground: 211 100% 45%;
 
-    --destructive: 357 53% 53%;         /* #C9454B */
+    --destructive: 3 100% 59%;            /* #FF3B30 — Apple red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 44 13% 88%;               /* #E9E7DF */
-    --input: 44 13% 88%;
-    --ring: 0 0% 0%;                    /* foco negro */
+    --border: 240 5% 91%;                 /* #E5E5EA — Apple separator */
+    --input: 240 5% 96%;                  /* #F5F5F7 — iOS input bg */
+    --ring: 211 100% 45%;                 /* #0071E3 */
 
-    --radius: 0.375rem;                 /* 6px — minimalista Notion */
+    --radius: 0.75rem;                    /* 12px — Cupertino base */
 
-    /* Extras para badges / status */
-    --success: 174 78% 27%;             /* #0F7B6C */
-    --success-bg: 170 42% 91%;          /* #DFF3EF */
-    --success-text: 174 70% 19%;        /* #0A5A52 */
+    /* Estado — Éxito */
+    --success: 142 64% 49%;              /* #34C759 — Apple green */
+    --success-bg: 142 56% 94%;           /* #E8F8EE */
+    --success-text: 142 70% 33%;         /* #1A9A3A */
 
-    --warning: 27 56% 52%;              /* #C87941 */
-    --warning-bg: 30 90% 94%;           /* #FEF0E3 */
-    --warning-text: 27 56% 38%;         /* #9A5A2A */
+    /* Estado — Advertencia */
+    --warning: 37 100% 52%;              /* #FF9F0A — Apple orange */
+    --warning-bg: 43 100% 93%;           /* #FFF3DC */
+    --warning-text: 37 87% 30%;          /* #915907 */
   }
 
   /* ══════════════════════════════════════════════════════
-     DUSK — Modo oscuro (Notion dark)
-     Gris profundo sin drama, blanco limpio, misma estructura.
+     CUPERTINO — Modo oscuro
+     Fondo negro puro, superficies gris oscuro iOS,
+     azul #0A84FF (dark mode variant).
   ══════════════════════════════════════════════════════ */
   html.dark {
-    --background: 0 0% 10%;             /* #191919 */
-    --foreground: 0 0% 100%;            /* #FFFFFE */
+    --background: 0 0% 0%;               /* #000000 */
+    --foreground: 240 5% 96%;            /* #F5F5F7 */
 
-    --card: 0 0% 13%;                   /* #202020 */
-    --card-foreground: 0 0% 100%;
+    --card: 240 3% 11%;                  /* #1C1C1E — iOS dark card */
+    --card-foreground: 240 5% 96%;
 
-    --popover: 0 0% 13%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 240 3% 11%;
+    --popover-foreground: 240 5% 96%;
 
-    --primary: 0 0% 100%;               /* #FFFFFF */
-    --primary-foreground: 0 0% 0%;
+    --primary: 211 100% 52%;             /* #0A84FF — Apple blue dark */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 18%;              /* #2F2F2F */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 2% 18%;             /* #2C2C2E — iOS dark secondary */
+    --secondary-foreground: 240 5% 96%;
 
-    --muted: 0 0% 18%;                  /* #2F2F2F */
-    --muted-foreground: 0 0% 61%;       /* #9B9B9B */
+    --muted: 240 2% 18%;                 /* #2C2C2E */
+    --muted-foreground: 240 2% 61%;      /* #98989D */
 
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 211 50% 20%;
+    --accent-foreground: 211 100% 52%;
 
-    --destructive: 357 58% 58%;         /* #D9565C */
+    --destructive: 3 100% 62%;           /* #FF453A — Apple red dark */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 22%;                 /* #373737 */
-    --input: 0 0% 22%;
-    --ring: 0 0% 100%;
+    --border: 240 2% 23%;               /* #3A3A3C — iOS dark separator */
+    --input: 240 2% 18%;                /* #2C2C2E */
+    --ring: 211 100% 52%;
 
-    --success: 146 39% 47%;             /* #4DAA76 */
-    --success-bg: 148 23% 14%;          /* #1A2B22 */
-    --success-text: 146 45% 64%;        /* #6DD89A */
+    --success: 142 68% 50%;             /* #30D158 — Apple green dark */
+    --success-bg: 142 30% 14%;          /* #1A2D1E */
+    --success-text: 142 50% 58%;        /* #6DD89A */
 
-    --warning: 18 47% 58%;              /* #D4875A */
-    --warning-bg: 24 34% 12%;           /* #2B1F14 */
-    --warning-text: 28 62% 67%;         /* #E4A87A */
+    --warning: 37 100% 52%;
+    --warning-bg: 37 60% 12%;
+    --warning-text: 37 100% 60%;
   }
 }
 
@@ -100,14 +102,16 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   button, a {
     min-height: 36px;
   }
 
-  /* Date picker icon — invert in dark mode so it's visible */
+  /* Date picker icon — invert in dark mode */
   .dark input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) opacity(0.6);
+    filter: invert(1) opacity(0.5);
     cursor: pointer;
   }
 }

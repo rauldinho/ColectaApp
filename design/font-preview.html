@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es" data-font="inter">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colecta — Exploración de Fuentes (Linen)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Figtree:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,500;6..12,600;6..12,700;6..12,800&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Rubik:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* =====================================================
+       RESET
+    ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* =====================================================
+       FUENTES DISPONIBLES
+    ===================================================== */
+    [data-font="inter"]         { --font: 'Inter', -apple-system, sans-serif; }
+    [data-font="dm-sans"]       { --font: 'DM Sans', sans-serif; }
+    [data-font="manrope"]       { --font: 'Manrope', sans-serif; }
+    [data-font="plus-jakarta"]  { --font: 'Plus Jakarta Sans', sans-serif; }
+    [data-font="outfit"]        { --font: 'Outfit', sans-serif; }
+    [data-font="nunito"]        { --font: 'Nunito Sans', sans-serif; }
+    [data-font="figtree"]       { --font: 'Figtree', sans-serif; }
+    [data-font="sora"]          { --font: 'Sora', sans-serif; }
+    [data-font="rubik"]         { --font: 'Rubik', sans-serif; }
+    [data-font="ibm-plex"]      { --font: 'IBM Plex Sans', sans-serif; }
+    [data-font="work-sans"]     { --font: 'Work Sans', sans-serif; }
+
+    /* =====================================================
+       TEMA LINEN — variables fijas
+    ===================================================== */
+    :root {
+      --bg:             #FFFEF9;
+      --surface:        #FFFFFF;
+      --surface-2:      #F7F6F1;
+      --border:         #E9E7DF;
+      --primary:        #000000;
+      --primary-dark:   #1A1A1A;
+      --primary-fg:     #FFFFFF;
+      --primary-subtle: #F1F0EB;
+      --text:           #37352F;
+      --text-2:         #6B6862;
+      --text-3:         #AEACAA;
+      --success:        #0F7B6C; --success-bg: #DFF3EF; --success-text: #0A5A52;
+      --warning:        #C87941; --warning-bg: #FEF0E3; --warning-text: #9A5A2A;
+      --danger:         #C9454B; --danger-bg:  #FCE8E9; --danger-text:  #9A2B30;
+      --shadow:         none;
+      --shadow-md:      0 2px 8px rgba(55,53,47,.08);
+      --radius:         6px;
+      --radius-sm:      4px;
+      --radius-lg:      8px;
+    }
+
+    /* =====================================================
+       GLOBALS
+    ===================================================== */
+    html, body {
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      background: #F5F3EE;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Smooth font transition */
+    * { transition: font-family .1s ease; }
+
+    /* ─── FONT BAR ───────────────────────────────────── */
+    .font-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: #1C1C18;
+      border-bottom: 1px solid #2E2E28;
+      padding: 0 16px;
+      display: flex; flex-direction: column;
+    }
+    .font-row {
+      display: flex; align-items: center; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
+      padding: 7px 0;
+    }
+    .font-row::-webkit-scrollbar { display: none; }
+    .font-row + .font-row {
+      border-top: 1px solid #2E2E28;
+    }
+    .font-row-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: #5A5A4A; white-space: nowrap;
+      margin-right: 4px; font-family: 'Inter', sans-serif;
+    }
+    .font-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      border: 1px solid transparent; background: transparent;
+      color: #7A7A68; font-size: 11px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: all .15s ease;
+    }
+    .font-btn:hover { background: rgba(255,255,255,.06); color: #D0CFC0; }
+    .font-btn.active {
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.15);
+      color: #FFFEF9;
+    }
+    .font-sample {
+      font-size: 12px; font-weight: 700; color: inherit;
+      opacity: .7; letter-spacing: -.01em;
+    }
+
+    /* ─── PREVIEW WRAPPER ────────────────────────────── */
+    .preview-wrap {
+      margin-top: 118px; padding: 24px 16px 64px;
+    }
+    .preview-header { text-align: center; margin-bottom: 28px; }
+    .preview-eyebrow {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .14em; color: #8A8A78;
+    }
+    #font-name {
+      font-size: 28px; font-weight: 800; color: #1C1C18;
+      margin-top: 6px; letter-spacing: -.03em;
+      font-family: var(--font);
+    }
+    #font-desc { font-size: 12px; color: #7A7A68; margin-top: 4px; font-family: var(--font); }
+    #font-sample-phrase {
+      margin-top: 10px;
+      font-size: 15px; font-weight: 500; color: #3A3A2E;
+      font-family: var(--font);
+      font-style: italic;
+    }
+
+    /* ─── SCREENS GRID ───────────────────────────────── */
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    @media (max-width: 960px) { .screens-grid { grid-template-columns: 1fr; } }
+
+    .screen-col { display: flex; flex-direction: column; align-items: center; }
+    .screen-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #7A7A68; margin-bottom: 10px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ─── PHONE FRAME ────────────────────────────────── */
+    .phone-frame {
+      width: 100%; max-width: 390px;
+      background: var(--bg);
+      border-radius: 22px; overflow: hidden;
+      box-shadow: 0 16px 48px rgba(28,28,24,.14), 0 0 0 1px rgba(28,28,24,.08);
+    }
+    .phone-content {
+      max-height: 700px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .phone-content::-webkit-scrollbar { width: 3px; }
+    .phone-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ─── APP HEADER ─────────────────────────────────── */
+    .app-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .app-logo {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 15px; font-weight: 700; color: var(--text);
+    }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+
+    /* ─── BADGE ──────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 8px; border-radius: 3px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-primary { background: var(--primary-subtle); color: var(--primary); border: 1px solid var(--border); }
+    .badge-success { background: var(--success-bg); color: var(--success-text); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+    .badge-danger  { background: var(--danger-bg);  color: var(--danger-text);  }
+
+    /* ─── CARD ───────────────────────────────────────── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .card-section { padding: 13px 16px; border-bottom: 1px solid var(--border); }
+    .card-section:last-child { border-bottom: none; }
+    .card-body { padding: 15px; }
+
+    /* ─── BUTTONS ────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 9px 16px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+      font-family: var(--font); white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); }
+    .btn-outline  { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
+    .btn-ghost    { background: transparent; color: var(--text-2); font-size: 12px; }
+    .btn-success  { background: var(--success); color: #fff; }
+    .btn-sm  { padding: 6px 11px; font-size: 12px; }
+    .btn-lg  { padding: 13px 20px; font-size: 15px; border-radius: var(--radius); }
+    .btn-full { width: 100%; }
+
+    /* ─── INPUTS ─────────────────────────────────────── */
+    .input {
+      width: 100%; padding: 10px 13px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text);
+      font-size: 13px; font-family: var(--font);
+    }
+    .input::placeholder { color: var(--text-3); }
+    label.lbl {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--text-2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    /* ─── TYPOGRAPHY HELPERS ─────────────────────────── */
+    .t-xs  { font-size: 11px; }
+    .t-sm  { font-size: 13px; }
+    .t-base{ font-size: 14px; }
+    .t-xl  { font-size: 18px; }
+    .fw-4  { font-weight: 400; }
+    .fw-5  { font-weight: 500; }
+    .fw-6  { font-weight: 600; }
+    .fw-7  { font-weight: 700; }
+    .fw-8  { font-weight: 800; }
+    .c-text   { color: var(--text);   }
+    .c-text2  { color: var(--text-2); }
+    .c-text3  { color: var(--text-3); }
+    .c-accent { color: var(--primary); }
+    .c-success{ color: var(--success-text); }
+    .c-warn   { color: var(--warning-text); }
+    .c-danger { color: var(--danger-text);  }
+
+    /* ─── LAYOUT HELPERS ─────────────────────────────── */
+    .flex    { display: flex; }
+    .fcol    { flex-direction: column; }
+    .aic     { align-items: center; }
+    .jcb     { justify-content: space-between; }
+    .jcc     { justify-content: center; }
+    .f1      { flex: 1; }
+    .shrink0 { flex-shrink: 0; }
+    .gap-1   { gap: 4px; }
+    .gap-2   { gap: 8px; }
+    .gap-3   { gap: 12px; }
+    .mb-1    { margin-bottom: 4px; }
+    .mb-2    { margin-bottom: 8px; }
+    .mb-3    { margin-bottom: 12px; }
+    .mb-4    { margin-bottom: 16px; }
+    .mt-1    { margin-top: 4px; }
+    .mt-2    { margin-top: 8px; }
+    .grid3   { display: grid; grid-template-columns: repeat(3,1fr); }
+    .grid2   { display: grid; grid-template-columns: repeat(2,1fr); }
+    .dx > * + * { border-left: 1px solid var(--border); }
+    .content-area { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ─── PROGRESS BAR ───────────────────────────────── */
+    .prog-track { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+    .prog-fill  { height: 100%; border-radius: 99px; background: var(--primary); }
+
+    /* ─── AVATAR ─────────────────────────────────────── */
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .av-primary { background: var(--primary); color: var(--primary-fg); }
+    .av-success { background: var(--success); color: #fff; }
+    .av-warning { background: var(--warning); color: #fff; }
+    .av-muted   { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+
+    /* ─── SECTION LABEL ──────────────────────────────── */
+    .sec-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .14em; color: var(--text-3);
+    }
+
+    /* ─── HERO AMOUNT ────────────────────────────────── */
+    .hero-amt {
+      font-size: 40px; font-weight: 800; color: var(--text);
+      letter-spacing: -.03em; line-height: 1;
+    }
+
+    /* ─── STAT ITEM ──────────────────────────────────── */
+    .stat-item { text-align: center; padding: 12px 6px; }
+    .stat-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); }
+    .stat-val { font-size: 15px; font-weight: 700; margin-top: 2px; color: var(--text); }
+
+    /* ─── TAB BAR ────────────────────────────────────── */
+    .tab-bar {
+      display: flex; gap: 2px; background: var(--surface-2);
+      border-radius: var(--radius-sm); padding: 3px;
+    }
+    .tab-btn {
+      flex: 1; padding: 7px 3px; border-radius: 3px;
+      font-size: 10px; font-weight: 600; text-align: center;
+      background: transparent; color: var(--text-2);
+      border: none; cursor: default; font-family: var(--font); white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(55,53,47,.1); }
+
+    /* ─── PARTICIPANT ROW ────────────────────────────── */
+    .p-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; border-bottom: 1px solid var(--border);
+    }
+    .p-row:last-child { border-bottom: none; }
+
+    /* ─── SHARE BOX ──────────────────────────────────── */
+    .code-box {
+      flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 13px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .code-chip {
+      font-family: monospace; font-size: 20px; font-weight: 800;
+      color: var(--primary); letter-spacing: .12em;
+    }
+
+    /* ─── STEP CARD ──────────────────────────────────── */
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px;
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--primary); color: var(--primary-fg);
+      font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ─── HERO ───────────────────────────────────────── */
+    .hero-section { padding: 32px 20px 24px; text-align: center; }
+    .hero-title {
+      font-size: 28px; font-weight: 800; color: var(--text);
+      letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px;
+    }
+    .hero-sub { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 22px; font-weight: 400; }
+
+    /* ─── MY CARD ────────────────────────────────────── */
+    .my-card { border-width: 1.5px !important; border-color: var(--text) !important; background: var(--primary-subtle) !important; }
+
+    /* ─── DIVIDER ────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 0; }
+
+    /* ─── PENDING MSG ────────────────────────────────── */
+    .pending-msg {
+      background: var(--warning-bg); padding: 7px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--warning-text);
+    }
+
+    /* ─── UPLOAD ZONE ────────────────────────────────── */
+    .upload-zone {
+      border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 18px; text-align: center; color: var(--text-2);
+    }
+
+    /* ─── TOGGLE ─────────────────────────────────────── */
+    .toggle-track {
+      width: 40px; height: 22px; border-radius: 11px;
+      background: var(--primary); position: relative; flex-shrink: 0;
+    }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 20px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: white; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+
+    /* ─── FORM EXPANDED ──────────────────────────────── */
+    .form-expanded {
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+      background: var(--surface-2);
+    }
+
+    /* ─── FONT SPECIMEN strip ────────────────────────── */
+    .specimen-strip {
+      background: var(--surface-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px 12px;
+      text-align: left;
+    }
+    .specimen-lbl {
+      font-size: 8px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .14em; color: var(--text-3); margin-bottom: 4px;
+    }
+    .specimen-text { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .specimen-sub  { font-size: 11px; font-weight: 400; color: var(--text-2); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       FONT BAR
+  ════════════════════════════════════════════════════ -->
+  <div class="font-bar">
+    <!-- Fila 1 -->
+    <div class="font-row">
+      <span class="font-row-label">Fuente →</span>
+      <button class="font-btn active" onclick="setFont('inter',this)">
+        <span class="font-sample" style="font-family:'Inter'">Aa</span> Inter
+      </button>
+      <button class="font-btn" onclick="setFont('dm-sans',this)">
+        <span class="font-sample" style="font-family:'DM Sans'">Aa</span> DM Sans
+      </button>
+      <button class="font-btn" onclick="setFont('manrope',this)">
+        <span class="font-sample" style="font-family:'Manrope'">Aa</span> Manrope
+      </button>
+      <button class="font-btn" onclick="setFont('plus-jakarta',this)">
+        <span class="font-sample" style="font-family:'Plus Jakarta Sans'">Aa</span> Plus Jakarta
+      </button>
+      <button class="font-btn" onclick="setFont('outfit',this)">
+        <span class="font-sample" style="font-family:'Outfit'">Aa</span> Outfit
+      </button>
+    </div>
+    <!-- Fila 2 -->
+    <div class="font-row">
+      <span class="font-row-label">→</span>
+      <button class="font-btn" onclick="setFont('nunito',this)">
+        <span class="font-sample" style="font-family:'Nunito Sans'">Aa</span> Nunito Sans
+      </button>
+      <button class="font-btn" onclick="setFont('figtree',this)">
+        <span class="font-sample" style="font-family:'Figtree'">Aa</span> Figtree
+      </button>
+      <button class="font-btn" onclick="setFont('sora',this)">
+        <span class="font-sample" style="font-family:'Sora'">Aa</span> Sora
+      </button>
+      <button class="font-btn" onclick="setFont('rubik',this)">
+        <span class="font-sample" style="font-family:'Rubik'">Aa</span> Rubik
+      </button>
+      <button class="font-btn" onclick="setFont('ibm-plex',this)">
+        <span class="font-sample" style="font-family:'IBM Plex Sans'">Aa</span> IBM Plex
+      </button>
+    </div>
+    <!-- Fila 3: Notion -->
+    <div class="font-row">
+      <span class="font-row-label">Notion →</span>
+      <button class="font-btn" onclick="setFont('work-sans',this)">
+        <span class="font-sample" style="font-family:'Work Sans'">Aa</span> Work Sans
+        <span style="font-size:9px;opacity:.5;margin-left:2px;">≈ Notion</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PREVIEW AREA
+  ════════════════════════════════════════════════════ -->
+  <div class="preview-wrap">
+    <div class="preview-header">
+      <p class="preview-eyebrow">Exploración tipográfica — Tema Linen</p>
+      <p id="font-name">Inter</p>
+      <p id="font-desc">El estándar moderno de las apps SaaS. Diseñado por Rasmus Andersson para pantallas digitales.</p>
+      <p id="font-sample-phrase">"Organiza el pago de tu asado en segundos"</p>
+    </div>
+
+    <div class="screens-grid">
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 1 — LANDING
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">📱 Landing Page</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <div class="app-header">
+              <div class="app-logo">🪣 <span>Colecta</span></div>
+              <button class="btn btn-outline btn-sm">Ingresar</button>
+            </div>
+
+            <!-- Font specimen strip -->
+            <div class="specimen-strip">
+              <p class="specimen-lbl">Muestra de fuente</p>
+              <p class="specimen-text">ABCDEFGHIJKLMN<br>abcdefghijklmn 0123456789</p>
+              <p class="specimen-sub">$12.000 · Organiza · Comparte · Cobra</p>
+            </div>
+
+            <div class="hero-section">
+              <div style="font-size:48px;margin-bottom:12px;">🪣</div>
+              <h1 class="hero-title">Organiza pagos grupales sin complicaciones</h1>
+              <p class="hero-sub">Divide gastos, comparte el link y cobra en segundos. Perfecto para asados, viajes y eventos.</p>
+              <div class="flex fcol gap-2">
+                <button class="btn btn-primary btn-lg btn-full">Crear una colecta</button>
+                <button class="btn btn-outline btn-lg btn-full">Ingresar con código</button>
+              </div>
+            </div>
+
+            <div class="content-area">
+              <p class="sec-label">¿Cómo funciona?</p>
+              <div class="flex fcol gap-2">
+                <div class="step-card">
+                  <div class="flex aic gap-2 mb-2">
+                    <div class="step-num">1</div>
+                    <p class="t-sm fw-7 c-text">Crea tu colecta</p>
+                  </div>
+                  <p class="t-xs c-text2 fw-4">Define el nombre, monto y participantes. Listo en 60 segundos.</p>
+                </div>
+                <div class="step-card">
+                  <div class="flex aic gap-2 mb-2">
+                    <div class="step-num">2</div>
+                    <p class="t-sm fw-7 c-text">Comparte el código</p>
+                  </div>
+                  <p class="t-xs c-text2 fw-4">Cada participante ingresa su nombre y ve sus instrucciones de pago.</p>
+                </div>
+                <div class="step-card">
+                  <div class="flex aic gap-2 mb-2">
+                    <div class="step-num">3</div>
+                    <p class="t-sm fw-7 c-text">Cobra y confirma</p>
+                  </div>
+                  <p class="t-xs c-text2 fw-4">Aprueba cada pago desde tu panel. Sin apps, sin cuentas extra.</p>
+                </div>
+              </div>
+
+              <!-- Características -->
+              <p class="sec-label" style="margin-top:4px;">Características</p>
+              <div class="grid2 gap-2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="card card-body">
+                  <p style="font-size:18px;margin-bottom:4px;">⚡</p>
+                  <p class="t-sm fw-6 c-text mb-1">Instantáneo</p>
+                  <p class="t-xs c-text2 fw-4">Sin esperas ni trámites</p>
+                </div>
+                <div class="card card-body">
+                  <p style="font-size:18px;margin-bottom:4px;">🔒</p>
+                  <p class="t-sm fw-6 c-text mb-1">Seguro</p>
+                  <p class="t-xs c-text2 fw-4">PIN para organizador</p>
+                </div>
+                <div class="card card-body">
+                  <p style="font-size:18px;margin-bottom:4px;">📲</p>
+                  <p class="t-sm fw-6 c-text mb-1">Sin app</p>
+                  <p class="t-xs c-text2 fw-4">100% desde el browser</p>
+                </div>
+                <div class="card card-body">
+                  <p style="font-size:18px;margin-bottom:4px;">🇨🇱</p>
+                  <p class="t-sm fw-6 c-text mb-1">CLP nativo</p>
+                  <p class="t-xs c-text2 fw-4">Pensado para Chile</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 2 — ORGANIZADOR
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">🎛 Vista Organizador</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <div class="app-header">
+              <div class="app-logo">← <span>Asado de Año</span></div>
+              <span class="badge badge-primary">Org.</span>
+            </div>
+
+            <div class="content-area">
+
+              <!-- Hero card -->
+              <div class="card">
+                <div class="card-section">
+                  <p class="sec-label mb-1">Total colecta</p>
+                  <p class="hero-amt">$36.000</p>
+                  <p class="t-xs c-text2 fw-4 mt-1">3 participantes · $12.000 c/u</p>
+                </div>
+                <div class="prog-track" style="margin:0 16px;border-radius:0;">
+                  <div class="prog-fill" style="width:67%;"></div>
+                </div>
+                <div class="grid3 dx">
+                  <div class="stat-item">
+                    <p class="stat-lbl c-success">Pagado</p>
+                    <p class="stat-val c-success">$12.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl c-warn">Pendiente</p>
+                    <p class="stat-val c-warn">$12.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl">Falta</p>
+                    <p class="stat-val">$12.000</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Compartir -->
+              <div class="card card-body">
+                <p class="sec-label mb-2">Código de acceso</p>
+                <div class="flex aic gap-2">
+                  <div class="code-box">
+                    <span class="code-chip">AB49C</span>
+                    <span class="t-xs c-text3">Código</span>
+                  </div>
+                  <button class="btn btn-primary btn-sm">📋 Copiar</button>
+                </div>
+              </div>
+
+              <!-- Tabs -->
+              <div class="tab-bar">
+                <button class="tab-btn active">👥 Participantes</button>
+                <button class="tab-btn">📲 QR</button>
+                <button class="tab-btn">💳 Datos</button>
+                <button class="tab-btn">📄 Docs</button>
+              </div>
+
+              <!-- Lista participantes -->
+              <div class="card" style="overflow:hidden;">
+                <!-- Pagado -->
+                <div class="p-row" style="background:var(--success-bg);">
+                  <div class="avatar av-success">✓</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Ana García</p>
+                    <p class="t-xs fw-7 c-success">$12.000</p>
+                  </div>
+                  <span class="badge badge-success" style="font-size:9px;">Pagado ✓</span>
+                </div>
+                <!-- Esperando confirmación -->
+                <div class="p-row" style="background:var(--warning-bg);">
+                  <div class="avatar av-warning">⏳</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Raúl Soto</p>
+                    <p class="t-xs fw-7 c-warn">$12.000</p>
+                  </div>
+                  <div class="flex fcol gap-1" style="align-items:flex-end;">
+                    <span class="badge badge-warning" style="font-size:9px;">⏳ Revisar</span>
+                    <div class="flex gap-1">
+                      <button class="btn btn-success" style="padding:3px 7px;font-size:10px;border-radius:3px;">✓</button>
+                      <button class="btn btn-outline" style="padding:3px 7px;font-size:10px;border-radius:3px;color:var(--danger-text);border-color:var(--danger);">✕</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Sin pagar -->
+                <div class="p-row">
+                  <div class="avatar av-muted">MR</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">María Rodríguez</p>
+                    <p class="t-xs c-text2 fw-4">$12.000 · sin pagar</p>
+                  </div>
+                </div>
+                <!-- Mensaje pending -->
+                <div class="pending-msg">
+                  💬 Raúl dice: <em>"Pagué ayer por transferencia"</em>
+                </div>
+              </div>
+
+              <!-- Datos bancarios -->
+              <div class="card">
+                <div class="card-section flex aic jcb">
+                  <p class="t-sm fw-6 c-text">Datos de transferencia</p>
+                  <button class="btn btn-outline btn-sm">📋 Copiar</button>
+                </div>
+                <div class="card-body flex fcol gap-2">
+                  <div class="flex jcb">
+                    <span class="t-xs c-text3">RUT</span>
+                    <span class="t-xs fw-6 c-text">12.345.678-9</span>
+                  </div>
+                  <div class="flex jcb">
+                    <span class="t-xs c-text3">Banco</span>
+                    <span class="t-xs fw-6 c-text">Banco Estado</span>
+                  </div>
+                  <div class="flex jcb">
+                    <span class="t-xs c-text3">Cuenta</span>
+                    <span class="t-xs fw-6 c-text">Vista · 12345678</span>
+                  </div>
+                  <div class="flex jcb">
+                    <span class="t-xs c-text3">Email</span>
+                    <span class="t-xs fw-6 c-text">ana@mail.com</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 3 — PARTICIPANTE
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">👤 Vista Participante</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <div class="app-header">
+              <div class="app-logo">← <span>Asado de Año</span></div>
+              <span class="badge badge-primary">AB49C</span>
+            </div>
+
+            <div class="content-area">
+
+              <!-- Mi participación -->
+              <div class="card my-card">
+                <div class="card-section" style="background:var(--surface-2);">
+                  <p class="sec-label mb-1">Tu participación</p>
+                  <div class="flex aic jcb">
+                    <div>
+                      <p class="t-xl fw-8 c-text">$12.000</p>
+                      <p class="t-xs c-text2 fw-4 mt-1">Raúl Soto · Asado de Año</p>
+                    </div>
+                    <span class="badge badge-warning">⏳ Pendiente</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="t-xs c-text2 fw-4 mb-3">Tu comprobante fue enviado. El organizador lo está revisando.</p>
+                  <button class="btn btn-outline btn-sm btn-full">Ver comprobante enviado</button>
+                </div>
+              </div>
+
+              <!-- Datos para transferir -->
+              <div class="card">
+                <div class="card-section">
+                  <p class="sec-label mb-1">Transfiere a</p>
+                  <p class="t-sm fw-6 c-text">Ana García</p>
+                </div>
+                <div class="card-body flex fcol gap-2">
+                  <div class="flex aic jcb">
+                    <span class="t-xs c-text3">RUT</span>
+                    <span class="t-xs fw-6 c-text">12345678-9</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="flex aic jcb">
+                    <span class="t-xs c-text3">Banco</span>
+                    <span class="t-xs fw-6 c-text">Banco Estado</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="flex aic jcb">
+                    <span class="t-xs c-text3">Tipo</span>
+                    <span class="t-xs fw-6 c-text">Cuenta Vista</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="flex aic jcb">
+                    <span class="t-xs c-text3">Número</span>
+                    <span class="t-xs fw-6 c-text">12345678</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="flex aic jcb">
+                    <span class="t-xs c-text3">Email</span>
+                    <span class="t-xs fw-6 c-text">ana@mail.com</span>
+                  </div>
+                  <button class="btn btn-outline btn-sm btn-full" style="margin-top:4px;">📋 Copiar datos</button>
+                </div>
+              </div>
+
+              <!-- Formulario informar pago -->
+              <div class="card" style="overflow:hidden;">
+                <div class="card-section">
+                  <p class="sec-label mb-1">Informar pago</p>
+                  <p class="t-xs c-text2 fw-4">Sube tu comprobante y confirma.</p>
+                </div>
+
+                <!-- Toggle monto diferente -->
+                <div class="card-section">
+                  <div class="flex aic jcb">
+                    <div>
+                      <p class="t-sm fw-6 c-text">Pagué un monto diferente</p>
+                      <p class="t-xs c-text2 fw-4">Opcional</p>
+                    </div>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                  </div>
+                </div>
+
+                <div class="form-expanded flex fcol gap-3">
+                  <div>
+                    <label class="lbl">Comprobante</label>
+                    <div class="upload-zone">
+                      <p style="font-size:22px;margin-bottom:4px;">📎</p>
+                      <p class="t-xs c-text2 fw-5">Toca para subir imagen</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="lbl">Mensaje (opcional)</label>
+                    <input class="input" type="text" placeholder="ej: Pagué ayer a las 3pm" />
+                  </div>
+                  <button class="btn btn-primary btn-full">Confirmar pago · $12.000</button>
+                </div>
+              </div>
+
+              <!-- Lista de participantes resumida -->
+              <div class="card">
+                <div class="card-section">
+                  <p class="sec-label">Otros participantes</p>
+                </div>
+                <div class="p-row" style="background:var(--success-bg);">
+                  <div class="avatar av-success">✓</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Ana García</p>
+                    <p class="t-xs fw-7 c-success">$12.000 · Pagado</p>
+                  </div>
+                </div>
+                <div class="p-row">
+                  <div class="avatar av-muted">MR</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">María Rodríguez</p>
+                    <p class="t-xs c-text3 fw-4">Sin pagar</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screens-grid -->
+  </div><!-- /preview-wrap -->
+
+  <script>
+    const fonts = {
+      'inter':        { name: 'Inter',            desc: 'El estándar del diseño de apps SaaS modernas. Creado por Rasmus Andersson, optimizado para pantallas.',     phrase: '"Organiza el pago de tu asado en segundos"' },
+      'dm-sans':      { name: 'DM Sans',          desc: 'Geométrica, amigable y con personalidad propia. Usada por startups como Pitch y muchas apps europeas.',    phrase: '"Comparte, cobra y cierra tu colecta hoy"' },
+      'manrope':      { name: 'Manrope',          desc: 'Moderna y distintiva con variaciones de peso muy claras. Da un toque premium y técnico al contenido.',     phrase: '"Tu cuota: $12.000 — Banco Estado"' },
+      'plus-jakarta': { name: 'Plus Jakarta Sans', desc: 'Elegante y contemporánea. Uno de los favoritos en Figma para dashboards y apps de productividad.',        phrase: '"Asado de Año · 3 participantes"' },
+      'outfit':       { name: 'Outfit',           desc: 'Limpia y geométrica, con excelente legibilidad en todos los tamaños. Transmite modernidad sin esfuerzo.',   phrase: '"Crea una colecta en menos de un minuto"' },
+      'nunito':       { name: 'Nunito Sans',      desc: 'Levemente redondeada, muy legible y acogedora. Ideal si quieres que la app se sienta cercana y accesible.', phrase: '"Divide gastos y cobra sin complicaciones"' },
+      'figtree':      { name: 'Figtree',          desc: 'Humanista y equilibrada, con excelente contraste entre pesos. Una elección muy segura para móvil.',        phrase: '"Transfiere a Ana · Cuenta Vista"' },
+      'sora':         { name: 'Sora',             desc: 'Técnica y precisa, con un ritmo tipográfico muy consistente. Da sensación de herramienta profesional.',     phrase: '"$36.000 recaudados de $36.000"' },
+      'rubik':        { name: 'Rubik',            desc: 'Esquinas levemente redondeadas que la hacen amigable sin perder seriedad. Muy popular en apps fintech.',    phrase: '"Confirmar pago · Raúl Soto"' },
+      'ibm-plex':     { name: 'IBM Plex Sans',    desc: 'Neutral, técnica y altamente confiable. Comunica seriedad y precisión. Perfecta para datos financieros.',  phrase: '"RUT 12.345.678-9 · Banco Estado"' },
+      'work-sans':    { name: 'Work Sans ≈ Notion', desc: 'La aproximación más cercana en Google Fonts al stack tipográfico de Notion (ui-sans-serif / SF Pro). Neutral, limpia y completamente sin fricción.', phrase: '"Asado de Año · $12.000 por persona"' },
+    };
+
+    function setFont(key, btn) {
+      document.documentElement.setAttribute('data-font', key);
+      document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('font-name').textContent   = fonts[key].name;
+      document.getElementById('font-desc').textContent   = fonts[key].desc;
+      document.getElementById('font-sample-phrase').textContent = fonts[key].phrase;
+    }
+  </script>
+</body>
+</html>

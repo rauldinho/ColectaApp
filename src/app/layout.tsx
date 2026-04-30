@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Sora } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const sora = Sora({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "800"] });
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "Colecta — Organiza pagos grupales",
@@ -35,7 +35,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={sora.className}>
+      <body className={inter.className}>
         {children}
         <Toaster richColors position="top-right" />
       </body>

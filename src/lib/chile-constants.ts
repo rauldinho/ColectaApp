@@ -1,0 +1,30 @@
+export const CHILE_BANKS = [
+  "Banco de Chile",
+  "BancoEstado",
+  "Banco Santander",
+  "BCI",
+  "Banco Itaú",
+  "Scotiabank",
+  "BICE",
+  "Banco Security",
+  "Banco Falabella",
+  "Banco Ripley",
+  "Banco Consorcio",
+  "Banco Internacional",
+  "BTG Pactual Chile",
+  "HSBC Chile",
+  "Coopeuch",
+  "Mercado Pago",
+  "MACH",
+  "Tenpo",
+  "Prepago Los Héroes",
+] as const;
+
+export const CHILE_ACCOUNT_TYPES = [
+  "Cuenta Corriente",
+  "Cuenta Vista",
+  "Cuenta RUT",
+  "Cuenta de Ahorro",
+  "Cuenta Joven",
+  "Cuenta Empresas",
+] as const;

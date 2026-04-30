@@ -9,9 +9,10 @@ import { createClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { EventWithDetails, Participant, Payment } from "@/types/database";
+import { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
 type OrgDoc = { name: string; url: string; originalName: string };
 
@@ -27,6 +28,18 @@ export default function EventoPage() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"participantes" | "info" | "facturas">("participantes");
   const [shareTab, setShareTab] = useState<"codigo" | "qr" | "email">("codigo");
+
+  // Refs para scroll automático
+  const tabsCardRef = useRef<HTMLDivElement>(null);
+  const joinFormRef = useRef<HTMLDivElement>(null);
+
+  /** Cambia de tab Y hace scroll para que sea visible */
+  function goToTab(tab: "participantes" | "info" | "facturas") {
+    setActiveTab(tab);
+    setTimeout(() => {
+      tabsCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  }
 
   // Organizer docs (facturas del evento)
   const [orgDocs, setOrgDocs] = useState<OrgDoc[]>([]);
@@ -67,6 +80,16 @@ export default function EventoPage() {
   }, [slug]);
 
   useEffect(() => { loadEvent(); }, [loadEvent]);
+
+  // Auto-scroll al formulario de registro para participantes nuevos
+  useEffect(() => {
+    if (!loading && !isOrganizer && !myParticipantId) {
+      setTimeout(() => {
+        joinFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 350);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   // ── Supabase Realtime — one WebSocket connection, zero polling ──
   useEffect(() => {
@@ -426,10 +449,12 @@ export default function EventoPage() {
     `Ingresa tu nombre y verás cuánto te toca pagar.`
   );
 
+  const pct = event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-secondary">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur px-4 py-3">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-xl px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <ColectaLogo size={26} />
@@ -439,7 +464,7 @@ export default function EventoPage() {
             <ThemeToggle />
             {isOrganizer ? (
               <>
-                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-primary">
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                   👑 Organizador
                 </span>
                 <button
@@ -448,7 +473,7 @@ export default function EventoPage() {
                     setIsOrganizer(false);
                     toast.success("Saliste del modo organizador");
                   }}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+                  className="rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-primary/90 transition"
                 >
                   Salir
                 </button>
@@ -466,121 +491,138 @@ export default function EventoPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-4 space-y-3">
-        {/* Hero card — monto prominente + progress */}
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        {/* Hero card — Cupertino white/light design */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
           {/* Nombre + fecha */}
-          <div className="px-5 pt-5 pb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 mb-0.5">Colecta</p>
-            <h1 className="text-xl font-bold text-foreground leading-tight">{event.name}</h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              {event.description && <p className="text-sm text-muted-foreground">{event.description}</p>}
-              <span className="text-sm text-muted-foreground/70">
-                📅{" "}
-                {event.event_date
-                  ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
-                  : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
-              </span>
+          <div className="px-5 pt-5 pb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Colecta activa</p>
+            <h1 className="text-xl font-bold text-foreground leading-tight tracking-tight">{event.name}</h1>
+            {event.description && <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>}
+            <div className="mt-1 text-xs text-muted-foreground">
+              📅{" "}
+              {event.event_date
+                ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
+                : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
             </div>
           </div>
 
           {/* Big number — cuota o total */}
-          <div className="px-5 pb-4 border-b border-border">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-                {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
-              </p>
+          <div className="px-5 pb-3">
+            <div className="flex items-end justify-between mb-1">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+                  {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
+                </p>
+                {editingAmount ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="relative flex-1">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                      <Input
+                        type="number" min="1"
+                        value={newAmountValue}
+                        onChange={(e) => setNewAmountValue(e.target.value)}
+                        className="h-11 pl-8 text-xl font-bold tracking-tight bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                        autoFocus
+                        onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
+                      />
+                    </div>
+                    <button
+                      onClick={saveAmount}
+                      className="h-11 shrink-0 rounded-full bg-primary px-4 text-sm font-semibold text-white hover:opacity-90 transition"
+                    >
+                      Guardar
+                    </button>
+                    <button
+                      onClick={() => setEditingAmount(false)}
+                      className="h-11 shrink-0 rounded-full border border-border bg-background px-3 text-sm text-muted-foreground hover:text-foreground transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-5xl font-bold text-foreground tracking-tight">
+                    {formatCurrency(event.amount_per_person || event.total_amount || 0, event.currency)}
+                  </span>
+                )}
+              </div>
               {isOrganizer && !editingAmount && (
                 <button
                   onClick={() => {
                     setNewAmountValue(String(event.amount_per_person ?? event.total_amount ?? ""));
                     setEditingAmount(true);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition"
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted transition mb-1"
                 >
                   ✏ Editar
                 </button>
               )}
             </div>
-            {editingAmount ? (
-              <div className="flex items-center gap-2 mt-1">
-                <div className="relative flex-1">
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
-                  <Input
-                    type="number" min="1"
-                    value={newAmountValue}
-                    onChange={(e) => setNewAmountValue(e.target.value)}
-                    className="h-11 pl-8 text-xl font-bold tracking-tight"
-                    autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
-                  />
-                </div>
-                <button
-                  onClick={saveAmount}
-                  className="h-11 shrink-0 rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 transition"
-                >
-                  Guardar
-                </button>
-                <button
-                  onClick={() => setEditingAmount(false)}
-                  className="h-11 shrink-0 rounded-md border border-border px-3 text-sm text-muted-foreground hover:bg-muted transition"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <span className="text-4xl font-extrabold text-foreground tracking-tight">
-                {formatCurrency(event.amount_per_person || event.total_amount || 0, event.currency)}
-              </span>
-            )}
           </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-3 divide-x divide-border">
-            <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Por persona</p>
-              <p className="text-sm font-bold text-foreground">
-                {event.amount_per_person ? formatCurrency(event.amount_per_person, event.currency) : "—"}
-              </p>
-            </div>
-            <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Total</p>
-              <p className="text-sm font-bold text-foreground">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
-            </div>
-            <div className="px-4 py-3 text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 mb-0.5">Acumulado</p>
-              <p className="text-sm font-bold text-emerald-600">{formatCurrency(totalConfirmed, event.currency)}</p>
-            </div>
-          </div>
-
-          {/* Progress bar */}
+          {/* Progress bar — thin, blue */}
           {event.participants.length > 0 && (
-            <div className="px-5 py-3 border-t border-border">
-              <div className="flex justify-between text-xs text-muted-foreground/70 mb-1.5">
+            <div className="px-5 pb-5">
+              <div className="flex justify-between text-xs text-muted-foreground mb-2">
                 <span>
                   {confirmedCount} de {event.participants.length} pagaron
-                  {pendingCount > 0 && <span className="ml-1 text-amber-500">· {pendingCount} por confirmar</span>}
+                  {pendingCount > 0 && <span className="ml-1 text-warning">· {pendingCount} por confirmar</span>}
                 </span>
-                <span className="font-semibold text-primary">
-                  {event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0}%
-                </span>
+                <span className="font-bold text-primary">{pct}%</span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
                 <div
-                  className="h-full rounded-full bg-muted0 transition-all duration-500"
-                  style={{ width: `${event.total_amount ? (totalConfirmed / event.total_amount) * 100 : 0}%` }}
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${pct}%` }}
                 />
               </div>
             </div>
           )}
         </div>
 
+        {/* Stats pills */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Por persona</p>
+            <p className="text-sm font-bold text-foreground">
+              {event.amount_per_person ? formatCurrency(event.amount_per_person, event.currency) : "—"}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-0.5">Total meta</p>
+            <p className="text-sm font-bold text-primary">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-success mb-0.5">Acumulado</p>
+            <p className="text-sm font-bold text-success">{formatCurrency(totalConfirmed, event.currency)}</p>
+          </div>
+        </div>
+
+        {/* Alerta datos bancarios — solo organizador sin payment_info */}
+        {isOrganizer && !event.payment_info && (
+          <button
+            onClick={() => goToTab("info")}
+            className="w-full flex items-start gap-3 rounded-xl border border-warning/40 bg-warning-bg px-4 py-3.5 text-left transition hover:opacity-90"
+          >
+            <span className="text-xl shrink-0">⚠️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-warning">Agrega tus datos de transferencia</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Los participantes no podrán ver cómo pagarte. Toca aquí para agregar tu cuenta bancaria.
+              </p>
+            </div>
+            <span className="shrink-0 text-warning self-center font-bold">→</span>
+          </button>
+        )}
+
         {/* Formulario de registro de pago (solo participantes que aún no registraron) */}
         {!isOrganizer && !hasJoined && (
-          <JoinSection
-            currency={event.currency}
-            amountPerPerson={event.amount_per_person ?? null}
-            onRegister={registerPayment}
-          />
+          <div ref={joinFormRef}>
+            <JoinSection
+              currency={event.currency}
+              amountPerPerson={event.amount_per_person ?? null}
+              onRegister={registerPayment}
+            />
+          </div>
         )}
 
         {/* Confirmación después de registrar */}
@@ -590,7 +632,7 @@ export default function EventoPage() {
           const myPayment = me.payments?.[0];
           const isConfirmed = myPayment?.status === "confirmed";
           return (
-            <div className={`rounded-lg border-2 p-4 ${isConfirmed ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/30" : "border-border bg-muted/40"}`}>
+            <div className={`rounded-xl border p-4 ${isConfirmed ? "border-success/40 bg-success-bg" : "border-border bg-card"}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Tu pago</p>
@@ -602,10 +644,10 @@ export default function EventoPage() {
                     <p className="mt-1 text-xs text-muted-foreground italic">"{myPayment.message}"</p>
                   )}
                 </div>
-                <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                   isConfirmed
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
-                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+                    ? "bg-success-bg text-success-text"
+                    : "bg-warning-bg text-warning-text"
                 }`}>
                   {isConfirmed ? "✓ Confirmado" : "⏳ Pendiente"}
                 </span>
@@ -623,16 +665,16 @@ export default function EventoPage() {
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           <p className="px-5 pt-4 pb-3 text-sm font-semibold text-foreground">📤 Compartir colecta</p>
 
-          {/* Sub-tabs */}
-          <div className="flex gap-1 mx-5 mb-4 rounded-lg border border-border bg-muted/40 p-1">
+          {/* Sub-tabs — segmented control style */}
+          <div className="flex gap-1 mx-5 mb-4 rounded-xl border border-border bg-secondary p-1">
             {(["codigo", "qr", "email"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setShareTab(t)}
-                className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-all ${
+                className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all ${
                   shareTab === t
-                    ? "bg-foreground text-background shadow-sm"
+                    ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -644,20 +686,30 @@ export default function EventoPage() {
           <div className="px-5 pb-5">
             {/* Tab: Código */}
             {shareTab === "codigo" && (
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <button
-                    onClick={copyCode}
-                    className="flex flex-1 items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-lg font-bold tracking-wider text-primary hover:bg-muted transition"
+              <div className="space-y-3">
+                {/* Code tile — light, Cupertino style */}
+                <div
+                  className="flex items-center justify-between rounded-2xl border border-border bg-secondary px-5 py-4 cursor-pointer transition hover:bg-secondary/70 active:scale-[0.99]"
+                  onClick={copyCode}
+                >
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+                      Código de acceso · toca para copiar
+                    </p>
+                    <p className="text-3xl font-bold tracking-[6px] text-foreground font-mono leading-none">
+                      {event.code}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={(e) => { e.stopPropagation(); copyLink(); }}
+                    className="shrink-0 z-10"
                   >
-                    {event.code}
-                    <span className="text-xs font-normal text-muted-foreground/70">código</span>
-                  </button>
-                  <Button onClick={copyLink} className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90">
-                    {copied ? "✓ Copiado" : "📋 Link"}
+                    {copied ? "✓ Copiado" : "Copiar link"}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Comparte el código o el link directo para que los participantes se unan.</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Compartí el código o el link directo para que los participantes se unan.
+                </p>
               </div>
             )}
 
@@ -684,15 +736,15 @@ export default function EventoPage() {
                     placeholder="correo@ejemplo.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="flex-1 h-10 text-sm"
+                    className="flex-1 h-10 text-sm bg-secondary border-0 rounded-xl"
                   />
                   <a
                     href={inviteEmail.trim() ? `mailto:${inviteEmail}?subject=${inviteSubject}&body=${inviteBody}` : "#"}
                     onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
-                    className={`inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                    className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition ${
                       inviteEmail.trim()
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "bg-muted text-muted-foreground/70 cursor-not-allowed"
+                        ? "bg-primary text-white hover:bg-primary/90"
+                        : "bg-secondary text-muted-foreground/70 cursor-not-allowed border border-border"
                     }`}
                   >
                     Enviar
@@ -700,7 +752,7 @@ export default function EventoPage() {
                 </div>
                 <button
                   onClick={copyInviteText}
-                  className="w-full rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+                  className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition"
                 >
                   📋 Copiar texto de invitación
                 </button>
@@ -709,111 +761,121 @@ export default function EventoPage() {
           </div>
         </div>
 
-        {/* Tabs — segmented control */}
-        <div className="flex gap-1 rounded-xl bg-slate-200 dark:bg-slate-700/60 p-1">
-          {(["participantes", "info", "facturas"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 whitespace-nowrap rounded-lg py-2.5 px-1 text-[11px] font-semibold transition ${
-                activeTab === tab ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab === "participantes"
-                ? `👥 Participantes${pendingCount > 0 && isOrganizer ? ` (${pendingCount})` : ""}`
-                : tab === "info" ? "💳 Pago"
-                : "📄 Facturas"}
-            </button>
-          ))}
-        </div>
+        {/* Tabs + contenido — una sola card */}
+        <div ref={tabsCardRef} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
 
-        {/* Tab: Participantes */}
-        {activeTab === "participantes" && (
-          <div className="space-y-2">
-            {/* Organizer: summary button */}
-            {isOrganizer && (
-              <div className="flex justify-end gap-2">
-                {event.participants.length > 0 && (
+          {/* Barra de tabs — segmented control */}
+          <div className="flex rounded-xl border border-border bg-secondary p-1 gap-1 m-3">
+            {(["participantes", "info", "facturas"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                  activeTab === tab
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab === "participantes"
+                  ? `👥 Participantes${pendingCount > 0 && isOrganizer ? ` (${pendingCount})` : ""}`
+                  : tab === "info" ? "💳 Pago"
+                  : "📄 Facturas"}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab: Participantes */}
+          {activeTab === "participantes" && (
+            <div className="p-3 space-y-2">
+              {/* Organizer: summary button */}
+              {isOrganizer && event.participants.length > 0 && (
+                <div className="flex justify-end">
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-muted/50 hover:text-primary transition"
+                    className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-secondary hover:text-primary transition"
                   >
                     📊 Generar resumen
                   </button>
-                )}
-              </div>
-            )}
-            {event.participants.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-                <p className="text-4xl mb-3">👥</p>
-                <p className="font-medium text-foreground">Aún no hay participantes</p>
-                <p className="mt-1 text-sm text-muted-foreground/70">
-                  Comparte el código <span className="font-mono font-bold text-primary">{event.code}</span> para que se unan
-                </p>
-                {event.amount_per_person ? (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    Cada participante pagará{" "}
-                    <span className="font-semibold text-primary">{formatCurrency(event.amount_per_person, event.currency)}</span>
+                </div>
+              )}
+              {event.participants.length === 0 ? (
+                <div className="py-10 text-center">
+                  <p className="text-4xl mb-3">👥</p>
+                  <p className="font-medium text-foreground">Aún no hay participantes</p>
+                  <p className="mt-1 text-sm text-muted-foreground/70">
+                    Comparte el código <span className="font-mono font-bold text-primary">{event.code}</span> para que se unan
                   </p>
-                ) : event.total_amount ? (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {formatCurrency(event.total_amount, event.currency)} se dividirá automáticamente entre todos
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <>
-                {event.participants.length > 1 && (
-                  <div className="rounded-xl bg-muted px-4 py-2.5 flex justify-between items-center">
-                    <span className="text-sm text-primary">
-                      {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
-                    </span>
-                    <span className="text-sm font-bold text-primary">
-                      {formatCurrency(perPerson, event.currency)} c/u
-                    </span>
-                  </div>
-                )}
-                {event.participants.map((participant) =>
-                  isOrganizer ? (
-                    <ParticipantCard
-                      key={participant.id}
-                      participant={participant}
-                      currency={event.currency}
-                      isOrganizer={true}
-                      isMe={false}
-                      onConfirmDirect={confirmDirect}
-                      onUndo={undoPayment}
-                      onReject={rejectPayment}
-                      onSubmitPayment={submitPayment}
-                    />
-                  ) : (
-                    /* Vista simplificada para participantes: solo nombre + estado */
-                    <PaymentRow
-                      key={participant.id}
-                      participant={participant}
-                      currency={event.currency}
-                      isMe={participant.id === myParticipantId}
-                    />
-                  )
-                )}
-              </>
-            )}
-          </div>
-        )}
+                  {event.amount_per_person ? (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      Cada participante pagará{" "}
+                      <span className="font-semibold text-primary">{formatCurrency(event.amount_per_person, event.currency)}</span>
+                    </p>
+                  ) : event.total_amount ? (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      {formatCurrency(event.total_amount, event.currency)} se dividirá automáticamente entre todos
+                    </p>
+                  ) : null}
+                  {isOrganizer && (
+                    <button
+                      onClick={copyLink}
+                      className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition"
+                    >
+                      Compartir ahora →
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {event.participants.length > 1 && (
+                    <div className="rounded-xl bg-secondary px-4 py-2.5 flex justify-between items-center">
+                      <span className="text-sm text-primary">
+                        {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
+                      </span>
+                      <span className="text-sm font-bold text-primary">
+                        {formatCurrency(perPerson, event.currency)} c/u
+                      </span>
+                    </div>
+                  )}
+                  {event.participants.map((participant) =>
+                    isOrganizer ? (
+                      <ParticipantCard
+                        key={participant.id}
+                        participant={participant}
+                        currency={event.currency}
+                        isOrganizer={true}
+                        isMe={false}
+                        onConfirmDirect={confirmDirect}
+                        onUndo={undoPayment}
+                        onReject={rejectPayment}
+                        onSubmitPayment={submitPayment}
+                      />
+                    ) : (
+                      <PaymentRow
+                        key={participant.id}
+                        participant={participant}
+                        currency={event.currency}
+                        isMe={participant.id === myParticipantId}
+                      />
+                    )
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
-        {/* Tab: Info de pago */}
-        {activeTab === "info" && (
-          <PaymentInfoTab
-            eventId={event.id}
-            isOrganizer={isOrganizer}
-            existingInfo={event.payment_info}
-            onSaved={loadEvent}
-          />
-        )}
+          {/* Tab: Info de pago */}
+          {activeTab === "info" && (
+            <PaymentInfoTab
+              eventId={event.id}
+              isOrganizer={isOrganizer}
+              existingInfo={event.payment_info}
+              onSaved={loadEvent}
+            />
+          )}
 
-        {/* Tab: Facturas del evento */}
-        {activeTab === "facturas" && (
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+          {/* Tab: Facturas del evento */}
+          {activeTab === "facturas" && (
+          <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-foreground">Facturas y comprobantes</p>
@@ -826,6 +888,7 @@ export default function EventoPage() {
                     variant="outline"
                     onClick={() => orgDocRef.current?.click()}
                     disabled={uploadingDoc}
+                    className="rounded-full"
                   >
                     {uploadingDoc ? "Subiendo..." : "📎 Subir"}
                   </Button>
@@ -846,7 +909,7 @@ export default function EventoPage() {
             {loadingDocs ? (
               <div className="py-6 text-center text-sm text-muted-foreground/70">Cargando...</div>
             ) : orgDocs.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-muted/50 p-8 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-secondary p-8 text-center">
                 <p className="text-3xl mb-2">📄</p>
                 <p className="text-sm text-muted-foreground">
                   {isOrganizer
@@ -868,7 +931,7 @@ export default function EventoPage() {
                   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.name);
                   const isPdf = /\.pdf$/i.test(doc.name);
                   return (
-                    <div key={doc.name} className="rounded-xl border border-border bg-muted/50 overflow-hidden">
+                    <div key={doc.name} className="rounded-xl border border-border bg-secondary overflow-hidden">
                       {isImage && (
                         <a href={doc.url} target="_blank" rel="noopener noreferrer">
                           <img
@@ -893,14 +956,14 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center rounded-lg bg-muted dark:bg-muted px-3 py-1.5 text-xs font-medium text-primary dark:text-primary hover:bg-muted dark:hover:bg-muted transition"
+                            className="inline-flex items-center rounded-full bg-secondary border border-border px-3 py-1.5 text-xs font-medium text-primary hover:bg-muted transition"
                           >
                             Ver
                           </a>
                           {isOrganizer && (
                             <button
                               onClick={() => deleteOrgDoc(doc.name)}
-                              className="inline-flex items-center rounded-lg bg-red-50 dark:bg-red-950/50 px-3 py-1.5 text-xs font-medium text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition"
+                              className="inline-flex items-center rounded-full bg-red-50 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-100 transition"
                             >
                               Eliminar
                             </button>
@@ -913,7 +976,9 @@ export default function EventoPage() {
               </div>
             )}
           </div>
-        )}
+          )}
+
+        </div>{/* /tabs wrapper card */}
       </main>
 
       {showPinModal && (
@@ -960,14 +1025,14 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
             <h3 className="font-bold text-foreground">📊 Resumen de pagos</h3>
             <p className="text-xs text-muted-foreground/70 mt-0.5">Listo para copiar y pegar en WhatsApp</p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-muted hover:text-foreground">
+          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-secondary hover:text-foreground">
             ✕
           </button>
         </div>
 
         {/* Preview */}
         <div className="px-5 py-4">
-          <div className="rounded-2xl border border-border bg-muted/50 p-4 max-h-72 overflow-y-auto">
+          <div className="rounded-2xl border border-border bg-secondary p-4 max-h-72 overflow-y-auto">
             <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">
               {summaryText}
             </pre>
@@ -976,11 +1041,11 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
 
         {/* Actions */}
         <div className="flex gap-3 border-t border-border px-5 py-4">
-          <Button variant="outline" className="flex-1" onClick={onClose}>
+          <Button variant="outline" className="flex-1 rounded-full" onClick={onClose}>
             Cerrar
           </Button>
           <Button
-            className={`flex-1 transition ${copied ? "bg-green-600 hover:bg-green-700" : ""}`}
+            className={`flex-1 rounded-full transition ${copied ? "bg-success hover:bg-success/90" : "bg-primary hover:bg-primary/90"}`}
             onClick={handleCopy}
           >
             {copied ? "✓ ¡Copiado!" : "📋 Copiar para WhatsApp"}
@@ -1008,14 +1073,14 @@ function PaymentRow({
   const isPending = payment?.status === "pending";
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition ${
-      isMe ? "border-foreground/20 bg-muted/60" : "border-border bg-card"
+    <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition ${
+      isMe ? "bg-primary/5" : "bg-card"
     }`}>
       {/* Avatar inicial */}
       <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-        isConfirmed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
-        : isPending  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
-        : "bg-muted text-muted-foreground"
+        isConfirmed ? "bg-primary/10 text-primary"
+        : isPending  ? "bg-warning-bg text-warning"
+        : "bg-secondary text-muted-foreground"
       }`}>
         {participant.name.charAt(0).toUpperCase()}
       </div>
@@ -1032,10 +1097,10 @@ function PaymentRow({
         )}
       </div>
       {/* Status badge */}
-      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-        isConfirmed ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
-        : isPending  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
-        : "bg-muted text-muted-foreground"
+      <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+        isConfirmed ? "bg-success-bg text-success-text"
+        : isPending  ? "bg-warning-bg text-warning-text"
+        : "bg-secondary text-muted-foreground"
       }`}>
         {isConfirmed ? "✓ Confirmado" : isPending ? "⏳ Pendiente" : "Sin pago"}
       </span>
@@ -1081,14 +1146,14 @@ function JoinSection({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden">
+    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
       {/* Header con cuota */}
       {defaultAmount > 0 && (
-        <div className="border-b border-border bg-muted/40 px-5 py-4 text-center">
+        <div className="border-b border-border bg-secondary px-5 py-4 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             Cuota por persona
           </p>
-          <p className="text-3xl font-extrabold text-foreground tracking-tight">
+          <p className="text-3xl font-bold text-foreground tracking-tight">
             {formatCurrency(defaultAmount, currency)}
           </p>
         </div>
@@ -1108,7 +1173,7 @@ function JoinSection({
             onChange={(e) => setName(e.target.value)}
             required
             autoFocus
-            className="h-11 text-sm"
+            className="h-11 text-sm bg-secondary border-0 rounded-xl"
           />
         </div>
 
@@ -1123,7 +1188,7 @@ function JoinSection({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 text-sm"
+            className="h-11 text-sm bg-secondary border-0 rounded-xl"
           />
           <p className="text-xs text-muted-foreground/70">
             Solo para evitar duplicados, no se muestra públicamente.
@@ -1146,7 +1211,7 @@ function JoinSection({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
-              className="h-11 pl-7 text-sm font-bold"
+              className="h-11 pl-7 text-sm font-bold bg-secondary border-0 rounded-xl"
             />
           </div>
         </div>
@@ -1157,7 +1222,7 @@ function JoinSection({
             Comprobante de pago
           </label>
           {file ? (
-            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2.5">
+            <div className="flex items-center justify-between rounded-xl border border-border bg-secondary px-3 py-2.5">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
                 <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
@@ -1171,7 +1236,7 @@ function JoinSection({
               </button>
             </div>
           ) : (
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/20 px-4 py-4 text-center hover:bg-muted/40 transition">
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary px-4 py-4 text-center hover:bg-muted/40 transition">
               <span className="text-xl">📎</span>
               <span className="text-xs font-medium text-muted-foreground">
                 Adjuntar imagen o PDF <span className="text-muted-foreground/50">(opcional)</span>
@@ -1196,13 +1261,13 @@ function JoinSection({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={2}
-            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            className="w-full resize-none rounded-xl border-0 bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
           />
         </div>
 
         <Button
           type="submit"
-          className="w-full h-11 text-sm font-semibold"
+          className="w-full h-11 text-sm font-semibold rounded-full bg-primary text-white hover:bg-primary/90"
           disabled={!canSubmit}
         >
           {submitting ? (
@@ -1246,6 +1311,16 @@ function ParticipantCard({
   const [useCustomAmount, setUseCustomAmount] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const expandedFormRef = useRef<HTMLDivElement>(null);
+
+  // Scroll al formulario cuando se expande
+  useEffect(() => {
+    if (expanded && expandedFormRef.current) {
+      setTimeout(() => {
+        expandedFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  }, [expanded]);
 
   const confirmedPayment = participant.payments?.find((p) => p.status === "confirmed");
   const pendingPayment = participant.payments?.find((p) => p.status === "pending");
@@ -1291,21 +1366,21 @@ function ParticipantCard({
   return (
     <div className={`rounded-xl border transition ${
       isPaid
-        ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20"
+        ? "border-success/30 bg-success-bg/40"
         : isPending
-        ? "border-amber-200 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20"
+        ? "border-warning/30 bg-warning-bg/40"
         : isMe
-        ? "border-border dark:border-border bg-muted/30 dark:bg-muted/50"
+        ? "border-border bg-secondary"
         : "border-border bg-card"
     }`}>
       {/* Fila principal del participante */}
       <div className="flex items-center gap-3 px-4 py-3.5">
         {/* Avatar con iniciales */}
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-          isPaid ? "bg-emerald-500 text-white"
-          : isPending ? "bg-amber-400 text-white"
-          : isMe ? "bg-primary text-primary-foreground"
-          : "bg-muted text-muted-foreground"
+          isPaid ? "bg-primary/10 text-primary"
+          : isPending ? "bg-warning-bg text-warning"
+          : isMe ? "bg-primary/10 text-primary"
+          : "bg-secondary text-muted-foreground"
         }`}>
           {isPaid ? "✓" : isPending ? "⏳" : initials}
         </div>
@@ -1315,7 +1390,7 @@ function ParticipantCard({
           <div className="flex items-center gap-1.5">
             <p className="truncate font-semibold text-foreground text-sm">{participant.name}</p>
             {isMe && !isOrganizer && (
-              <span className="shrink-0 rounded-full bg-muted dark:bg-muted px-2 py-0.5 text-xs font-semibold text-primary dark:text-primary">
+              <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-primary">
                 Tú
               </span>
             )}
@@ -1328,8 +1403,8 @@ function ParticipantCard({
             return (
               <div>
                 <p className={`text-sm font-bold ${
-                  isPaid ? "text-emerald-600 dark:text-emerald-400"
-                  : isPending ? "text-amber-600 dark:text-amber-400"
+                  isPaid ? "text-success"
+                  : isPending ? "text-warning"
                   : "text-muted-foreground"
                 }`}>
                   {formatCurrency(displayAmount, currency)}
@@ -1351,7 +1426,7 @@ function ParticipantCard({
               {isPaid ? (
                 <button
                   onClick={() => onUndo(participant.id)}
-                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition"
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary transition"
                 >
                   Deshacer
                 </button>
@@ -1359,13 +1434,13 @@ function ParticipantCard({
                 <>
                   <button
                     onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                    className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600 transition"
+                    className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
                   >
                     Aprobar ✓
                   </button>
                   <button
                     onClick={() => onReject(pendingPayment!.id)}
-                    className="rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition"
+                    className="rounded-full border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition"
                   >
                     Rechazar
                   </button>
@@ -1373,7 +1448,7 @@ function ParticipantCard({
               ) : (
                 <button
                   onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                  className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-600 transition"
+                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
                 >
                   Confirmar ✓
                 </button>
@@ -1382,17 +1457,17 @@ function ParticipantCard({
           ) : (
             <>
               {isPaid ? (
-                <span className="rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
+                <span className="rounded-full bg-success-bg px-3 py-1 text-xs font-medium text-success-text">
                   Pagado ✓
                 </span>
               ) : isPending ? (
-                <span className="rounded-full bg-amber-100 dark:bg-amber-900/40 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                <span className="rounded-full bg-warning-bg px-3 py-1 text-xs font-medium text-warning-text">
                   ⏳ Esperando
                 </span>
               ) : isMe ? (
                 <button
                   onClick={() => setExpanded(!expanded)}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition"
+                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
                 >
                   Ya pagué
                 </button>
@@ -1404,11 +1479,11 @@ function ParticipantCard({
 
       {/* Organizer: mensaje del participante en pago pendiente */}
       {isOrganizer && isPending && (pendingPayment as Payment & { message?: string | null })?.message && (
-        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-3 pt-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
+        <div className="border-t border-warning/20 px-4 pb-3 pt-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-warning mb-1">
             💬 Mensaje del participante
           </p>
-          <p className="text-sm text-foreground bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+          <p className="text-sm text-foreground bg-warning-bg rounded-xl px-3 py-2">
             {(pendingPayment as Payment & { message?: string | null })?.message}
           </p>
         </div>
@@ -1416,20 +1491,20 @@ function ParticipantCard({
 
       {/* Organizer: comprobante en pago pendiente */}
       {isOrganizer && isPending && pendingPayment?.receipt_url && (
-        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-4 pt-3">
-          <p className="mb-2 text-xs font-medium text-amber-700 dark:text-amber-400">📎 Comprobante del participante:</p>
+        <div className="border-t border-warning/20 px-4 pb-4 pt-3">
+          <p className="mb-2 text-xs font-medium text-warning">📎 Comprobante del participante:</p>
           <a href={pendingPayment.receipt_url} target="_blank" rel="noopener noreferrer">
             <img
               src={pendingPayment.receipt_url}
               alt="Comprobante"
-              className="max-h-48 w-full rounded-xl object-contain border border-amber-200 dark:border-amber-800 bg-card"
+              className="max-h-48 w-full rounded-xl object-contain border border-warning/20 bg-card"
             />
           </a>
         </div>
       )}
       {isOrganizer && isPending && !pendingPayment?.receipt_url && !(pendingPayment as Payment & { message?: string | null })?.message && (
-        <div className="border-t border-amber-200 dark:border-amber-800 px-4 pb-3 pt-2">
-          <p className="text-xs text-amber-600 dark:text-amber-400">
+        <div className="border-t border-warning/20 px-4 pb-3 pt-2">
+          <p className="text-xs text-warning">
             El participante declaró que pagó (sin comprobante adjunto)
           </p>
         </div>
@@ -1437,10 +1512,10 @@ function ParticipantCard({
 
       {/* Organizer: recibo en pago confirmado */}
       {isOrganizer && isPaid && confirmedPayment?.receipt_url && (
-        <div className="border-t border-emerald-100 dark:border-emerald-900 px-4 pb-3 pt-2">
+        <div className="border-t border-border px-4 pb-3 pt-2">
           <button
             onClick={() => setShowReceipt(!showReceipt)}
-            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
+            className="text-xs text-primary hover:underline"
           >
             {showReceipt ? "▲ Ocultar recibo" : "▼ Ver recibo de pago"}
           </button>
@@ -1450,7 +1525,7 @@ function ParticipantCard({
                 <img
                   src={confirmedPayment.receipt_url}
                   alt="Comprobante confirmado"
-                  className="max-h-48 w-full rounded-xl object-contain border border-emerald-200 dark:border-emerald-800 bg-card"
+                  className="max-h-48 w-full rounded-xl object-contain border border-border bg-card"
                 />
               </a>
             </div>
@@ -1460,13 +1535,13 @@ function ParticipantCard({
 
       {/* Participant: formulario "Ya pagué" */}
       {isMe && !isOrganizer && !isPaid && !isPending && expanded && (
-        <div className="border-t border-border dark:border-border bg-muted/30 dark:bg-muted/50 px-4 pb-4 pt-3 space-y-3 rounded-b-xl">
+        <div ref={expandedFormRef} className="border-t border-border bg-secondary px-4 pb-4 pt-3 space-y-3 rounded-b-xl">
           {/* Comprobante */}
           <div>
             <p className="text-sm font-medium text-foreground mb-2">Adjunta tu comprobante (opcional)</p>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border dark:border-border bg-card p-4 hover:border-foreground/30 hover:bg-muted dark:hover:bg-muted transition"
+              className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-4 hover:border-primary/30 hover:bg-secondary transition"
             >
               {preview ? (
                 <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
@@ -1491,8 +1566,8 @@ function ParticipantCard({
           </div>
 
           {/* Toggle: pagué otro monto */}
-          <div className="rounded-xl border border-border dark:border-border bg-card overflow-hidden">
-            <label className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-muted/40 transition">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <label className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-secondary transition">
               <div>
                 <p className="text-sm font-medium text-foreground">Pagué un monto diferente</p>
                 <p className="text-xs text-muted-foreground/70 mt-0.5">
@@ -1516,7 +1591,7 @@ function ParticipantCard({
               </div>
             </label>
             {useCustomAmount && (
-              <div className="border-t border-border dark:border-border px-4 pb-3 pt-2.5">
+              <div className="border-t border-border px-4 pb-3 pt-2.5">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   Monto que pagaste
                 </label>
@@ -1527,7 +1602,7 @@ function ParticipantCard({
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   autoFocus
-                  className="w-full rounded-xl border border-border dark:border-border bg-background px-3 py-2.5 text-base font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+                  className="w-full rounded-xl border-0 bg-secondary px-3 py-2.5 text-base font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
                 />
                 {customAmount && parseFloat(customAmount) > 0 && (
                   <p className="mt-1.5 text-xs text-primary font-medium">
@@ -1550,7 +1625,7 @@ function ParticipantCard({
               placeholder="Ej: Transferí el jueves a las 14:00 desde Banco Estado"
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-border dark:border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+              className="w-full resize-none rounded-xl border-0 bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
             />
           </div>
 
@@ -1559,7 +1634,7 @@ function ParticipantCard({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 rounded-full border border-border"
               onClick={() => {
                 setExpanded(false);
                 setSelectedFile(null);
@@ -1573,7 +1648,7 @@ function ParticipantCard({
             </Button>
             <Button
               size="sm"
-              className="flex-1"
+              className="flex-1 rounded-full bg-primary text-white hover:bg-primary/90"
               onClick={handleSubmit}
               disabled={submitting || (useCustomAmount && (!customAmount || parseFloat(customAmount) <= 0))}
             >
@@ -1628,7 +1703,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
               autoComplete="off"
               name="colecta-pin-verify"
               style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-              className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+              className={`text-center text-2xl tracking-widest font-bold bg-secondary border-0 rounded-xl ${error ? "ring-2 ring-red-400" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground">
@@ -1637,8 +1712,8 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
           </div>
           {error && <p className="text-center text-sm font-medium text-red-500">PIN incorrecto</p>}
           <div className="flex gap-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" className="flex-1" disabled={pin.length < 4}>Ingresar</Button>
+            <Button type="button" variant="outline" className="flex-1 rounded-full border border-border" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1 rounded-full bg-primary text-white hover:bg-primary/90" disabled={pin.length < 4}>Ingresar</Button>
           </div>
         </form>
       </div>
@@ -1647,40 +1722,11 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
 }
 
 // ──────────────────────────────────────────────
-// Chilean banks & account types
+// Chilean banks & account types (imported from shared lib)
 // ──────────────────────────────────────────────
-export const CHILE_BANKS = [
-  "Banco de Chile",
-  "BancoEstado",
-  "Banco Santander",
-  "BCI",
-  "Banco Itaú",
-  "Scotiabank",
-  "BICE",
-  "Banco Security",
-  "Banco Falabella",
-  "Banco Ripley",
-  "Banco Consorcio",
-  "Banco Internacional",
-  "BTG Pactual Chile",
-  "HSBC Chile",
-  "Coopeuch",
-  "Mercado Pago",
-  "MACH",
-  "Tenpo",
-  "Prepago Los Héroes",
-] as const;
+export { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
-export const CHILE_ACCOUNT_TYPES = [
-  "Cuenta Corriente",
-  "Cuenta Vista",
-  "Cuenta RUT",
-  "Cuenta de Ahorro",
-  "Cuenta Joven",
-  "Cuenta Empresas",
-] as const;
-
-const selectCls = "flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const selectCls = "flex h-10 w-full rounded-xl border-0 bg-secondary px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 // ──────────────────────────────────────────────
 // Payment Info Tab
@@ -1729,7 +1775,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 
   if (!existingInfo && !isOrganizer) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+      <div className="p-8 text-center">
         <p className="text-4xl mb-3">💳</p>
         <p className="text-muted-foreground text-sm">El organizador aún no cargó los datos de transferencia.</p>
       </div>
@@ -1753,16 +1799,16 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 
   if (!editing && existingInfo) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-3">
+      <div className="p-5 space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-foreground">Datos de transferencia</p>
           <div className="flex items-center gap-2">
             <button
               onClick={copyTransferData}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 copiedInfo
-                  ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
-                  : "bg-muted dark:bg-muted text-primary dark:text-primary hover:bg-muted dark:hover:bg-muted"
+                  ? "bg-success-bg text-success-text"
+                  : "bg-secondary border border-border text-primary hover:bg-muted"
               }`}
             >
               {copiedInfo ? "✓ Copiado" : "📋 Copiar datos"}
@@ -1781,7 +1827,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
         {existingInfo.notes && (
-          <div className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>
+          <div className="rounded-xl bg-secondary p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>
         )}
       </div>
     );
@@ -1790,7 +1836,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
   if (!isOrganizer) return null;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+    <div className="p-5 space-y-4">
       <p className="font-semibold text-foreground">Datos de transferencia</p>
 
       {/* Titular */}
@@ -1889,14 +1935,14 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
           placeholder="Ej: Transferir hasta el viernes" className={selectCls} />
       </div>
 
-      <Button onClick={saveInfo} disabled={saving} className="w-full">{saving ? "Guardando..." : "Guardar datos"}</Button>
+      <Button onClick={saveInfo} disabled={saving} className="w-full rounded-full bg-primary text-white hover:bg-primary/90">{saving ? "Guardando..." : "Guardar datos"}</Button>
     </div>
   );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-1 border-b border-border/40 last:border-0">
+    <div className="flex items-center justify-between py-1 border-b border-border last:border-0">
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-sm font-medium text-foreground">{value}</span>
     </div>
@@ -1904,7 +1950,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function StatCard({ label, value, color }: { label: string; value: string; color: "violet" | "green" | "orange" }) {
-  const colors = { violet: "bg-muted text-primary", green: "bg-green-50 text-green-700", orange: "bg-amber-50 text-amber-700" };
+  const colors = { violet: "bg-secondary text-primary", green: "bg-success-bg text-success-text", orange: "bg-warning-bg text-warning-text" };
   return (
     <div className={`rounded-xl p-3 ${colors[color]}`}>
       <p className="text-xs opacity-70">{label}</p>
@@ -1915,7 +1961,7 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-secondary">
       <div className="flex flex-col items-center gap-3">
         <div className="animate-bounce"><ColectaLogo size={40} /></div>
         <p className="text-sm text-muted-foreground">Cargando colecta...</p>
@@ -1926,12 +1972,12 @@ function LoadingScreen() {
 
 function NotFoundScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="text-center">
+    <div className="flex min-h-screen items-center justify-center bg-secondary px-4">
+      <div className="text-center bg-card rounded-2xl border border-border shadow-sm px-8 py-10 max-w-sm w-full">
         <p className="mb-2 text-5xl">😕</p>
         <h2 className="text-xl font-bold text-foreground">Colecta no encontrada</h2>
-        <p className="mt-1 text-muted-foreground">El link puede haber expirado o ser incorrecto.</p>
-        <Link href="/" className="mt-4 inline-block text-primary hover:underline">← Volver al inicio</Link>
+        <p className="mt-1 text-muted-foreground text-sm">El link puede haber expirado o ser incorrecto.</p>
+        <Link href="/" className="mt-4 inline-block text-primary hover:underline text-sm">← Volver al inicio</Link>
       </div>
     </div>
   );

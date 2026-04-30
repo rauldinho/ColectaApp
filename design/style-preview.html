@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="prism">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colecta — Exploración de Estilos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* =====================================================
+       RESET
+    ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+    /* =====================================================
+       THEME 1 — PRISM  (Índigo moderno, dirección actual refinada)
+    ===================================================== */
+    [data-theme="prism"] {
+      --bg: #F5F6FA;
+      --surface: #FFFFFF;
+      --surface-2: #F1F4F9;
+      --border: #E2E8F0;
+      --primary: #5B5FEF;
+      --primary-dark: #4A4ED8;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #EEF2FF;
+      --text: #111827;
+      --text-2: #6B7280;
+      --text-3: #9CA3AF;
+      --success: #10B981;  --success-bg: #ECFDF5; --success-text: #065F46;
+      --warning: #F59E0B;  --warning-bg: #FFFBEB; --warning-text: #92400E;
+      --danger: #EF4444;   --danger-bg: #FEF2F2;  --danger-text: #991B1B;
+      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+      --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+    }
+
+    /* =====================================================
+       THEME 2 — COSMOS  (Dark mode Linear-inspired)
+    ===================================================== */
+    [data-theme="cosmos"] {
+      --bg: #0D0D14;
+      --surface: #13131F;
+      --surface-2: #1C1C2E;
+      --border: #252545;
+      --primary: #7C7FFF;
+      --primary-dark: #6366F1;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #1A1A3E;
+      --text: #F0F0FF;
+      --text-2: #9090C0;
+      --text-3: #5050A0;
+      --success: #34D399;  --success-bg: rgba(52,211,153,.12);  --success-text: #34D399;
+      --warning: #FCD34D;  --warning-bg: rgba(252,211,77,.12);   --warning-text: #FCD34D;
+      --danger: #F87171;   --danger-bg: rgba(248,113,113,.12);   --danger-text: #F87171;
+      --shadow: 0 1px 3px rgba(0,0,0,.5);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.6);
+      --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+    }
+
+    /* =====================================================
+       THEME 3 — PAPER  (Notion-inspired, cálido y tipográfico)
+    ===================================================== */
+    [data-theme="paper"] {
+      --bg: #F7F6F3;
+      --surface: #FFFFFF;
+      --surface-2: #F0EFEC;
+      --border: #E8E5DE;
+      --primary: #2383E2;
+      --primary-dark: #1A6FCC;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #EEF4FB;
+      --text: #37352F;
+      --text-2: #6B6862;
+      --text-3: #AEACAA;
+      --success: #0F7B6C;  --success-bg: #D4F7EF; --success-text: #0F7B6C;
+      --warning: #D9730D;  --warning-bg: #FEF3C7; --warning-text: #D9730D;
+      --danger: #E03E3E;   --danger-bg: #FFE2DD;  --danger-text: #E03E3E;
+      --shadow: 0 1px 2px rgba(15,15,15,.06);
+      --shadow-md: 0 3px 10px rgba(15,15,15,.09);
+      --radius: 8px; --radius-sm: 4px; --radius-lg: 12px;
+    }
+
+    /* =====================================================
+       THEME 4 — ATLAS  (Stripe-inspired, ultra profesional)
+    ===================================================== */
+    [data-theme="atlas"] {
+      --bg: #F6F9FC;
+      --surface: #FFFFFF;
+      --surface-2: #EFF3F8;
+      --border: #E4EBF5;
+      --primary: #635BFF;
+      --primary-dark: #4B44E8;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #F0EFFB;
+      --text: #0A2540;
+      --text-2: #425466;
+      --text-3: #8898AA;
+      --success: #36B37E;  --success-bg: #E3FCEF; --success-text: #006644;
+      --warning: #FFAB00;  --warning-bg: #FFFAE6; --warning-text: #974F0C;
+      --danger: #FF5630;   --danger-bg: #FFEBE6;  --danger-text: #BF2600;
+      --shadow: 0 2px 5px rgba(10,37,64,.08), 0 1px 2px rgba(10,37,64,.06);
+      --shadow-md: 0 7px 20px rgba(10,37,64,.1);
+      --radius: 10px; --radius-sm: 6px; --radius-lg: 14px;
+    }
+
+    /* =====================================================
+       THEME 5 — VOID  (Vercel-inspired, monocromático)
+    ===================================================== */
+    [data-theme="void"] {
+      --bg: #000000;
+      --surface: #111111;
+      --surface-2: #1A1A1A;
+      --border: #2A2A2A;
+      --primary: #FAFAFA;
+      --primary-dark: #E0E0E0;
+      --primary-fg: #000000;
+      --primary-subtle: #1A1A1A;
+      --text: #EDEDED;
+      --text-2: #888888;
+      --text-3: #555555;
+      --success: #50E3C2;  --success-bg: #0A2E29; --success-text: #50E3C2;
+      --warning: #F5A623;  --warning-bg: #2D1F00; --warning-text: #F5A623;
+      --danger: #FF4444;   --danger-bg: #2D0000;  --danger-text: #FF4444;
+      --shadow: 0 0 0 1px rgba(255,255,255,.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.8);
+      --radius: 12px; --radius-sm: 6px; --radius-lg: 18px;
+    }
+
+    /* =====================================================
+       THEME 6 — CRYSTAL  (Glassmorphism sobre gradiente)
+    ===================================================== */
+    [data-theme="crystal"] {
+      --bg: #7B68EE;
+      --surface: rgba(255,255,255,.13);
+      --surface-2: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.2);
+      --primary: rgba(255,255,255,.95);
+      --primary-dark: rgba(255,255,255,1);
+      --primary-fg: #5B21B6;
+      --primary-subtle: rgba(255,255,255,.15);
+      --text: #FFFFFF;
+      --text-2: rgba(255,255,255,.72);
+      --text-3: rgba(255,255,255,.42);
+      --success: #6EE7B7;  --success-bg: rgba(16,185,129,.2);  --success-text: #6EE7B7;
+      --warning: #FCD34D;  --warning-bg: rgba(245,158,11,.2);   --warning-text: #FCD34D;
+      --danger: #FCA5A5;   --danger-bg: rgba(239,68,68,.2);     --danger-text: #FCA5A5;
+      --shadow: 0 8px 32px rgba(31,38,135,.3);
+      --shadow-md: 0 8px 32px rgba(31,38,135,.45);
+      --radius: 16px; --radius-sm: 10px; --radius-lg: 24px;
+    }
+
+    /* =====================================================
+       THEME 7 — HONEY  (Ámbar cálido y amigable)
+    ===================================================== */
+    [data-theme="honey"] {
+      --bg: #FDF8F3;
+      --surface: #FFFFFF;
+      --surface-2: #FEF3E8;
+      --border: #F0DFD0;
+      --primary: #D97706;
+      --primary-dark: #B45309;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #FEF9F0;
+      --text: #1C1917;
+      --text-2: #78716C;
+      --text-3: #A8A29E;
+      --success: #16A34A;  --success-bg: #F0FDF4; --success-text: #166534;
+      --warning: #D97706;  --warning-bg: #FFFBEB; --warning-text: #92400E;
+      --danger: #DC2626;   --danger-bg: #FEF2F2;  --danger-text: #991B1B;
+      --shadow: 0 1px 3px rgba(28,25,23,.06);
+      --shadow-md: 0 4px 14px rgba(28,25,23,.09);
+      --radius: 16px; --radius-sm: 10px; --radius-lg: 24px;
+    }
+
+    /* =====================================================
+       THEME 8 — ELECTRIC  (Violeta audaz, alta energía)
+    ===================================================== */
+    [data-theme="electric"] {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --surface-2: #F5F3FF;
+      --border: #EDE9FE;
+      --primary: #7C3AED;
+      --primary-dark: #6D28D9;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #F5F3FF;
+      --text: #1F1147;
+      --text-2: #5B21B6;
+      --text-3: #A78BFA;
+      --success: #059669;  --success-bg: #ECFDF5; --success-text: #065F46;
+      --warning: #D97706;  --warning-bg: #FFFBEB; --warning-text: #92400E;
+      --danger: #DC2626;   --danger-bg: #FEF2F2;  --danger-text: #991B1B;
+      --shadow: 0 2px 8px rgba(124,58,237,.1);
+      --shadow-md: 0 6px 22px rgba(124,58,237,.15);
+      --radius: 14px; --radius-sm: 8px; --radius-lg: 20px;
+    }
+
+    /* =====================================================
+       THEME 9 — GHOST  (Ultra-minimal, casi sin color)
+    ===================================================== */
+    [data-theme="ghost"] {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --surface-2: #F4F4F5;
+      --border: #E8E8E8;
+      --primary: #18181B;
+      --primary-dark: #09090B;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #F4F4F5;
+      --text: #09090B;
+      --text-2: #71717A;
+      --text-3: #A1A1AA;
+      --success: #16A34A;  --success-bg: #F0FDF4; --success-text: #166534;
+      --warning: #CA8A04;  --warning-bg: #FEFCE8; --warning-text: #854D0E;
+      --danger: #DC2626;   --danger-bg: #FEF2F2;  --danger-text: #991B1B;
+      --shadow: 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md: 0 4px 10px rgba(0,0,0,.07);
+      --radius: 10px; --radius-sm: 6px; --radius-lg: 14px;
+    }
+
+    /* =====================================================
+       THEME 10 — FOREST  (Esmeralda fresco y natural)
+    ===================================================== */
+    [data-theme="forest"] {
+      --bg: #F0FDF4;
+      --surface: #FFFFFF;
+      --surface-2: #DCFCE7;
+      --border: #BBF7D0;
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #ECFDF5;
+      --text: #064E3B;
+      --text-2: #065F46;
+      --text-3: #6EE7B7;
+      --success: #059669;  --success-bg: #ECFDF5; --success-text: #064E3B;
+      --warning: #D97706;  --warning-bg: #FFFBEB; --warning-text: #92400E;
+      --danger: #DC2626;   --danger-bg: #FEF2F2;  --danger-text: #991B1B;
+      --shadow: 0 1px 3px rgba(6,78,59,.08);
+      --shadow-md: 0 4px 14px rgba(6,78,59,.1);
+      --radius: 16px; --radius-sm: 10px; --radius-lg: 24px;
+    }
+
+    /* =====================================================
+       THEME 11 — LINEN  (Notion puro — warm white, acento negro)
+    ===================================================== */
+    [data-theme="linen"] {
+      --bg: #FFFEF9;
+      --surface: #FFFFFF;
+      --surface-2: #F7F6F1;
+      --border: #E9E7DF;
+      --primary: #000000;
+      --primary-dark: #1A1A1A;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #F1F0EB;
+      --text: #37352F;
+      --text-2: #6B6862;
+      --text-3: #AEACAA;
+      --success: #0F7B6C;  --success-bg: #DFF3EF; --success-text: #0A5A52;
+      --warning: #C87941;  --warning-bg: #FEF0E3; --warning-text: #9A5A2A;
+      --danger: #C9454B;   --danger-bg: #FCE8E9;  --danger-text: #9A2B30;
+      --shadow: none;
+      --shadow-md: 0 2px 8px rgba(55,53,47,.08);
+      --radius: 6px; --radius-sm: 4px; --radius-lg: 8px;
+    }
+
+    /* =====================================================
+       THEME 12 — DUSK  (Notion dark — oscuro sin drama)
+    ===================================================== */
+    [data-theme="dusk"] {
+      --bg: #191919;
+      --surface: #202020;
+      --surface-2: #2F2F2F;
+      --border: #373737;
+      --primary: #FFFFFF;
+      --primary-dark: #E0E0E0;
+      --primary-fg: #000000;
+      --primary-subtle: #2A2A2A;
+      --text: #FFFFFE;
+      --text-2: #9B9B9B;
+      --text-3: #5A5A5A;
+      --success: #4DAA76;  --success-bg: #1A2B22; --success-text: #6DD89A;
+      --warning: #D4875A;  --warning-bg: #2B1F14; --warning-text: #E4A87A;
+      --danger: #D9565C;   --danger-bg: #2B1417; --danger-text: #F08085;
+      --shadow: none;
+      --shadow-md: 0 4px 16px rgba(0,0,0,.5);
+      --radius: 6px; --radius-sm: 4px; --radius-lg: 8px;
+    }
+
+    /* =====================================================
+       THEME 13 — SAGE  (Notion + verde salvia, tranquilo)
+    ===================================================== */
+    [data-theme="sage"] {
+      --bg: #F8F8F5;
+      --surface: #FFFFFF;
+      --surface-2: #F0F0EA;
+      --border: #E3E2DA;
+      --primary: #3D7A5E;
+      --primary-dark: #2E6048;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #EAF4EF;
+      --text: #2C2C28;
+      --text-2: #6A6A60;
+      --text-3: #AEADA4;
+      --success: #3D7A5E;  --success-bg: #DFF0E8; --success-text: #2A5A42;
+      --warning: #B87D3E;  --warning-bg: #FBF0E2; --warning-text: #8A5B28;
+      --danger: #C9454B;   --danger-bg: #FCE8E9;  --danger-text: #9A2B30;
+      --shadow: none;
+      --shadow-md: 0 2px 10px rgba(44,44,40,.07);
+      --radius: 6px; --radius-sm: 4px; --radius-lg: 8px;
+    }
+
+    /* =====================================================
+       THEME 14 — CLAY  (Notion + terracota cálido)
+    ===================================================== */
+    [data-theme="clay"] {
+      --bg: #FAF7F4;
+      --surface: #FFFFFF;
+      --surface-2: #F2EDE8;
+      --border: #E5DDD5;
+      --primary: #B85C38;
+      --primary-dark: #9A4A2C;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #FCF0EC;
+      --text: #2C2218;
+      --text-2: #796A5E;
+      --text-3: #B5A89C;
+      --success: #4A8C62;  --success-bg: #E5F2EB; --success-text: #2E5C3E;
+      --warning: #C87C2A;  --warning-bg: #FEF0E0; --warning-text: #985C18;
+      --danger: #C9454B;   --danger-bg: #FCE8E9;  --danger-text: #9A2B30;
+      --shadow: none;
+      --shadow-md: 0 2px 10px rgba(44,34,24,.07);
+      --radius: 6px; --radius-sm: 4px; --radius-lg: 8px;
+    }
+
+    /* =====================================================
+       THEME 15 — SLATE  (Notion + azul pizarra frío)
+    ===================================================== */
+    [data-theme="slate"] {
+      --bg: #F6F8FA;
+      --surface: #FFFFFF;
+      --surface-2: #EEF1F6;
+      --border: #DDE2EC;
+      --primary: #2C4A7E;
+      --primary-dark: #1E3660;
+      --primary-fg: #FFFFFF;
+      --primary-subtle: #EBF0F8;
+      --text: #1A2537;
+      --text-2: #546180;
+      --text-3: #9DAEC4;
+      --success: #2A7A5C;  --success-bg: #DEF2EB; --success-text: #1A5240;
+      --warning: #B07A2E;  --warning-bg: #FBF1E0; --warning-text: #855A1C;
+      --danger: #C43640;   --danger-bg: #FBEAEB;  --danger-text: #942430;
+      --shadow: none;
+      --shadow-md: 0 2px 10px rgba(26,37,55,.08);
+      --radius: 6px; --radius-sm: 4px; --radius-lg: 8px;
+    }
+
+    /* =====================================================
+       GLOBAL + COMPONENT STYLES
+    ===================================================== */
+    html, body {
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      background: #080812;
+      color: #F0F0FF;
+      min-height: 100vh;
+    }
+
+    /* Crystal: gradient inside phone frame */
+    html[data-theme="crystal"] .phone-frame {
+      background: linear-gradient(145deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    html[data-theme="crystal"] .card {
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    /* Smooth transitions */
+    .card, .btn, .badge, .avatar, .input, .tab-btn,
+    .app-header, .phone-frame, .step-card, .participant-row,
+    .progress-fill, .code-box, .upload-zone, .toggle-track {
+      transition: background-color .22s ease, border-color .22s ease,
+                  color .22s ease, box-shadow .22s ease;
+    }
+
+    /* ─── THEME BAR ──────────────────────────────────── */
+    .theme-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: #080812;
+      border-bottom: 1px solid #1A1A35;
+      padding: 6px 16px 4px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .theme-row {
+      display: flex; align-items: center; gap: 6px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .theme-row::-webkit-scrollbar { display: none; }
+    .theme-row + .theme-row {
+      border-top: 1px solid #1A1A35;
+      padding-top: 3px;
+    }
+    .theme-bar-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #4040A0; white-space: nowrap; margin-right: 4px;
+    }
+    .theme-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 11px; border-radius: 20px;
+      border: 1px solid transparent; background: transparent;
+      color: #7070B0; font-size: 11px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; font-family: var(--font);
+      transition: all .15s ease;
+    }
+    .theme-btn:hover { background: rgba(255,255,255,.07); color: #E0E0FF; }
+    .theme-btn.active {
+      background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); color: #fff;
+    }
+    .theme-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ─── PREVIEW WRAPPER ────────────────────────────── */
+    .preview-wrap {
+      margin-top: 84px; padding: 22px 16px 56px;
+    }
+    .preview-header { text-align: center; margin-bottom: 28px; }
+    .preview-eyebrow {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: #4040A0;
+    }
+    #theme-name { font-size: 26px; font-weight: 800; color: #F0F0FF; margin-top: 5px; }
+    #theme-desc { font-size: 12px; color: #6060A0; margin-top: 3px; }
+
+    .screens-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    @media (max-width: 960px) { .screens-grid { grid-template-columns: 1fr; } }
+
+    .screen-col { display: flex; flex-direction: column; align-items: center; }
+    .screen-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #5050A0; margin-bottom: 10px; text-align: center;
+    }
+
+    /* ─── PHONE FRAME ────────────────────────────────── */
+    .phone-frame {
+      width: 100%; max-width: 400px;
+      background: var(--bg);
+      border-radius: 26px; overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.05);
+    }
+    .phone-content {
+      max-height: 700px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .phone-content::-webkit-scrollbar { width: 3px; }
+    .phone-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ─── APP HEADER ─────────────────────────────────── */
+    .app-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    html[data-theme="crystal"] .app-header {
+      background: rgba(255,255,255,.1); backdrop-filter: blur(20px);
+    }
+    .app-logo {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 15px; font-weight: 700; color: var(--text);
+    }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+
+    /* ─── BADGE ──────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 4px 9px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-primary { background: var(--primary-subtle); color: var(--primary); }
+    .badge-success { background: var(--success-bg); color: var(--success-text); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+    .badge-danger  { background: var(--danger-bg);  color: var(--danger-text);  }
+
+    /* ─── CARD ───────────────────────────────────────── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-section { padding: 13px 16px; border-bottom: 1px solid var(--border); }
+    .card-section:last-child { border-bottom: none; }
+    .card-body { padding: 15px; }
+
+    /* ─── BUTTONS ────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 9px 15px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+      font-family: var(--font); white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline  { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
+    .btn-ghost    { background: transparent; color: var(--text-2); font-size: 12px; }
+    .btn-success  { background: var(--success); color: #fff; }
+    .btn-danger-o { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger); }
+    .btn-sm  { padding: 6px 11px; font-size: 12px; }
+    .btn-lg  { padding: 13px 20px; font-size: 15px; border-radius: var(--radius); }
+    .btn-full { width: 100%; }
+
+    /* ─── INPUTS ─────────────────────────────────────── */
+    .input {
+      width: 100%; padding: 10px 13px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text);
+      font-size: 13px; font-family: var(--font);
+    }
+    .input::placeholder { color: var(--text-3); }
+    label.lbl {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-2); margin-bottom: 5px;
+    }
+
+    /* ─── TYPOGRAPHY HELPERS ─────────────────────────── */
+    .t-xs  { font-size: 11px; }
+    .t-sm  { font-size: 13px; }
+    .t-base{ font-size: 14px; }
+    .t-xl  { font-size: 18px; }
+    .fw-5  { font-weight: 500; }
+    .fw-6  { font-weight: 600; }
+    .fw-7  { font-weight: 700; }
+    .fw-9  { font-weight: 900; }
+    .c-text   { color: var(--text);   }
+    .c-text2  { color: var(--text-2); }
+    .c-text3  { color: var(--text-3); }
+    .c-accent { color: var(--primary); }
+    .c-success{ color: var(--success-text); }
+    .c-warn   { color: var(--warning-text); }
+    .c-danger { color: var(--danger-text);  }
+
+    /* ─── LAYOUT HELPERS ─────────────────────────────── */
+    .flex    { display: flex; }
+    .fcol    { flex-direction: column; }
+    .aic     { align-items: center; }
+    .jcb     { justify-content: space-between; }
+    .jcc     { justify-content: center; }
+    .f1      { flex: 1; }
+    .shrink0 { flex-shrink: 0; }
+    .gap-1   { gap: 4px; }
+    .gap-2   { gap: 8px; }
+    .gap-3   { gap: 12px; }
+    .mb-1    { margin-bottom: 4px; }
+    .mb-2    { margin-bottom: 8px; }
+    .mb-3    { margin-bottom: 12px; }
+    .mb-4    { margin-bottom: 16px; }
+    .mt-1    { margin-top: 4px; }
+    .mt-2    { margin-top: 8px; }
+    .grid3   { display: grid; grid-template-columns: repeat(3,1fr); }
+    .grid2   { display: grid; grid-template-columns: repeat(2,1fr); }
+    .dx > * + * { border-left: 1px solid var(--border); }
+
+    .content-area { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ─── PROGRESS BAR ───────────────────────────────── */
+    .prog-track {
+      height: 6px; background: var(--surface-2);
+      border-radius: 99px; overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%; border-radius: 99px;
+      background: var(--primary);
+    }
+
+    /* ─── AVATAR ─────────────────────────────────────── */
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .av-primary { background: var(--primary); color: var(--primary-fg); }
+    .av-success { background: var(--success); color: #fff; }
+    .av-warning { background: var(--warning); color: #fff; }
+    .av-muted   { background: var(--surface-2); color: var(--text-2); }
+
+    /* ─── SECTION LABEL ──────────────────────────────── */
+    .sec-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--text-3);
+    }
+
+    /* ─── HERO AMOUNT ────────────────────────────────── */
+    .hero-amt {
+      font-size: 38px; font-weight: 900; color: var(--text);
+      letter-spacing: -.02em; line-height: 1;
+    }
+
+    /* ─── STAT ITEM ──────────────────────────────────── */
+    .stat-item { text-align: center; padding: 12px 6px; }
+    .stat-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+    .stat-val { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+    /* ─── TAB BAR ────────────────────────────────────── */
+    .tab-bar {
+      display: flex; gap: 2px; background: var(--surface-2);
+      border-radius: var(--radius-sm); padding: 3px;
+    }
+    .tab-btn {
+      flex: 1; padding: 7px 3px; border-radius: 6px;
+      font-size: 10px; font-weight: 600; text-align: center;
+      background: transparent; color: var(--text-2);
+      border: none; cursor: default; font-family: var(--font); white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+    /* ─── PARTICIPANT ROW ────────────────────────────── */
+    .p-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; border-bottom: 1px solid var(--border);
+    }
+    .p-row:last-child { border-bottom: none; }
+
+    /* ─── SHARE SECTION ──────────────────────────────── */
+    .code-box {
+      flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 13px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .code-chip {
+      font-family: monospace; font-size: 19px; font-weight: 800;
+      color: var(--primary); letter-spacing: .1em;
+    }
+
+    /* ─── STEP CARD (landing) ────────────────────────── */
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
+    }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--primary); color: var(--primary-fg);
+      font-size: 13px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ─── HERO SECTION (landing) ─────────────────────── */
+    .hero-section {
+      padding: 36px 20px 28px; text-align: center;
+    }
+    .hero-title {
+      font-size: 30px; font-weight: 900; color: var(--text);
+      letter-spacing: -.02em; line-height: 1.1; margin-bottom: 10px;
+    }
+    .hero-sub { font-size: 13px; color: var(--text-2); line-height: 1.55; margin-bottom: 22px; }
+
+    /* ─── MY CARD ────────────────────────────────────── */
+    .my-card { border-width: 2px !important; }
+    [data-theme="prism"]   .my-card { border-color: #5B5FEF !important; background: #F5F5FF; }
+    [data-theme="cosmos"]  .my-card { border-color: #7C7FFF !important; background: #15153A; }
+    [data-theme="paper"]   .my-card { border-color: #2383E2 !important; background: #EEF4FB; }
+    [data-theme="atlas"]   .my-card { border-color: #635BFF !important; background: #F0EFFB; }
+    [data-theme="void"]    .my-card { border-color: #FAFAFA !important; background: #1C1C1C; }
+    [data-theme="crystal"] .my-card { border-color: rgba(255,255,255,.5) !important; background: rgba(255,255,255,.18); }
+    [data-theme="honey"]   .my-card { border-color: #D97706 !important; background: #FEF9F0; }
+    [data-theme="electric"].my-card { border-color: #7C3AED !important; background: #F5F3FF; }
+    [data-theme="ghost"]   .my-card { border-color: #18181B !important; background: #F4F4F5; }
+    [data-theme="forest"]  .my-card { border-color: #059669 !important; background: #ECFDF5; }
+    [data-theme="linen"]   .my-card { border-color: #37352F !important; background: #F7F6F1; }
+    [data-theme="dusk"]    .my-card { border-color: #FFFFFF  !important; background: #2A2A2A; }
+    [data-theme="sage"]    .my-card { border-color: #3D7A5E !important; background: #EAF4EF; }
+    [data-theme="clay"]    .my-card { border-color: #B85C38 !important; background: #FCF0EC; }
+    [data-theme="slate"]   .my-card { border-color: #2C4A7E !important; background: #EBF0F8; }
+
+    /* ─── NOTION THEMES: flat borders, no shadows ───── */
+    [data-theme="linen"] .card,
+    [data-theme="dusk"]  .card,
+    [data-theme="sage"]  .card,
+    [data-theme="clay"]  .card,
+    [data-theme="slate"] .card {
+      box-shadow: none;
+      border-width: 1px;
+    }
+    [data-theme="linen"] .phone-frame,
+    [data-theme="dusk"]  .phone-frame,
+    [data-theme="sage"]  .phone-frame,
+    [data-theme="clay"]  .phone-frame,
+    [data-theme="slate"] .phone-frame {
+      box-shadow: 0 20px 60px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.05);
+    }
+    /* Dusk crystal frame override */
+    html[data-theme="dusk"] .phone-frame { background: #191919; }
+
+    /* ─── UPLOAD ZONE ────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 18px; text-align: center; color: var(--text-2);
+    }
+
+    /* ─── TOGGLE ─────────────────────────────────────── */
+    .toggle-track {
+      width: 42px; height: 24px; border-radius: 12px;
+      background: var(--primary); position: relative; flex-shrink: 0;
+    }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 21px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: white; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+
+    /* ─── PENDING MSG ────────────────────────────────── */
+    .pending-msg {
+      background: var(--warning-bg); padding: 7px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--warning-text);
+    }
+
+    /* ─── FORM EXPANDED AREA ─────────────────────────── */
+    .form-expanded {
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+      background: var(--surface-2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       THEME BAR
+  ════════════════════════════════════════════════════ -->
+  <div class="theme-bar">
+    <!-- Fila 1: estilos originales -->
+    <div class="theme-row">
+      <span class="theme-bar-label">Estilos →</span>
+      <button class="theme-btn active" onclick="setTheme('prism',this)">
+        <span class="theme-dot" style="background:#5B5FEF"></span>1· Prism
+      </button>
+      <button class="theme-btn" onclick="setTheme('cosmos',this)">
+        <span class="theme-dot" style="background:#7C7FFF"></span>2· Cosmos
+      </button>
+      <button class="theme-btn" onclick="setTheme('paper',this)">
+        <span class="theme-dot" style="background:#2383E2"></span>3· Paper
+      </button>
+      <button class="theme-btn" onclick="setTheme('atlas',this)">
+        <span class="theme-dot" style="background:#635BFF"></span>4· Atlas
+      </button>
+      <button class="theme-btn" onclick="setTheme('void',this)">
+        <span class="theme-dot" style="background:#EDEDED;border:1px solid #444"></span>5· Void
+      </button>
+      <button class="theme-btn" onclick="setTheme('crystal',this)">
+        <span class="theme-dot" style="background:linear-gradient(135deg,#667eea,#764ba2)"></span>6· Crystal
+      </button>
+      <button class="theme-btn" onclick="setTheme('honey',this)">
+        <span class="theme-dot" style="background:#D97706"></span>7· Honey
+      </button>
+      <button class="theme-btn" onclick="setTheme('electric',this)">
+        <span class="theme-dot" style="background:#7C3AED"></span>8· Electric
+      </button>
+      <button class="theme-btn" onclick="setTheme('ghost',this)">
+        <span class="theme-dot" style="background:#18181B"></span>9· Ghost
+      </button>
+      <button class="theme-btn" onclick="setTheme('forest',this)">
+        <span class="theme-dot" style="background:#059669"></span>10· Forest
+      </button>
+    </div>
+    <!-- Fila 2: estilos Notion -->
+    <div class="theme-row">
+      <span class="theme-bar-label">Notion →</span>
+      <button class="theme-btn" onclick="setTheme('linen',this)">
+        <span class="theme-dot" style="background:#37352F;border:1px solid #AAA"></span>11· Linen
+      </button>
+      <button class="theme-btn" onclick="setTheme('dusk',this)">
+        <span class="theme-dot" style="background:#202020;border:1px solid #555"></span>12· Dusk
+      </button>
+      <button class="theme-btn" onclick="setTheme('sage',this)">
+        <span class="theme-dot" style="background:#3D7A5E"></span>13· Sage
+      </button>
+      <button class="theme-btn" onclick="setTheme('clay',this)">
+        <span class="theme-dot" style="background:#B85C38"></span>14· Clay
+      </button>
+      <button class="theme-btn" onclick="setTheme('slate',this)">
+        <span class="theme-dot" style="background:#2C4A7E"></span>15· Slate
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PREVIEW AREA
+  ════════════════════════════════════════════════════ -->
+  <div class="preview-wrap">
+    <div class="preview-header">
+      <p class="preview-eyebrow">Exploración de estilos — Colecta App</p>
+      <p id="theme-name">Prism</p>
+      <p id="theme-desc">Moderno Índigo — dirección actual refinada, limpia y reconocible</p>
+    </div>
+
+    <div class="screens-grid">
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 1 — LANDING
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">📱 Landing Page</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <!-- Header -->
+            <div class="app-header">
+              <div class="app-logo">🪣 <span>Colecta</span></div>
+              <button class="btn btn-outline btn-sm">🌙</button>
+            </div>
+
+            <!-- Hero -->
+            <div class="hero-section">
+              <div style="font-size:52px;margin-bottom:12px;">🪣</div>
+              <h1 class="hero-title">Organiza pagos grupales sin complicaciones</h1>
+              <p class="hero-sub">Divide gastos, comparte el link y cobra en segundos. Perfecto para asados, viajes y eventos con amigos.</p>
+              <div class="flex fcol gap-2">
+                <button class="btn btn-primary btn-lg btn-full">Crear una colecta</button>
+                <button class="btn btn-outline btn-lg btn-full">Ingresar con código</button>
+              </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="content-area">
+              <p class="sec-label">¿Cómo funciona?</p>
+              <div class="flex fcol gap-2">
+                <div class="step-card">
+                  <div class="flex aic gap-3">
+                    <span class="step-num">1</span>
+                    <div>
+                      <p class="t-sm fw-6 c-text">El organizador crea</p>
+                      <p class="t-xs c-text2 mt-1">Define el nombre, cuota y PIN de acceso</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="step-card">
+                  <div class="flex aic gap-3">
+                    <span class="step-num">2</span>
+                    <div>
+                      <p class="t-sm fw-6 c-text">Participantes se unen</p>
+                      <p class="t-xs c-text2 mt-1">Entran con el código y adjuntan su comprobante</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="step-card">
+                  <div class="flex aic gap-3">
+                    <span class="step-num">3</span>
+                    <div>
+                      <p class="t-sm fw-6 c-text">Organizador confirma</p>
+                      <p class="t-xs c-text2 mt-1">Revisa y aprueba cada pago en tiempo real</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Feature cards -->
+              <div class="grid3" style="gap:8px;margin-top:2px;">
+                <div class="step-card" style="padding:12px;text-align:center;">
+                  <div style="font-size:22px;margin-bottom:6px;">✂️</div>
+                  <p class="t-xs fw-6 c-text">Divide fácil</p>
+                  <p class="t-xs c-text3 mt-1">Entre todos por igual</p>
+                </div>
+                <div class="step-card" style="padding:12px;text-align:center;">
+                  <div style="font-size:22px;margin-bottom:6px;">📲</div>
+                  <p class="t-xs fw-6 c-text">QR de pago</p>
+                  <p class="t-xs c-text3 mt-1">Genera al instante</p>
+                </div>
+                <div class="step-card" style="padding:12px;text-align:center;">
+                  <div style="font-size:22px;margin-bottom:6px;">✅</div>
+                  <p class="t-xs fw-6 c-text">Seguimiento</p>
+                  <p class="t-xs c-text3 mt-1">Quién pagó y quién falta</p>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /phone-content -->
+        </div><!-- /phone-frame -->
+      </div><!-- /screen-col -->
+
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 2 — ORGANIZADOR
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">👑 Vista Organizador</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <!-- Header -->
+            <div class="app-header">
+              <div class="app-logo">🪣 <span>Colecta</span></div>
+              <div class="header-actions">
+                <span class="badge badge-primary">👑 Organizador</span>
+                <button class="btn btn-ghost">Salir</button>
+              </div>
+            </div>
+
+            <div class="content-area">
+
+              <!-- Event hero card -->
+              <div class="card">
+                <div class="card-section">
+                  <p class="sec-label">Colecta</p>
+                  <h2 class="t-xl fw-7 c-text mt-1">Asado del sábado</h2>
+                  <p class="t-xs c-text2 mt-1">📅 10 de abril de 2026</p>
+                </div>
+                <div class="card-section">
+                  <p class="sec-label">Cuota por persona</p>
+                  <p class="hero-amt mt-1">$12.000</p>
+                </div>
+                <!-- Stats -->
+                <div class="grid3 dx">
+                  <div class="stat-item">
+                    <p class="stat-lbl c-accent">Total</p>
+                    <p class="stat-val c-text">$36.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl c-success">Cobrado</p>
+                    <p class="stat-val" style="color:var(--success);">$12.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl c-danger">Falta</p>
+                    <p class="stat-val" style="color:var(--danger);">$24.000</p>
+                  </div>
+                </div>
+                <!-- Progress -->
+                <div style="padding:10px 16px 14px;">
+                  <div class="flex jcb mb-1">
+                    <span class="t-xs c-text2">1 de 3 pagaron · <span class="c-warn">1 por confirmar</span></span>
+                    <span class="t-xs fw-7 c-accent">33%</span>
+                  </div>
+                  <div class="prog-track"><div class="prog-fill" style="width:33%"></div></div>
+                </div>
+              </div>
+
+              <!-- Share -->
+              <div class="card">
+                <div class="card-body">
+                  <p class="t-sm fw-6 c-text mb-2">📤 Compartir colecta</p>
+                  <div class="flex gap-2">
+                    <div class="code-box">
+                      <span class="code-chip">EGZ4GC</span>
+                      <span class="t-xs c-text3">código</span>
+                    </div>
+                    <button class="btn btn-outline shrink0">📋 Link</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tabs -->
+              <div class="tab-bar">
+                <button class="tab-btn active">👥 Participantes (1)</button>
+                <button class="tab-btn">📲 QR</button>
+                <button class="tab-btn">💳 Pago</button>
+                <button class="tab-btn">📄 Docs</button>
+              </div>
+
+              <!-- Participant list -->
+              <div class="card" style="overflow:hidden;">
+                <!-- Pagado -->
+                <div class="p-row" style="background:var(--success-bg);">
+                  <div class="avatar av-success">✓</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Ana García</p>
+                    <p class="t-xs fw-7" style="color:var(--success);">$12.000</p>
+                  </div>
+                  <button class="btn btn-outline btn-sm">Deshacer</button>
+                </div>
+
+                <!-- Pendiente de confirmar -->
+                <div class="p-row" style="background:var(--warning-bg);">
+                  <div class="avatar av-warning">⏳</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Raúl Pérez</p>
+                    <p class="t-xs fw-7 c-warn">$12.000</p>
+                  </div>
+                  <div class="flex gap-1">
+                    <button class="btn btn-success btn-sm">Aprobar ✓</button>
+                    <button class="btn btn-danger-o btn-sm">Rechazar</button>
+                  </div>
+                </div>
+                <div class="pending-msg">💬 "Transferí ayer desde Banco Estado"</div>
+
+                <!-- Sin pagar -->
+                <div class="p-row">
+                  <div class="avatar av-muted">MR</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">María Rodríguez</p>
+                    <p class="t-xs c-text2">$12.000</p>
+                  </div>
+                  <button class="btn btn-success btn-sm">Confirmar ✓</button>
+                </div>
+              </div>
+
+            </div><!-- /content-area -->
+          </div><!-- /phone-content -->
+        </div><!-- /phone-frame -->
+      </div><!-- /screen-col -->
+
+
+      <!-- ══════════════════════════════════════
+           PANTALLA 3 — PARTICIPANTE
+      ═══════════════════════════════════════ -->
+      <div class="screen-col">
+        <p class="screen-label">👤 Vista Participante</p>
+        <div class="phone-frame">
+          <div class="phone-content">
+
+            <!-- Header -->
+            <div class="app-header">
+              <div class="app-logo">🪣 <span>Colecta</span></div>
+              <button class="btn btn-outline btn-sm">🔐 Soy el organizador</button>
+            </div>
+
+            <div class="content-area">
+
+              <!-- Event card (compact) -->
+              <div class="card">
+                <div class="card-section">
+                  <p class="sec-label">Colecta</p>
+                  <h2 class="t-xl fw-7 c-text mt-1">Asado del sábado</h2>
+                  <p class="t-xs c-text2 mt-1">📅 10 de abril de 2026</p>
+                </div>
+                <div class="card-section">
+                  <p class="sec-label">Cuota por persona</p>
+                  <p class="hero-amt mt-1">$12.000</p>
+                </div>
+                <div class="grid3 dx">
+                  <div class="stat-item">
+                    <p class="stat-lbl c-accent">Total</p>
+                    <p class="stat-val c-text">$36.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl c-success">Cobrado</p>
+                    <p class="stat-val" style="color:var(--success);">$12.000</p>
+                  </div>
+                  <div class="stat-item">
+                    <p class="stat-lbl c-danger">Falta</p>
+                    <p class="stat-val" style="color:var(--danger);">$24.000</p>
+                  </div>
+                </div>
+                <div style="padding:10px 16px 14px;">
+                  <div class="flex jcb mb-1">
+                    <span class="t-xs c-text2">1 de 3 pagaron</span>
+                    <span class="t-xs fw-7 c-accent">33%</span>
+                  </div>
+                  <div class="prog-track"><div class="prog-fill" style="width:33%"></div></div>
+                </div>
+              </div>
+
+              <!-- My participation card -->
+              <div class="card my-card">
+                <div style="padding:12px 16px 4px;">
+                  <p class="sec-label c-accent">Tu participación</p>
+                </div>
+                <!-- My row -->
+                <div class="p-row">
+                  <div class="avatar av-primary">R</div>
+                  <div class="f1">
+                    <div class="flex aic gap-1">
+                      <p class="t-sm fw-6 c-text">Raúl</p>
+                      <span class="badge badge-primary" style="font-size:9px;padding:2px 6px;">Tú</span>
+                    </div>
+                    <p class="t-xs fw-7 c-accent">$12.000</p>
+                  </div>
+                  <button class="btn btn-primary btn-sm">Ya pagué</button>
+                </div>
+
+                <!-- Form: Ya pagué (expandido) -->
+                <div class="form-expanded">
+                  <p class="t-xs fw-6 c-text2 mb-2">Adjunta tu comprobante <span class="c-text3">(opcional)</span></p>
+                  <div class="upload-zone mb-3">
+                    <div style="font-size:26px;margin-bottom:5px;">📸</div>
+                    <p class="t-sm c-text2">Toca para subir foto</p>
+                    <p class="t-xs c-text3 mt-1">JPG, PNG o PDF</p>
+                  </div>
+
+                  <!-- Custom amount toggle -->
+                  <div class="card mb-3" style="overflow:hidden;">
+                    <div class="flex aic jcb" style="padding:10px 12px;">
+                      <div>
+                        <p class="t-xs fw-6 c-text">Pagué un monto diferente</p>
+                        <p class="t-xs c-text3 mt-1">Tu cuota: $12.000</p>
+                      </div>
+                      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                    </div>
+                  </div>
+
+                  <!-- Message -->
+                  <div class="mb-3">
+                    <label class="lbl">Mensaje para el organizador <span class="c-text3">(opcional)</span></label>
+                    <textarea class="input" rows="2" placeholder="Ej: Transferí el jueves desde Banco Estado..." style="resize:none;"></textarea>
+                  </div>
+
+                  <!-- Action buttons -->
+                  <div class="flex gap-2">
+                    <button class="btn btn-outline f1">Cancelar</button>
+                    <button class="btn btn-primary f1">Confirmar pago</button>
+                  </div>
+                </div>
+
+                <div style="padding:8px 16px 14px;text-align:center;">
+                  <p class="t-xs c-accent">El monto se actualiza a medida que más personas se unan</p>
+                </div>
+              </div>
+
+              <!-- Tabs + participant list -->
+              <div class="tab-bar">
+                <button class="tab-btn active">👥 Participantes (3)</button>
+                <button class="tab-btn">📲 QR</button>
+                <button class="tab-btn">💳 Pago</button>
+                <button class="tab-btn">📄 Docs</button>
+              </div>
+              <div class="card" style="overflow:hidden;">
+                <div class="p-row" style="background:var(--success-bg);">
+                  <div class="avatar av-success">✓</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Ana García</p>
+                    <p class="t-xs fw-7" style="color:var(--success);">$12.000</p>
+                  </div>
+                  <span class="badge badge-success" style="font-size:9px;">Pagado ✓</span>
+                </div>
+                <div class="p-row" style="background:var(--warning-bg);">
+                  <div class="avatar av-warning">⏳</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">Raúl <span class="c-text3">(Tú)</span></p>
+                    <p class="t-xs fw-7 c-warn">$12.000</p>
+                  </div>
+                  <span class="badge badge-warning" style="font-size:9px;">⏳ Esperando</span>
+                </div>
+                <div class="p-row">
+                  <div class="avatar av-muted">MR</div>
+                  <div class="f1">
+                    <p class="t-sm fw-6 c-text">María Rodríguez</p>
+                    <p class="t-xs c-text2">$12.000</p>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /content-area -->
+          </div><!-- /phone-content -->
+        </div><!-- /phone-frame -->
+      </div><!-- /screen-col -->
+
+    </div><!-- /screens-grid -->
+  </div><!-- /preview-wrap -->
+
+  <script>
+    const themes = {
+      prism:    { name: 'Prism',    desc: 'Moderno Índigo — dirección actual refinada, limpia y reconocible' },
+      cosmos:   { name: 'Cosmos',   desc: 'Dark mode — inspirado en Linear, profundo, elegante y enfocado' },
+      paper:    { name: 'Paper',    desc: 'Notion-inspired — minimalista cálido, tipografía al protagonismo' },
+      atlas:    { name: 'Atlas',    desc: 'Stripe-inspired — ultra profesional, azul-blanco impecable' },
+      void:     { name: 'Void',     desc: 'Vercel-inspired — blanco y negro puro, contraste al máximo' },
+      crystal:  { name: 'Crystal',  desc: 'Glassmorphism — tarjetas de cristal sobre gradiente violeta' },
+      honey:    { name: 'Honey',    desc: 'Warm Amber — cálido, amigable y muy accesible para todos' },
+      electric: { name: 'Electric', desc: 'Electric Purple — audaz, alta energía, violeta intenso' },
+      ghost:    { name: 'Ghost',    desc: 'Ghost — ultra minimal, casi sin color, tipografía pura' },
+      forest:   { name: 'Forest',   desc: 'Forest — esmeralda fresco, natural, orgánico y limpio' },
+      linen:    { name: 'Linen',    desc: 'Noción pura — blanco cálido, acento negro, cero distracción. El Notion literal.' },
+      dusk:     { name: 'Dusk',     desc: 'Notion Dark — gris profundo sin drama, texto blanco limpio y estructura clara' },
+      sage:     { name: 'Sage',     desc: 'Notion Sage — estructura Notion con acento verde salvia calmado y orgánico' },
+      clay:     { name: 'Clay',     desc: 'Notion Clay — base Notion en tonos cálidos terrosos con acento terracota' },
+      slate:    { name: 'Slate',    desc: 'Notion Slate — Notion en gris azulado frío, profesional y muy legible' },
+    };
+
+    function setTheme(theme, btn) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('theme-name').textContent = themes[theme].name;
+      document.getElementById('theme-desc').textContent = themes[theme].desc;
+    }
+  </script>
+</body>
+</html>

@@ -34,16 +34,20 @@ export default function UnirsePage() {
 
   if (status === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4 bg-background">
-        <div className="text-center">
-          <p className="mb-3 text-5xl">😕</p>
-          <h2 className="text-xl font-bold text-foreground">Código no válido</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            El código <span className="font-mono font-bold text-indigo-500">{code}</span> no corresponde a ninguna colecta activa.
+      <div className="flex min-h-screen items-center justify-center px-4 bg-secondary">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 mx-auto">
+            <span className="text-2xl">😕</span>
+          </div>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Código no válido</h2>
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            El código{" "}
+            <span className="font-mono font-bold text-foreground">{code}</span>{" "}
+            no corresponde a ninguna colecta activa.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-4 text-sm text-indigo-500 hover:underline"
+            className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary/90"
           >
             ← Volver al inicio
           </button>
@@ -53,10 +57,13 @@ export default function UnirsePage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-3">
-        <div className="animate-bounce"><ColectaLogo size={40} /></div>
-        <p className="text-sm text-muted-foreground">Buscando colecta <span className="font-mono font-bold text-primary">{code}</span>...</p>
+    <div className="flex min-h-screen items-center justify-center bg-secondary">
+      <div className="flex flex-col items-center gap-4">
+        <div className="animate-bounce"><ColectaLogo size={44} /></div>
+        <p className="text-sm text-muted-foreground">
+          Buscando colecta{" "}
+          <span className="font-mono font-bold text-foreground">{code}</span>...
+        </p>
       </div>
     </div>
   );
