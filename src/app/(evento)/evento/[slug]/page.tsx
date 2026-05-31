@@ -608,42 +608,51 @@ export default function EventoPage() {
               </div>
             </div>
 
-            {/* Participant count */}
-            <div className="flex items-center justify-between pt-0.5">
-              <div className="flex items-center gap-2">
-                {/* Participant dots */}
-                {(() => {
-                  const total = expectedParticipants ?? (totalParticipants > 0 ? totalParticipants : null);
-                  const dots = total ? Math.min(total, 12) : Math.min(totalParticipants, 12);
-                  return (
-                    <div className="flex items-center gap-0.5">
-                      {Array.from({ length: dots }).map((_, i) => {
-                        const confirmed = i < confirmedCount;
-                        const pending = !confirmed && i < confirmedCount + pendingCount;
-                        return (
-                          <span
-                            key={i}
-                            className={`inline-block h-3 w-3 border border-foreground/60 transition-colors ${
-                              confirmed ? "bg-success" : pending ? "bg-warning/60" : "bg-secondary"
-                            }`}
-                            style={{ borderRadius: "3px" }}
-                          />
-                        );
-                      })}
-                      {total && total > 12 && <span className="ml-1 text-[10px] text-muted-foreground">+{total - 12}</span>}
-                    </div>
-                  );
-                })()}
+            {/* Participant count / empty state */}
+            {confirmedCount === 0 && pendingCount === 0 ? (
+              <div className="flex flex-col items-center justify-center py-3 gap-1.5 text-center">
+                <span className="text-3xl">🫙</span>
+                <p className="font-display font-bold text-base text-foreground leading-tight">Aún nadie pagó la colecta</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Comparte el código{" "}
+                  <span className="font-bold font-mono text-primary">{event.code}</span>{" "}
+                  para que los participantes registren sus pagos
+                </p>
               </div>
-              <span className="text-xs font-bold text-foreground">
-                {expectedParticipants
-                  ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron</>
-                  : confirmedCount > 0
-                  ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
-                  : <span className="text-muted-foreground font-normal">Sin pagos aún</span>
-                }
-              </span>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between pt-0.5">
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const total = expectedParticipants ?? (totalParticipants > 0 ? totalParticipants : null);
+                    const dots = total ? Math.min(total, 12) : Math.min(totalParticipants, 12);
+                    return (
+                      <div className="flex items-center gap-0.5">
+                        {Array.from({ length: dots }).map((_, i) => {
+                          const confirmed = i < confirmedCount;
+                          const pending = !confirmed && i < confirmedCount + pendingCount;
+                          return (
+                            <span
+                              key={i}
+                              className={`inline-block h-3 w-3 border border-foreground/60 transition-colors ${
+                                confirmed ? "bg-success" : pending ? "bg-warning/60" : "bg-secondary"
+                              }`}
+                              style={{ borderRadius: "3px" }}
+                            />
+                          );
+                        })}
+                        {total && total > 12 && <span className="ml-1 text-[10px] text-muted-foreground">+{total - 12}</span>}
+                      </div>
+                    );
+                  })()}
+                </div>
+                <span className="text-xs font-bold text-foreground">
+                  {expectedParticipants
+                    ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron</>
+                    : <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
+                  }
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -722,7 +731,7 @@ export default function EventoPage() {
             onClick={() => setShowShare((v) => !v)}
             className="w-full flex items-center justify-between px-5 pt-4 pb-4 transition-colors hover:bg-secondary/40"
           >
-            <span className="text-sm font-display font-bold text-foreground">📤 Compartir colecta</span>
+            <span className="text-sm font-display font-bold text-foreground">📤 Comparte la colecta</span>
             <span
               className={`flex h-6 w-6 items-center justify-center border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-transform duration-200 ${showShare ? "rotate-180" : ""}`}
               style={{ borderRadius: WOBBLY_RADIUS_SM }}
@@ -781,7 +790,7 @@ export default function EventoPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Compartí el código o el link directo para que los participantes se unan.
+                  Comparte el código o el link directo para que los participantes se unan.
                 </p>
               </div>
             )}
@@ -900,7 +909,7 @@ export default function EventoPage() {
                       className="mt-4 inline-flex items-center gap-2 border-2 border-foreground px-5 py-2.5 text-sm font-bold text-white bg-primary shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
                     style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     >
-                      Compartir ahora →
+                      Comparte ahora →
                     </button>
                   )}
                 </div>
@@ -1777,13 +1786,35 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-sm border-2 border-foreground bg-card p-6 shadow-[6px_6px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
-        <div className="mb-5 text-center">
-          <p className="mb-1 text-3xl">🔐</p>
-          <h3 className="text-lg font-bold text-foreground">Acceso de organizador</h3>
-          <p className="text-sm text-muted-foreground">Ingresa el PIN que definiste al crear la colecta</p>
+      <div
+        className="w-full max-w-sm border-2 border-foreground bg-card overflow-hidden shadow-[6px_6px_0px_0px_#2d2d2d]"
+        style={{ borderRadius: WOBBLY_RADIUS_MD }}
+      >
+        {/* Header stripe */}
+        <div className="flex items-center justify-between border-b-2 border-foreground bg-secondary px-5 py-3.5">
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center bg-primary text-base shadow-[2px_2px_0px_0px_#2d2d2d]"
+              style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+            >
+              🔐
+            </span>
+            <div>
+              <h3 className="font-display text-base font-bold text-foreground leading-tight">Acceso de organizador</h3>
+              <p className="text-xs text-muted-foreground leading-snug">Ingresa el PIN que creaste</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="border-2 border-foreground bg-background p-1.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+            style={{ borderRadius: WOBBLY_RADIUS_SM }}
+          >
+            ✕
+          </button>
         </div>
-        <form onSubmit={handleVerify} className="space-y-4" autoComplete="off">
+
+        {/* Body */}
+        <form onSubmit={handleVerify} className="space-y-4 p-5" autoComplete="off">
           <div className="relative">
             <Input
               type="text"
@@ -1795,14 +1826,18 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
               autoComplete="off"
               name="colecta-pin-verify"
               style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-              className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 ring-2 ring-red-400/30" : ""}`}
+              className={`text-center text-2xl tracking-widest font-bold ${error ? "border-primary ring-2 ring-primary/20" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground/70 hover:text-muted-foreground">
               {showPin ? "Ocultar" : "Ver"}
             </button>
           </div>
-          {error && <p className="text-center text-sm font-medium text-red-500">PIN incorrecto</p>}
+          {error && (
+            <p className="flex items-center gap-1.5 justify-center text-sm font-bold text-primary">
+              <span>⚠</span> PIN incorrecto
+            </p>
+          )}
           <div className="flex gap-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
             <Button type="submit" className="flex-1" disabled={pin.length < 4}>Ingresar</Button>
