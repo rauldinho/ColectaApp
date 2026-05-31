@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
+import { WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -50,36 +51,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
+
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex flex-col items-center gap-3">
             <ColectaLogo size={44} />
-            <span className="text-2xl font-bold tracking-tight text-foreground">Colecta</span>
+            <span className="font-display text-3xl font-bold text-foreground">Colecta</span>
           </Link>
-          <p className="mt-2 text-sm text-muted-foreground">Iniciá sesión para continuar</p>
+          <p className="mt-2 text-base text-muted-foreground">Iniciá sesión para continuar</p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-7 shadow-sm">
+        {/* Card — hand-drawn style via wobbly border-radius + pencil border */}
+        <div
+          className="border-2 border-foreground bg-card p-7 shadow-[4px_4px_0px_0px_#2d2d2d]"
+          style={{ borderRadius: WOBBLY_RADIUS_MD }}
+        >
           {sent ? (
             /* Estado: email enviado */
             <div className="text-center py-2">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mx-auto">
+              <div
+                className="mb-5 flex h-16 w-16 items-center justify-center border-2 border-foreground bg-primary/10 mx-auto shadow-[3px_3px_0px_0px_#2d2d2d]"
+                style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+              >
                 <span className="text-3xl">📬</span>
               </div>
-              <h2 className="mb-2 text-lg font-semibold text-foreground tracking-tight">
+              <h2 className="mb-2 font-display text-2xl font-bold text-foreground">
                 ¡Revisá tu correo!
               </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 Enviamos un link mágico a{" "}
-                <span className="font-semibold text-foreground">{email}</span>.
+                <span className="font-bold text-foreground">{email}</span>.
                 <br />
                 Hacé clic en el link para ingresar.
               </p>
               <button
                 onClick={() => setSent(false)}
-                className="mt-5 text-sm font-medium text-primary hover:underline"
+                className="mt-5 text-base font-bold text-accent hover:underline underline-offset-4"
               >
                 ¿No llegó? Reenviar
               </button>
@@ -91,7 +100,7 @@ export default function LoginPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
                   >
                     Correo electrónico
                   </label>
@@ -110,11 +119,11 @@ export default function LoginPage() {
                 </Button>
               </form>
 
-              {/* Divider */}
+              {/* Dashed divider */}
               <div className="my-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted-foreground">o continuá con</span>
-                <div className="h-px flex-1 bg-border" />
+                <div className="h-0 flex-1 border-t-2 border-dashed border-foreground/20" />
+                <span className="text-sm text-muted-foreground font-bold">o continuá con</span>
+                <div className="h-0 flex-1 border-t-2 border-dashed border-foreground/20" />
               </div>
 
               {/* Google */}
@@ -131,9 +140,12 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="mt-5 text-center text-sm text-muted-foreground">
+        <p className="mt-5 text-center text-base text-muted-foreground">
           ¿No tenés cuenta?{" "}
-          <Link href="/signup" className="font-medium text-primary hover:underline">
+          <Link
+            href="/signup"
+            className="font-bold text-accent hover:underline underline-offset-4"
+          >
             Registrate gratis
           </Link>
         </p>

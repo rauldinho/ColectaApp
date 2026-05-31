@@ -4,93 +4,48 @@
 
 @layer base {
   /* ══════════════════════════════════════════════════════
-     CUPERTINO — Modo claro
-     Apple Human Interface Guidelines: blanco puro,
-     azul #0071E3, grises neutros, radio generoso.
+     HAND-DRAWN — Single palette. No dark mode.
+     Warm paper, pencil blacks, red marker accent.
   ══════════════════════════════════════════════════════ */
   :root {
-    --background: 0 0% 100%;              /* #FFFFFF */
-    --foreground: 240 3% 12%;             /* #1D1D1F — Apple dark gray */
+    --background: 40 59% 98%;            /* #fdfbf7 Warm Paper */
+    --foreground: 0 0% 18%;              /* #2d2d2d Soft Pencil Black */
 
-    --card: 0 0% 100%;                    /* #FFFFFF */
-    --card-foreground: 240 3% 12%;
+    --card: 0 0% 100%;                   /* #ffffff Pure white for cards */
+    --card-foreground: 0 0% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 3% 12%;
+    --popover-foreground: 0 0% 18%;
 
-    --primary: 211 100% 45%;              /* #0071E3 — Apple blue */
-    --primary-foreground: 0 0% 100%;      /* #FFFFFF */
-
-    --secondary: 240 5% 96%;             /* #F5F5F7 — Apple light gray */
-    --secondary-foreground: 240 3% 12%;
-
-    --muted: 240 5% 96%;                  /* #F5F5F7 */
-    --muted-foreground: 240 2% 44%;       /* #6E6E73 — Apple secondary text */
-
-    --accent: 210 63% 95%;               /* #EBF3FB — blue tint */
-    --accent-foreground: 211 100% 45%;
-
-    --destructive: 3 100% 59%;            /* #FF3B30 — Apple red */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 240 5% 91%;                 /* #E5E5EA — Apple separator */
-    --input: 240 5% 96%;                  /* #F5F5F7 — iOS input bg */
-    --ring: 211 100% 45%;                 /* #0071E3 */
-
-    --radius: 0.75rem;                    /* 12px — Cupertino base */
-
-    /* Estado — Éxito */
-    --success: 142 64% 49%;              /* #34C759 — Apple green */
-    --success-bg: 142 56% 94%;           /* #E8F8EE */
-    --success-text: 142 70% 33%;         /* #1A9A3A */
-
-    /* Estado — Advertencia */
-    --warning: 37 100% 52%;              /* #FF9F0A — Apple orange */
-    --warning-bg: 43 100% 93%;           /* #FFF3DC */
-    --warning-text: 37 87% 30%;          /* #915907 */
-  }
-
-  /* ══════════════════════════════════════════════════════
-     CUPERTINO — Modo oscuro
-     Fondo negro puro, superficies gris oscuro iOS,
-     azul #0A84FF (dark mode variant).
-  ══════════════════════════════════════════════════════ */
-  html.dark {
-    --background: 0 0% 0%;               /* #000000 */
-    --foreground: 240 5% 96%;            /* #F5F5F7 */
-
-    --card: 240 3% 11%;                  /* #1C1C1E — iOS dark card */
-    --card-foreground: 240 5% 96%;
-
-    --popover: 240 3% 11%;
-    --popover-foreground: 240 5% 96%;
-
-    --primary: 211 100% 52%;             /* #0A84FF — Apple blue dark */
+    --primary: 0 100% 65%;               /* #ff4d4d Red Correction Marker */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 2% 18%;             /* #2C2C2E — iOS dark secondary */
-    --secondary-foreground: 240 5% 96%;
+    --secondary: 37 20% 87%;             /* #e5e0d8 Old Paper / Erased Pencil */
+    --secondary-foreground: 0 0% 18%;
 
-    --muted: 240 2% 18%;                 /* #2C2C2E */
-    --muted-foreground: 240 2% 61%;      /* #98989D */
+    --muted: 37 20% 87%;                 /* #e5e0d8 */
+    --muted-foreground: 0 0% 38%;        /* Medium pencil gray */
 
-    --accent: 211 50% 20%;
-    --accent-foreground: 211 100% 52%;
+    --accent: 215 56% 40%;               /* #2d5da1 Blue Ballpoint Pen */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 3 100% 62%;           /* #FF453A — Apple red dark */
+    --destructive: 0 100% 65%;           /* #ff4d4d (same red) */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 2% 23%;               /* #3A3A3C — iOS dark separator */
-    --input: 240 2% 18%;                /* #2C2C2E */
-    --ring: 211 100% 52%;
+    --border: 0 0% 18%;                  /* #2d2d2d Pencil Lead */
+    --input: 0 0% 100%;                  /* #ffffff */
+    --ring: 215 56% 40%;                 /* #2d5da1 Blue focus ring */
 
-    --success: 142 68% 50%;             /* #30D158 — Apple green dark */
-    --success-bg: 142 30% 14%;          /* #1A2D1E */
-    --success-text: 142 50% 58%;        /* #6DD89A */
+    --radius: 0.75rem;
+
+    /* Status colors — used for payment state badges */
+    --success: 142 64% 49%;
+    --success-bg: 142 56% 94%;
+    --success-text: 142 70% 33%;
 
     --warning: 37 100% 52%;
-    --warning-bg: 37 60% 12%;
-    --warning-text: 37 100% 60%;
+    --warning-bg: 43 100% 93%;
+    --warning-text: 37 87% 30%;
   }
 }
 
@@ -104,14 +59,24 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-  button, a {
-    min-height: 36px;
+    /* Notebook paper dot texture */
+    background-image: radial-gradient(hsl(37 20% 87%) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  /* Date picker icon — invert in dark mode */
-  .dark input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) opacity(0.5);
+  button, a {
+    min-height: 44px;
+  }
+
+  /* Handwritten headings via Kalam */
+  h1, h2, h3 {
+    font-family: var(--font-kalam, 'Kalam'), cursive;
+    font-weight: 700;
+  }
+
+  /* Date picker icon */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
     cursor: pointer;
   }
 }

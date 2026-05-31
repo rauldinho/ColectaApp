@@ -10,7 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 import type { EventWithDetails, Participant, Payment } from "@/types/database";
 import { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
@@ -28,6 +28,7 @@ export default function EventoPage() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"participantes" | "info" | "facturas">("participantes");
   const [shareTab, setShareTab] = useState<"codigo" | "qr" | "email">("codigo");
+  const [showShare, setShowShare] = useState(false);
 
   // Refs para scroll automático
   const tabsCardRef = useRef<HTMLDivElement>(null);
@@ -451,20 +452,44 @@ export default function EventoPage() {
 
   const pct = event.total_amount ? Math.round((totalConfirmed / event.total_amount) * 100) : 0;
 
+  // Expected participant count (derived from total_amount / amount_per_person when both set)
+  const expectedParticipants = event.total_amount && event.amount_per_person
+    ? Math.round(event.total_amount / event.amount_per_person)
+    : null;
+  const totalParticipants = event.participants.length;
+  const participantPct = expectedParticipants && expectedParticipants > 0
+    ? Math.min(100, Math.round((confirmedCount / expectedParticipants) * 100))
+    : totalParticipants > 0
+    ? Math.round((confirmedCount / totalParticipants) * 100)
+    : 0;
+  const pendingParticipantPct = expectedParticipants && expectedParticipants > 0
+    ? Math.min(100 - participantPct, Math.round((pendingCount / expectedParticipants) * 100))
+    : totalParticipants > 0
+    ? Math.round((pendingCount / totalParticipants) * 100)
+    : 0;
+  const pendingAmountPct = event.total_amount
+    ? Math.min(100 - pct, Math.round(((totalConfirmed + event.participants.reduce((s, p) => {
+        const pending = p.payments?.find((pay: Payment) => pay.status === "pending");
+        return s + (pending ? p.amount_owed : 0);
+      }, 0)) / event.total_amount) * 100) - pct)
+    : 0;
+
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-xl px-4 py-3">
+      <header className="sticky top-0 z-10 border-b-2 border-foreground bg-background px-4 py-3 shadow-[0px_3px_0px_0px_#2d2d2d]">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <ColectaLogo size={26} />
-            <span className="font-bold text-foreground">Colecta</span>
+            <span className="font-display font-bold text-foreground">Colecta</span>
           </Link>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {isOrganizer ? (
               <>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <span
+                  className="border-2 border-foreground bg-primary/10 px-3 py-1 text-xs font-bold text-primary shadow-[2px_2px_0px_0px_#2d2d2d]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                >
                   👑 Organizador
                 </span>
                 <button
@@ -473,7 +498,8 @@ export default function EventoPage() {
                     setIsOrganizer(false);
                     toast.success("Saliste del modo organizador");
                   }}
-                  className="rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-primary/90 transition"
+                  className="border-2 border-foreground bg-primary px-3 py-1.5 text-sm font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 >
                   Salir
                 </button>
@@ -481,7 +507,8 @@ export default function EventoPage() {
             ) : (
               <button
                 onClick={() => setShowPinModal(true)}
-                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted/50 transition"
+                className="border-2 border-foreground bg-background px-3 py-1 text-xs font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                style={{ borderRadius: WOBBLY_RADIUS_SM }}
               >
                 🔐 Soy el organizador
               </button>
@@ -491,109 +518,132 @@ export default function EventoPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-4 space-y-3">
-        {/* Hero card — Cupertino white/light design */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
-          {/* Nombre + fecha */}
-          <div className="px-5 pt-5 pb-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Colecta activa</p>
-            <h1 className="text-xl font-bold text-foreground leading-tight tracking-tight">{event.name}</h1>
-            {event.description && <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>}
-            <div className="mt-1 text-xs text-muted-foreground">
-              📅{" "}
-              {event.event_date
-                ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })
-                : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })}
+
+        {/* ── Compact Hero Card ── */}
+        <div className="border-2 border-foreground bg-card overflow-hidden shadow-[4px_4px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
+
+          {/* Row 1: Name + edit */}
+          <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-2">
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl font-bold text-foreground leading-tight truncate">{event.name}</h1>
+              <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                {event.description && <span>{event.description} · </span>}
+                📅{" "}
+                {event.event_date
+                  ? new Date(event.event_date + "T12:00:00").toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })
+                  : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })}
+              </p>
             </div>
+            {isOrganizer && !editingAmount && (
+              <button
+                onClick={() => { setNewAmountValue(String(event.amount_per_person ?? event.total_amount ?? "")); setEditingAmount(true); }}
+                className="shrink-0 border-2 border-foreground bg-background px-2.5 py-1 text-xs font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                style={{ borderRadius: WOBBLY_RADIUS_SM }}
+              >
+                ✏ Editar
+              </button>
+            )}
           </div>
 
-          {/* Big number — cuota o total */}
-          <div className="px-5 pb-3">
-            <div className="flex items-end justify-between mb-1">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                  {event.amount_per_person ? "Cuota por persona" : "Total a recaudar"}
-                </p>
-                {editingAmount ? (
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="relative flex-1">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
-                      <Input
-                        type="number" min="1"
-                        value={newAmountValue}
-                        onChange={(e) => setNewAmountValue(e.target.value)}
-                        className="h-11 pl-8 text-xl font-bold tracking-tight bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-                        autoFocus
-                        onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
-                      />
-                    </div>
-                    <button
-                      onClick={saveAmount}
-                      className="h-11 shrink-0 rounded-full bg-primary px-4 text-sm font-semibold text-white hover:opacity-90 transition"
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      onClick={() => setEditingAmount(false)}
-                      className="h-11 shrink-0 rounded-full border border-border bg-background px-3 text-sm text-muted-foreground hover:text-foreground transition"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-5xl font-bold text-foreground tracking-tight">
-                    {formatCurrency(event.amount_per_person || event.total_amount || 0, event.currency)}
-                  </span>
-                )}
-              </div>
-              {isOrganizer && !editingAmount && (
-                <button
-                  onClick={() => {
-                    setNewAmountValue(String(event.amount_per_person ?? event.total_amount ?? ""));
-                    setEditingAmount(true);
-                  }}
-                  className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted transition mb-1"
-                >
-                  ✏ Editar
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Progress bar — thin, blue */}
-          {event.participants.length > 0 && (
-            <div className="px-5 pb-5">
-              <div className="flex justify-between text-xs text-muted-foreground mb-2">
-                <span>
-                  {confirmedCount} de {event.participants.length} pagaron
-                  {pendingCount > 0 && <span className="ml-1 text-warning">· {pendingCount} por confirmar</span>}
-                </span>
-                <span className="font-bold text-primary">{pct}%</span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${pct}%` }}
+          {/* Edit amount inline */}
+          {editingAmount && (
+            <div className="flex items-center gap-2 px-4 pb-3">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
+                <Input
+                  type="number" min="1"
+                  value={newAmountValue}
+                  onChange={(e) => setNewAmountValue(e.target.value)}
+                  className="pl-7 font-bold"
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
                 />
               </div>
+              <button onClick={saveAmount} className="shrink-0 border-2 border-foreground bg-primary px-3 py-2 text-sm font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>Guardar</button>
+              <button onClick={() => setEditingAmount(false)} className="shrink-0 border-2 border-foreground bg-background px-2.5 py-2 text-sm font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>✕</button>
             </div>
           )}
-        </div>
 
-        {/* Stats pills */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Por persona</p>
-            <p className="text-sm font-bold text-foreground">
-              {event.amount_per_person ? formatCurrency(event.amount_per_person, event.currency) : "—"}
-            </p>
+          {/* Row 2: Key numbers */}
+          <div className="grid grid-cols-3 gap-0 border-t-2 border-foreground">
+            {/* Total colecta */}
+            <div className="px-4 py-3 border-r-2 border-foreground text-center">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-primary mb-0.5">Total colecta</p>
+              <p className="text-base font-bold text-primary leading-tight">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
+            </div>
+            {/* Acumulado */}
+            <div className="px-4 py-3 border-r-2 border-foreground text-center">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-success mb-0.5">Recaudado</p>
+              <p className="text-base font-bold text-success leading-tight">{formatCurrency(totalConfirmed, event.currency)}</p>
+            </div>
+            {/* Por persona */}
+            <div className="px-4 py-3 text-center">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Cuota x persona</p>
+              <p className="text-base font-bold text-foreground leading-tight">
+                {event.amount_per_person ? formatCurrency(event.amount_per_person, event.currency) : "—"}
+              </p>
+            </div>
           </div>
-          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-0.5">Total meta</p>
-            <p className="text-sm font-bold text-primary">{formatCurrency(event.total_amount ?? 0, event.currency)}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-success mb-0.5">Acumulado</p>
-            <p className="text-sm font-bold text-success">{formatCurrency(totalConfirmed, event.currency)}</p>
+
+          {/* Row 3: Progress + participant count */}
+          <div className="px-4 py-3 border-t-2 border-foreground space-y-2">
+
+            {/* Amount progress */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {pendingAmountPct > 0
+                    ? <><span className="text-success">{pct}% confirmado</span><span className="text-muted-foreground"> · </span><span className="text-warning">{pendingAmountPct}% pendiente</span></>
+                    : <span className={pct > 0 ? "text-success" : "text-muted-foreground"}>{pct}% recaudado</span>
+                  }
+                </span>
+              </div>
+              <div className="h-4 w-full border-2 border-foreground bg-white overflow-hidden" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
+                <div className="flex h-full">
+                  <div className="h-full bg-success transition-all duration-500" style={{ width: `${pct}%` }} />
+                  {pendingAmountPct > 0 && (
+                    <div className="h-full bg-warning/60 transition-all duration-500" style={{ width: `${pendingAmountPct}%` }} />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Participant count */}
+            <div className="flex items-center justify-between pt-0.5">
+              <div className="flex items-center gap-2">
+                {/* Participant dots */}
+                {(() => {
+                  const total = expectedParticipants ?? (totalParticipants > 0 ? totalParticipants : null);
+                  const dots = total ? Math.min(total, 12) : Math.min(totalParticipants, 12);
+                  return (
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: dots }).map((_, i) => {
+                        const confirmed = i < confirmedCount;
+                        const pending = !confirmed && i < confirmedCount + pendingCount;
+                        return (
+                          <span
+                            key={i}
+                            className={`inline-block h-3 w-3 border border-foreground/60 transition-colors ${
+                              confirmed ? "bg-success" : pending ? "bg-warning/60" : "bg-secondary"
+                            }`}
+                            style={{ borderRadius: "3px" }}
+                          />
+                        );
+                      })}
+                      {total && total > 12 && <span className="ml-1 text-[10px] text-muted-foreground">+{total - 12}</span>}
+                    </div>
+                  );
+                })()}
+              </div>
+              <span className="text-xs font-bold text-foreground">
+                {expectedParticipants
+                  ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron</>
+                  : confirmedCount > 0
+                  ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
+                  : <span className="text-muted-foreground font-normal">Sin pagos aún</span>
+                }
+              </span>
+            </div>
           </div>
         </div>
 
@@ -601,7 +651,8 @@ export default function EventoPage() {
         {isOrganizer && !event.payment_info && (
           <button
             onClick={() => goToTab("info")}
-            className="w-full flex items-start gap-3 rounded-xl border border-warning/40 bg-warning-bg px-4 py-3.5 text-left transition hover:opacity-90"
+            className="w-full flex items-start gap-3 border-2 border-foreground bg-warning-bg px-4 py-3.5 text-left shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
+            style={{ borderRadius: WOBBLY_RADIUS_SM }}
           >
             <span className="text-xl shrink-0">⚠️</span>
             <div className="flex-1 min-w-0">
@@ -632,7 +683,7 @@ export default function EventoPage() {
           const myPayment = me.payments?.[0];
           const isConfirmed = myPayment?.status === "confirmed";
           return (
-            <div className={`rounded-xl border p-4 ${isConfirmed ? "border-success/40 bg-success-bg" : "border-border bg-card"}`}>
+            <div className={`border-2 border-foreground p-4 shadow-[3px_3px_0px_0px_#2d2d2d] ${isConfirmed ? "bg-success-bg" : "bg-card"}`} style={{ borderRadius: WOBBLY_RADIUS_SM }}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Tu pago</p>
@@ -644,11 +695,12 @@ export default function EventoPage() {
                     <p className="mt-1 text-xs text-muted-foreground italic">"{myPayment.message}"</p>
                   )}
                 </div>
-                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                  isConfirmed
-                    ? "bg-success-bg text-success-text"
-                    : "bg-warning-bg text-warning-text"
-                }`}>
+                <span
+                  className={`shrink-0 border-2 border-foreground px-2.5 py-0.5 text-[11px] font-bold shadow-[2px_2px_0px_0px_#2d2d2d] ${
+                    isConfirmed ? "bg-success-bg text-success-text" : "bg-warning-bg text-warning-text"
+                  }`}
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                >
                   {isConfirmed ? "✓ Confirmado" : "⏳ Pendiente"}
                 </span>
               </div>
@@ -661,22 +713,42 @@ export default function EventoPage() {
           );
         })()}
 
-        {/* Compartir colecta — tabbed */}
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-          <p className="px-5 pt-4 pb-3 text-sm font-semibold text-foreground">📤 Compartir colecta</p>
+        {/* Compartir colecta — tabbed + collapsible */}
+        <div className="border-2 border-foreground bg-card overflow-hidden shadow-[4px_4px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
 
-          {/* Sub-tabs — segmented control style */}
-          <div className="flex gap-1 mx-5 mb-4 rounded-xl border border-border bg-secondary p-1">
+          {/* Toggle header */}
+          <button
+            type="button"
+            onClick={() => setShowShare((v) => !v)}
+            className="w-full flex items-center justify-between px-5 pt-4 pb-4 transition-colors hover:bg-secondary/40"
+          >
+            <span className="text-sm font-display font-bold text-foreground">📤 Compartir colecta</span>
+            <span
+              className={`flex h-6 w-6 items-center justify-center border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-transform duration-200 ${showShare ? "rotate-180" : ""}`}
+              style={{ borderRadius: WOBBLY_RADIUS_SM }}
+            >
+              <svg width="10" height="7" viewBox="0 0 10 7" fill="none" aria-hidden>
+                <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </button>
+
+          {/* Collapsible body */}
+          {showShare && (
+            <div className="border-t-2 border-foreground pt-4">
+          {/* Sub-tabs */}
+          <div className="flex gap-1 mx-5 mb-4 border-2 border-foreground bg-secondary p-1" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             {(["codigo", "qr", "email"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setShareTab(t)}
-                className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                className={`flex-1 py-1.5 text-xs font-bold transition-all ${
                   shareTab === t
-                    ? "bg-card text-foreground shadow-sm"
+                    ? "border-2 border-foreground bg-card text-foreground shadow-[2px_2px_0px_0px_#2d2d2d]"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
+                style={shareTab === t ? { borderRadius: WOBBLY_RADIUS_SM } : undefined}
               >
                 {t === "codigo" ? "🔑 Código" : t === "qr" ? "📲 QR" : "✉️ Email"}
               </button>
@@ -689,7 +761,8 @@ export default function EventoPage() {
               <div className="space-y-3">
                 {/* Code tile — light, Cupertino style */}
                 <div
-                  className="flex items-center justify-between rounded-2xl border border-border bg-secondary px-5 py-4 cursor-pointer transition hover:bg-secondary/70 active:scale-[0.99]"
+                  className="flex items-center justify-between border-2 border-foreground bg-secondary px-5 py-4 cursor-pointer shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   onClick={copyCode}
                 >
                   <div>
@@ -716,7 +789,7 @@ export default function EventoPage() {
             {/* Tab: QR */}
             {shareTab === "qr" && (
               <div className="flex flex-col items-center gap-3">
-                <div className="rounded-xl bg-white p-4 shadow-sm border border-border">
+                <div className="border-2 border-foreground bg-white p-4 shadow-[3px_3px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                   <QRCode value={joinUrl} size={180} />
                 </div>
                 <p className="text-sm font-bold tracking-wider text-primary">{event.code}</p>
@@ -736,45 +809,50 @@ export default function EventoPage() {
                     placeholder="correo@ejemplo.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="flex-1 h-10 text-sm bg-secondary border-0 rounded-xl"
+                    className="flex-1 h-10 text-sm"
                   />
                   <a
                     href={inviteEmail.trim() ? `mailto:${inviteEmail}?subject=${inviteSubject}&body=${inviteBody}` : "#"}
                     onClick={(e) => { if (!inviteEmail.trim()) e.preventDefault(); }}
-                    className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    className={`inline-flex items-center border-2 border-foreground px-4 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] ${
                       inviteEmail.trim()
-                        ? "bg-primary text-white hover:bg-primary/90"
-                        : "bg-secondary text-muted-foreground/70 cursor-not-allowed border border-border"
+                        ? "bg-primary text-white"
+                        : "bg-secondary text-muted-foreground/70 cursor-not-allowed"
                     }`}
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   >
                     Enviar
                   </a>
                 </div>
                 <button
                   onClick={copyInviteText}
-                  className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition"
+                  className="w-full border-2 border-foreground bg-primary py-2.5 text-sm font-bold text-white shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 >
                   📋 Copiar texto de invitación
                 </button>
               </div>
             )}
           </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs + contenido — una sola card */}
-        <div ref={tabsCardRef} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div ref={tabsCardRef} className="border-2 border-foreground bg-card overflow-hidden shadow-[4px_4px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
 
-          {/* Barra de tabs — segmented control */}
-          <div className="flex rounded-xl border border-border bg-secondary p-1 gap-1 m-3">
+          {/* Barra de tabs */}
+          <div className="flex border-2 border-foreground bg-secondary p-1 gap-1 m-3" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             {(["participantes", "info", "facturas"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                className={`flex-1 py-2 text-xs font-bold transition-all ${
                   activeTab === tab
-                    ? "bg-card text-foreground shadow-sm"
+                    ? "border-2 border-foreground bg-card text-foreground shadow-[2px_2px_0px_0px_#2d2d2d]"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
+                style={activeTab === tab ? { borderRadius: WOBBLY_RADIUS_SM } : undefined}
               >
                 {tab === "participantes"
                   ? `👥 Participantes${pendingCount > 0 && isOrganizer ? ` (${pendingCount})` : ""}`
@@ -792,7 +870,8 @@ export default function EventoPage() {
                 <div className="flex justify-end">
                   <button
                     onClick={() => setShowSummary(true)}
-                    className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-secondary hover:text-primary transition"
+                    className="flex items-center gap-1.5 border-2 border-foreground bg-card px-3 py-1.5 text-xs font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   >
                     📊 Generar resumen
                   </button>
@@ -818,7 +897,8 @@ export default function EventoPage() {
                   {isOrganizer && (
                     <button
                       onClick={copyLink}
-                      className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition"
+                      className="mt-4 inline-flex items-center gap-2 border-2 border-foreground px-5 py-2.5 text-sm font-bold text-white bg-primary shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     >
                       Compartir ahora →
                     </button>
@@ -827,7 +907,7 @@ export default function EventoPage() {
               ) : (
                 <>
                   {event.participants.length > 1 && (
-                    <div className="rounded-xl bg-secondary px-4 py-2.5 flex justify-between items-center">
+                    <div className="border-2 border-foreground bg-secondary px-4 py-2.5 flex justify-between items-center" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                       <span className="text-sm text-primary">
                         {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
                       </span>
@@ -909,7 +989,7 @@ export default function EventoPage() {
             {loadingDocs ? (
               <div className="py-6 text-center text-sm text-muted-foreground/70">Cargando...</div>
             ) : orgDocs.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-secondary p-8 text-center">
+              <div className="border-2 border-dashed border-foreground/40 bg-secondary p-8 text-center" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                 <p className="text-3xl mb-2">📄</p>
                 <p className="text-sm text-muted-foreground">
                   {isOrganizer
@@ -931,7 +1011,7 @@ export default function EventoPage() {
                   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.name);
                   const isPdf = /\.pdf$/i.test(doc.name);
                   return (
-                    <div key={doc.name} className="rounded-xl border border-border bg-secondary overflow-hidden">
+                    <div key={doc.name} className="border-2 border-foreground bg-secondary overflow-hidden shadow-[2px_2px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                       {isImage && (
                         <a href={doc.url} target="_blank" rel="noopener noreferrer">
                           <img
@@ -956,14 +1036,16 @@ export default function EventoPage() {
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center rounded-full bg-secondary border border-border px-3 py-1.5 text-xs font-medium text-primary hover:bg-muted transition"
+                            className="inline-flex items-center border-2 border-foreground bg-secondary px-3 py-1.5 text-xs font-bold text-primary shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                            style={{ borderRadius: WOBBLY_RADIUS_SM }}
                           >
                             Ver
                           </a>
                           {isOrganizer && (
                             <button
                               onClick={() => deleteOrgDoc(doc.name)}
-                              className="inline-flex items-center rounded-full bg-red-50 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-100 transition"
+                              className="inline-flex items-center border-2 border-foreground bg-red-50 px-3 py-1.5 text-xs font-bold text-red-500 shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                            style={{ borderRadius: WOBBLY_RADIUS_SM }}
                             >
                               Eliminar
                             </button>
@@ -1017,22 +1099,22 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4 backdrop-blur-sm">
-      <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl bg-card shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-0 sm:px-4">
+      <div className="w-full sm:max-w-lg border-2 border-foreground bg-card shadow-[6px_6px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex items-center justify-between border-b-2 border-foreground px-5 py-4">
           <div>
-            <h3 className="font-bold text-foreground">📊 Resumen de pagos</h3>
-            <p className="text-xs text-muted-foreground/70 mt-0.5">Listo para copiar y pegar en WhatsApp</p>
+            <h3 className="font-display font-bold text-foreground">📊 Resumen de pagos</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Listo para copiar y pegar en WhatsApp</p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1 text-muted-foreground/70 hover:bg-secondary hover:text-foreground">
+          <button onClick={onClose} className="border-2 border-foreground p-1.5 text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             ✕
           </button>
         </div>
 
         {/* Preview */}
         <div className="px-5 py-4">
-          <div className="rounded-2xl border border-border bg-secondary p-4 max-h-72 overflow-y-auto">
+          <div className="border-2 border-foreground bg-secondary p-4 max-h-72 overflow-y-auto" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">
               {summaryText}
             </pre>
@@ -1040,12 +1122,12 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 border-t border-border px-5 py-4">
-          <Button variant="outline" className="flex-1 rounded-full" onClick={onClose}>
+        <div className="flex gap-3 border-t-2 border-foreground px-5 py-4">
+          <Button variant="outline" className="flex-1" onClick={onClose}>
             Cerrar
           </Button>
           <Button
-            className={`flex-1 rounded-full transition ${copied ? "bg-success hover:bg-success/90" : "bg-primary hover:bg-primary/90"}`}
+            className={`flex-1 transition ${copied ? "bg-success" : ""}`}
             onClick={handleCopy}
           >
             {copied ? "✓ ¡Copiado!" : "📋 Copiar para WhatsApp"}
@@ -1073,11 +1155,11 @@ function PaymentRow({
   const isPending = payment?.status === "pending";
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition ${
+    <div className={`flex items-center gap-3 px-4 py-3 border-b-2 border-dashed border-foreground/20 last:border-0 ${
       isMe ? "bg-primary/5" : "bg-card"
     }`}>
       {/* Avatar inicial */}
-      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-foreground text-sm font-bold ${
         isConfirmed ? "bg-primary/10 text-primary"
         : isPending  ? "bg-warning-bg text-warning"
         : "bg-secondary text-muted-foreground"
@@ -1086,7 +1168,7 @@ function PaymentRow({
       </div>
       {/* Nombre */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground truncate">
+        <p className="text-sm font-bold text-foreground truncate">
           {participant.name}
           {isMe && <span className="ml-1.5 text-xs font-normal text-muted-foreground">(tú)</span>}
         </p>
@@ -1097,11 +1179,14 @@ function PaymentRow({
         )}
       </div>
       {/* Status badge */}
-      <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-        isConfirmed ? "bg-success-bg text-success-text"
-        : isPending  ? "bg-warning-bg text-warning-text"
-        : "bg-secondary text-muted-foreground"
-      }`}>
+      <span
+        className={`shrink-0 border-2 border-foreground px-2.5 py-0.5 text-[11px] font-bold shadow-[2px_2px_0px_0px_#2d2d2d] ${
+          isConfirmed ? "bg-success-bg text-success-text"
+          : isPending  ? "bg-warning-bg text-warning-text"
+          : "bg-secondary text-muted-foreground"
+        }`}
+        style={{ borderRadius: WOBBLY_RADIUS_SM }}
+      >
         {isConfirmed ? "✓ Confirmado" : isPending ? "⏳ Pendiente" : "Sin pago"}
       </span>
     </div>
@@ -1146,10 +1231,10 @@ function JoinSection({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+    <div className="border-2 border-foreground bg-card overflow-hidden shadow-[4px_4px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
       {/* Header con cuota */}
       {defaultAmount > 0 && (
-        <div className="border-b border-border bg-secondary px-5 py-4 text-center">
+        <div className="border-b-2 border-foreground bg-secondary px-5 py-4 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
             Cuota por persona
           </p>
@@ -1173,7 +1258,6 @@ function JoinSection({
             onChange={(e) => setName(e.target.value)}
             required
             autoFocus
-            className="h-11 text-sm bg-secondary border-0 rounded-xl"
           />
         </div>
 
@@ -1188,7 +1272,6 @@ function JoinSection({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 text-sm bg-secondary border-0 rounded-xl"
           />
           <p className="text-xs text-muted-foreground/70">
             Solo para evitar duplicados, no se muestra públicamente.
@@ -1211,7 +1294,7 @@ function JoinSection({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
-              className="h-11 pl-7 text-sm font-bold bg-secondary border-0 rounded-xl"
+              className="pl-7 font-bold"
             />
           </div>
         </div>
@@ -1222,7 +1305,7 @@ function JoinSection({
             Comprobante de pago
           </label>
           {file ? (
-            <div className="flex items-center justify-between rounded-xl border border-border bg-secondary px-3 py-2.5">
+            <div className="flex items-center justify-between border-2 border-foreground bg-secondary px-3 py-2.5" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
                 <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
@@ -1236,7 +1319,7 @@ function JoinSection({
               </button>
             </div>
           ) : (
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary px-4 py-4 text-center hover:bg-muted/40 transition">
+            <label className="flex cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-foreground/40 bg-secondary px-4 py-4 text-center hover:bg-secondary/70 transition" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
               <span className="text-xl">📎</span>
               <span className="text-xs font-medium text-muted-foreground">
                 Adjuntar imagen o PDF <span className="text-muted-foreground/50">(opcional)</span>
@@ -1261,13 +1344,14 @@ function JoinSection({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={2}
-            className="w-full resize-none rounded-xl border-0 bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            className="w-full resize-none border-2 border-foreground bg-white px-3 py-2 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors duration-100"
+            style={{ borderRadius: WOBBLY_RADIUS_SM }}
           />
         </div>
 
         <Button
           type="submit"
-          className="w-full h-11 text-sm font-semibold rounded-full bg-primary text-white hover:bg-primary/90"
+          className="w-full text-sm font-bold"
           disabled={!canSubmit}
         >
           {submitting ? (
@@ -1364,19 +1448,19 @@ function ParticipantCard({
   const initials = participant.name.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase();
 
   return (
-    <div className={`rounded-xl border transition ${
-      isPaid
-        ? "border-success/30 bg-success-bg/40"
-        : isPending
-        ? "border-warning/30 bg-warning-bg/40"
-        : isMe
-        ? "border-border bg-secondary"
-        : "border-border bg-card"
-    }`}>
+    <div
+      className={`border-2 border-foreground shadow-[3px_3px_0px_0px_#2d2d2d] ${
+        isPaid ? "bg-success-bg/40"
+        : isPending ? "bg-warning-bg/40"
+        : isMe ? "bg-secondary"
+        : "bg-card"
+      }`}
+      style={{ borderRadius: WOBBLY_RADIUS_SM }}
+    >
       {/* Fila principal del participante */}
       <div className="flex items-center gap-3 px-4 py-3.5">
         {/* Avatar con iniciales */}
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-foreground text-sm font-bold ${
           isPaid ? "bg-primary/10 text-primary"
           : isPending ? "bg-warning-bg text-warning"
           : isMe ? "bg-primary/10 text-primary"
@@ -1390,7 +1474,7 @@ function ParticipantCard({
           <div className="flex items-center gap-1.5">
             <p className="truncate font-semibold text-foreground text-sm">{participant.name}</p>
             {isMe && !isOrganizer && (
-              <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-primary">
+              <span className="shrink-0 border-2 border-foreground bg-secondary px-2 py-0.5 text-xs font-bold text-primary shadow-[1px_1px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                 Tú
               </span>
             )}
@@ -1426,7 +1510,8 @@ function ParticipantCard({
               {isPaid ? (
                 <button
                   onClick={() => onUndo(participant.id)}
-                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary transition"
+                  className="border-2 border-foreground bg-card px-3 py-1.5 text-xs font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 >
                   Deshacer
                 </button>
@@ -1434,13 +1519,15 @@ function ParticipantCard({
                 <>
                   <button
                     onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                    className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
+                    className="border-2 border-foreground bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   >
                     Aprobar ✓
                   </button>
                   <button
                     onClick={() => onReject(pendingPayment!.id)}
-                    className="rounded-full border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition"
+                    className="border-2 border-foreground bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   >
                     Rechazar
                   </button>
@@ -1448,7 +1535,8 @@ function ParticipantCard({
               ) : (
                 <button
                   onClick={() => onConfirmDirect(participant.id, participant.amount_owed)}
-                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
+                  className="border-2 border-foreground bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 >
                   Confirmar ✓
                 </button>
@@ -1457,17 +1545,18 @@ function ParticipantCard({
           ) : (
             <>
               {isPaid ? (
-                <span className="rounded-full bg-success-bg px-3 py-1 text-xs font-medium text-success-text">
+                <span className="border-2 border-foreground bg-success-bg px-3 py-1 text-xs font-bold text-success-text shadow-[2px_2px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                   Pagado ✓
                 </span>
               ) : isPending ? (
-                <span className="rounded-full bg-warning-bg px-3 py-1 text-xs font-medium text-warning-text">
+                <span className="border-2 border-foreground bg-warning-bg px-3 py-1 text-xs font-bold text-warning-text shadow-[2px_2px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                   ⏳ Esperando
                 </span>
               ) : isMe ? (
                 <button
                   onClick={() => setExpanded(!expanded)}
-                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 transition"
+                  className="border-2 border-foreground bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 >
                   Ya pagué
                 </button>
@@ -1479,11 +1568,11 @@ function ParticipantCard({
 
       {/* Organizer: mensaje del participante en pago pendiente */}
       {isOrganizer && isPending && (pendingPayment as Payment & { message?: string | null })?.message && (
-        <div className="border-t border-warning/20 px-4 pb-3 pt-2">
+        <div className="border-t-2 border-dashed border-warning/30 px-4 pb-3 pt-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-warning mb-1">
             💬 Mensaje del participante
           </p>
-          <p className="text-sm text-foreground bg-warning-bg rounded-xl px-3 py-2">
+          <p className="text-sm text-foreground bg-warning-bg border-2 border-foreground/20 px-3 py-2" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             {(pendingPayment as Payment & { message?: string | null })?.message}
           </p>
         </div>
@@ -1491,19 +1580,19 @@ function ParticipantCard({
 
       {/* Organizer: comprobante en pago pendiente */}
       {isOrganizer && isPending && pendingPayment?.receipt_url && (
-        <div className="border-t border-warning/20 px-4 pb-4 pt-3">
+        <div className="border-t-2 border-dashed border-warning/30 px-4 pb-4 pt-3">
           <p className="mb-2 text-xs font-medium text-warning">📎 Comprobante del participante:</p>
           <a href={pendingPayment.receipt_url} target="_blank" rel="noopener noreferrer">
             <img
               src={pendingPayment.receipt_url}
               alt="Comprobante"
-              className="max-h-48 w-full rounded-xl object-contain border border-warning/20 bg-card"
+              className="max-h-48 w-full object-contain border-2 border-foreground/20 bg-card"
             />
           </a>
         </div>
       )}
       {isOrganizer && isPending && !pendingPayment?.receipt_url && !(pendingPayment as Payment & { message?: string | null })?.message && (
-        <div className="border-t border-warning/20 px-4 pb-3 pt-2">
+        <div className="border-t-2 border-dashed border-warning/30 px-4 pb-3 pt-2">
           <p className="text-xs text-warning">
             El participante declaró que pagó (sin comprobante adjunto)
           </p>
@@ -1512,7 +1601,7 @@ function ParticipantCard({
 
       {/* Organizer: recibo en pago confirmado */}
       {isOrganizer && isPaid && confirmedPayment?.receipt_url && (
-        <div className="border-t border-border px-4 pb-3 pt-2">
+        <div className="border-t-2 border-dashed border-foreground/20 px-4 pb-3 pt-2">
           <button
             onClick={() => setShowReceipt(!showReceipt)}
             className="text-xs text-primary hover:underline"
@@ -1525,7 +1614,7 @@ function ParticipantCard({
                 <img
                   src={confirmedPayment.receipt_url}
                   alt="Comprobante confirmado"
-                  className="max-h-48 w-full rounded-xl object-contain border border-border bg-card"
+                  className="max-h-48 w-full object-contain border-2 border-foreground/20 bg-card"
                 />
               </a>
             </div>
@@ -1535,13 +1624,14 @@ function ParticipantCard({
 
       {/* Participant: formulario "Ya pagué" */}
       {isMe && !isOrganizer && !isPaid && !isPending && expanded && (
-        <div ref={expandedFormRef} className="border-t border-border bg-secondary px-4 pb-4 pt-3 space-y-3 rounded-b-xl">
+        <div ref={expandedFormRef} className="border-t-2 border-foreground bg-secondary px-4 pb-4 pt-3 space-y-3">
           {/* Comprobante */}
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">Adjunta tu comprobante (opcional)</p>
+            <p className="text-sm font-bold text-foreground mb-2">Adjunta tu comprobante (opcional)</p>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-4 hover:border-primary/30 hover:bg-secondary transition"
+              className="flex cursor-pointer flex-col items-center justify-center border-2 border-dashed border-foreground/40 bg-card p-4 hover:bg-secondary transition"
+              style={{ borderRadius: WOBBLY_RADIUS_SM }}
             >
               {preview ? (
                 <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
@@ -1566,7 +1656,7 @@ function ParticipantCard({
           </div>
 
           {/* Toggle: pagué otro monto */}
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="border-2 border-foreground bg-card overflow-hidden shadow-[2px_2px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             <label className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-secondary transition">
               <div>
                 <p className="text-sm font-medium text-foreground">Pagué un monto diferente</p>
@@ -1591,7 +1681,7 @@ function ParticipantCard({
               </div>
             </label>
             {useCustomAmount && (
-              <div className="border-t border-border px-4 pb-3 pt-2.5">
+              <div className="border-t-2 border-dashed border-foreground/20 px-4 pb-3 pt-2.5">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   Monto que pagaste
                 </label>
@@ -1602,7 +1692,8 @@ function ParticipantCard({
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   autoFocus
-                  className="w-full rounded-xl border-0 bg-secondary px-3 py-2.5 text-base font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring transition"
+                  className="w-full border-2 border-foreground bg-white px-3 py-2.5 text-base font-bold text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors"
+                  style={{ borderRadius: WOBBLY_RADIUS_SM }}
                 />
                 {customAmount && parseFloat(customAmount) > 0 && (
                   <p className="mt-1.5 text-xs text-primary font-medium">
@@ -1625,7 +1716,8 @@ function ParticipantCard({
               placeholder="Ej: Transferí el jueves a las 14:00 desde Banco Estado"
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border-0 bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+              className="w-full resize-none border-2 border-foreground bg-white px-3 py-2 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors"
+              style={{ borderRadius: WOBBLY_RADIUS_SM }}
             />
           </div>
 
@@ -1634,7 +1726,7 @@ function ParticipantCard({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 rounded-full border border-border"
+              className="flex-1"
               onClick={() => {
                 setExpanded(false);
                 setSelectedFile(null);
@@ -1648,7 +1740,7 @@ function ParticipantCard({
             </Button>
             <Button
               size="sm"
-              className="flex-1 rounded-full bg-primary text-white hover:bg-primary/90"
+              className="flex-1"
               onClick={handleSubmit}
               disabled={submitting || (useCustomAmount && (!customAmount || parseFloat(customAmount) <= 0))}
             >
@@ -1684,8 +1776,8 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <div className="w-full max-w-sm border-2 border-foreground bg-card p-6 shadow-[6px_6px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
         <div className="mb-5 text-center">
           <p className="mb-1 text-3xl">🔐</p>
           <h3 className="text-lg font-bold text-foreground">Acceso de organizador</h3>
@@ -1703,7 +1795,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
               autoComplete="off"
               name="colecta-pin-verify"
               style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-              className={`text-center text-2xl tracking-widest font-bold bg-secondary border-0 rounded-xl ${error ? "ring-2 ring-red-400" : ""}`}
+              className={`text-center text-2xl tracking-widest font-bold ${error ? "border-red-400 ring-2 ring-red-400/30" : ""}`}
             />
             <button type="button" onClick={() => setShowPin(!showPin)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground">
@@ -1712,8 +1804,8 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
           </div>
           {error && <p className="text-center text-sm font-medium text-red-500">PIN incorrecto</p>}
           <div className="flex gap-2">
-            <Button type="button" variant="outline" className="flex-1 rounded-full border border-border" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" className="flex-1 rounded-full bg-primary text-white hover:bg-primary/90" disabled={pin.length < 4}>Ingresar</Button>
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={pin.length < 4}>Ingresar</Button>
           </div>
         </form>
       </div>
@@ -1726,7 +1818,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
 // ──────────────────────────────────────────────
 export { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
-const selectCls = "flex h-10 w-full rounded-xl border-0 bg-secondary px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const selectCls = `flex h-10 w-full border-2 border-foreground bg-white px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20 transition-colors`;
 
 // ──────────────────────────────────────────────
 // Payment Info Tab
@@ -1805,16 +1897,15 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
           <div className="flex items-center gap-2">
             <button
               onClick={copyTransferData}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                copiedInfo
-                  ? "bg-success-bg text-success-text"
-                  : "bg-secondary border border-border text-primary hover:bg-muted"
+              className={`border-2 border-foreground px-3 py-1.5 text-xs font-bold shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] ${
+                copiedInfo ? "bg-success-bg text-success-text" : "bg-secondary text-primary"
               }`}
+              style={{ borderRadius: WOBBLY_RADIUS_SM }}
             >
               {copiedInfo ? "✓ Copiado" : "📋 Copiar datos"}
             </button>
             {isOrganizer && (
-              <button onClick={() => setEditing(true)} className="text-sm text-primary hover:underline">
+              <button onClick={() => setEditing(true)} className="text-sm font-bold text-accent hover:underline underline-offset-4">
                 Editar
               </button>
             )}
@@ -1827,7 +1918,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
         {existingInfo.notes && (
-          <div className="rounded-xl bg-secondary p-3 text-sm text-muted-foreground">{existingInfo.notes}</div>
+          <div className="border-2 border-foreground bg-secondary p-3 text-sm text-muted-foreground" style={{ borderRadius: WOBBLY_RADIUS_SM }}>{existingInfo.notes}</div>
         )}
       </div>
     );
@@ -1843,7 +1934,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nombre del titular</label>
         <input value={form.account_holder} onChange={(e) => setForm({ ...form, account_holder: e.target.value })}
-          placeholder="Ej: Juan Pérez" className={selectCls} />
+          placeholder="Ej: Juan Pérez" className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }} />
       </div>
 
       {/* Banco */}
@@ -1860,7 +1951,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
               setForm({ ...form, bank_name: bankCustom });
             }
           }}
-          className={selectCls}
+          className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }}
         >
           <option value="">Selecciona un banco...</option>
           {CHILE_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
@@ -1872,7 +1963,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
             value={bankCustom}
             onChange={(e) => { setBankCustom(e.target.value); setForm({ ...form, bank_name: e.target.value }); }}
             placeholder="Escribe el nombre del banco..."
-            className={selectCls}
+            className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }}
           />
         )}
       </div>
@@ -1891,7 +1982,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
               setForm({ ...form, account_type: typeCustom });
             }
           }}
-          className={selectCls}
+          className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }}
         >
           <option value="">Selecciona un tipo...</option>
           {CHILE_ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -1902,7 +1993,7 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
             value={typeCustom}
             onChange={(e) => { setTypeCustom(e.target.value); setForm({ ...form, account_type: e.target.value }); }}
             placeholder="Escribe el tipo de cuenta..."
-            className={selectCls}
+            className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }}
           />
         )}
       </div>
@@ -1911,40 +2002,40 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">N° de cuenta</label>
         <input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })}
-          placeholder="Ej: 00123456789" className={selectCls} />
+          placeholder="Ej: 00123456789" className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }} />
       </div>
 
       {/* RUT */}
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">RUT</label>
         <input value={form.rut} onChange={(e) => setForm({ ...form, rut: e.target.value })}
-          placeholder="Ej: 12.345.678-9" className={selectCls} />
+          placeholder="Ej: 12.345.678-9" className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }} />
       </div>
 
       {/* Email */}
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email de transferencia</label>
         <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-          placeholder="correo@ejemplo.com" className={selectCls} />
+          placeholder="correo@ejemplo.com" className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }} />
       </div>
 
       {/* Notas */}
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notas adicionales</label>
         <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          placeholder="Ej: Transferir hasta el viernes" className={selectCls} />
+          placeholder="Ej: Transferir hasta el viernes" className={selectCls} style={{ borderRadius: WOBBLY_RADIUS_SM }} />
       </div>
 
-      <Button onClick={saveInfo} disabled={saving} className="w-full rounded-full bg-primary text-white hover:bg-primary/90">{saving ? "Guardando..." : "Guardar datos"}</Button>
+      <Button onClick={saveInfo} disabled={saving} className="w-full">{saving ? "Guardando..." : "Guardar datos"}</Button>
     </div>
   );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-1 border-b border-border last:border-0">
+    <div className="flex items-center justify-between py-1.5 border-b-2 border-dashed border-foreground/20 last:border-0">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
+      <span className="text-sm font-bold text-foreground">{value}</span>
     </div>
   );
 }
@@ -1961,7 +2052,7 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-3">
         <div className="animate-bounce"><ColectaLogo size={40} /></div>
         <p className="text-sm text-muted-foreground">Cargando colecta...</p>
@@ -1972,12 +2063,12 @@ function LoadingScreen() {
 
 function NotFoundScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-4">
-      <div className="text-center bg-card rounded-2xl border border-border shadow-sm px-8 py-10 max-w-sm w-full">
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="text-center border-2 border-foreground bg-card px-8 py-10 max-w-sm w-full shadow-[4px_4px_0px_0px_#2d2d2d]" style={{ borderRadius: WOBBLY_RADIUS_MD }}>
         <p className="mb-2 text-5xl">😕</p>
-        <h2 className="text-xl font-bold text-foreground">Colecta no encontrada</h2>
+        <h2 className="font-display text-xl font-bold text-foreground">Colecta no encontrada</h2>
         <p className="mt-1 text-muted-foreground text-sm">El link puede haber expirado o ser incorrecto.</p>
-        <Link href="/" className="mt-4 inline-block text-primary hover:underline text-sm">← Volver al inicio</Link>
+        <Link href="/" className="mt-4 inline-block font-bold text-accent hover:underline underline-offset-4 text-sm">← Volver al inicio</Link>
       </div>
     </div>
   );

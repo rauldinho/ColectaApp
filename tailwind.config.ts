@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -16,6 +15,12 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        /* Body: Patrick Hand — legible handwritten */
+        sans: ["var(--font-patrick-hand)", "Patrick Hand", "cursive", "sans-serif"],
+        /* Display / Headings: Kalam — thick felt-tip marker */
+        display: ["var(--font-kalam)", "Kalam", "cursive"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -50,7 +55,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        /* Tokens de estado — usados en badges y tarjetas */
+        /* Status tokens for payment badges */
         success: {
           DEFAULT: "hsl(var(--success))",
           bg: "hsl(var(--success-bg))",
@@ -63,13 +68,13 @@ const config: Config = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",                   /* 12px */
-        md: "calc(var(--radius) - 2px)",       /* 10px */
-        sm: "calc(var(--radius) - 4px)",       /* 8px */
-        xl: "calc(var(--radius) + 4px)",       /* 16px */
-        "2xl": "calc(var(--radius) + 8px)",    /* 20px */
-        "3xl": "calc(var(--radius) + 12px)",   /* 24px */
-        full: "9999px",                        /* pill */
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
+        "3xl": "calc(var(--radius) + 12px)",
+        full: "9999px",
       },
       keyframes: {
         "accordion-down": {
@@ -80,10 +85,22 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        /* Gentle float for decorative elements */
+        "float": {
+          "0%, 100%": { transform: "translateY(0px) rotate(-1deg)" },
+          "50%": { transform: "translateY(-6px) rotate(1deg)" },
+        },
+        /* Wiggle on hover for interactive personality */
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-2deg)" },
+          "50%": { transform: "rotate(2deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "wiggle": "wiggle 0.3s ease-in-out",
       },
     },
   },

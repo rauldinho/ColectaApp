@@ -7,10 +7,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
-import { generateEventCode } from "@/lib/utils";
+import { generateEventCode, WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 /** Formatea dígitos como número chileno: "20000" → "20.000" */
 function fmtCLP(raw: string): string {
@@ -35,7 +34,6 @@ export default function NuevoEventoPage() {
 
   // Sección 2 — Monto
   const currency = "CLP";
-  // "person" = cuota por persona como base | "total" = monto total como base
   const [amountMode, setAmountMode] = useState<"person" | "total">("person");
   const [amountPerPerson, setAmountPerPerson] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -78,7 +76,6 @@ export default function NuevoEventoPage() {
     } else {
       parsedTotal = parseFloat(totalAmount) || 0;
       if (parsedTotal <= 0) { toast.error("El monto total debe ser mayor a 0"); return; }
-      // numPeople is optional — if not provided, per-person stays null
       parsedPerPerson = n && n > 0 ? Math.round(parsedTotal / n) : 0;
     }
     if (adminPin.length < 4) { toast.error("El PIN debe tener al menos 4 dígitos"); return; }
@@ -112,7 +109,6 @@ export default function NuevoEventoPage() {
 
     localStorage.setItem(`colecta_organizer_${event.slug}`, "true");
 
-    // Insertar datos bancarios opcionales
     if (showBankInfo) {
       const bankName = bankSel === "otro" ? bankCustom.trim() : bankSel;
       const accountType = typeSel === "otro" ? typeCustom.trim() : typeSel;
@@ -131,7 +127,6 @@ export default function NuevoEventoPage() {
       }
     }
 
-    // Subir facturas si el organizador las adjuntó
     if (uploadInvoices && invoiceFiles.length > 0) {
       const uploadPromises = invoiceFiles.map(async (file) => {
         const ext = file.name.split(".").pop();
@@ -150,40 +145,36 @@ export default function NuevoEventoPage() {
   const pinMismatch = confirmPin.length > 0 && adminPin !== confirmPin;
 
   return (
-    <div className="min-h-screen bg-secondary">
-      {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-xl px-4 py-3">
+    <div className="min-h-screen">
+      {/* Header — pencil border */}
+      <header className="sticky top-0 z-10 border-b-2 border-foreground bg-background px-4 py-3 shadow-[0px_3px_0px_0px_#2d2d2d]">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-base font-bold text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Inicio
             </Link>
-            <span className="text-border/60">·</span>
-            <span className="text-sm font-semibold text-foreground">Nueva colecta</span>
+            <span className="text-foreground/30">·</span>
+            <span className="font-display text-base font-bold text-foreground">Nueva colecta</span>
           </div>
-          <ThemeToggle />
         </div>
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-6 pb-32">
         {/* Page title */}
         <div className="mb-7">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Nueva colecta</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-3xl font-bold text-foreground">Nueva colecta</h1>
+          <p className="mt-1 text-base text-muted-foreground">
             Completa los pasos y comparte el link con tus participantes.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* ════════════════════════════════════════
-              SECCIÓN 1 — Datos de la colecta
-          ════════════════════════════════════════ */}
+          {/* ════ SECCIÓN 1 — Datos ════ */}
           <StepCard step={1} title="Datos de la colecta">
-            {/* Nombre */}
             <FieldGroup label="Nombre *">
               <Input
                 placeholder="Ej: Asado del sábado, Regalo de cumpleaños..."
@@ -191,21 +182,17 @@ export default function NuevoEventoPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 autoFocus
-                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
 
-            {/* Descripción */}
             <FieldGroup label="Descripción">
               <Input
                 placeholder="Añade un detalle opcional..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
 
-            {/* Fecha */}
             <FieldGroup
               label="Fecha del evento"
               hint={!eventDate ? "Puede ser pasada o futura. Si no se indica, se usará la de hoy." : undefined}
@@ -214,55 +201,60 @@ export default function NuevoEventoPage() {
                 type="date"
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
               />
             </FieldGroup>
           </StepCard>
 
-          {/* ════════════════════════════════════════
-              SECCIÓN 2 — Monto y comprobantes
-          ════════════════════════════════════════ */}
+          {/* ════ SECCIÓN 2 — Monto ════ */}
           <StepCard step={2} title="Monto a pagar">
 
-            {/* Selector de modo — segmented control */}
-            <div className="flex rounded-xl border border-border bg-secondary p-1 gap-1">
+            {/* Mode toggle — hand-drawn segmented control */}
+            <div
+              className="flex border-2 border-foreground bg-secondary p-1 gap-1"
+              style={{ borderRadius: WOBBLY_RADIUS_MD }}
+            >
               <button
                 type="button"
                 onClick={() => setAmountMode("person")}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
-                  amountMode === "person"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className="flex-1 px-3 py-2 text-sm font-bold transition-all"
+                style={{
+                  borderRadius: WOBBLY_RADIUS_SM,
+                  background: amountMode === "person" ? "white" : "transparent",
+                  color: amountMode === "person" ? "#2d2d2d" : undefined,
+                  boxShadow: amountMode === "person" ? "2px 2px 0px 0px #2d2d2d" : "none",
+                  border: amountMode === "person" ? "2px solid #2d2d2d" : "2px solid transparent",
+                }}
               >
                 Cuota por persona
               </button>
               <button
                 type="button"
                 onClick={() => setAmountMode("total")}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
-                  amountMode === "total"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className="flex-1 px-3 py-2 text-sm font-bold transition-all"
+                style={{
+                  borderRadius: WOBBLY_RADIUS_SM,
+                  background: amountMode === "total" ? "white" : "transparent",
+                  color: amountMode === "total" ? "#2d2d2d" : undefined,
+                  boxShadow: amountMode === "total" ? "2px 2px 0px 0px #2d2d2d" : "none",
+                  border: amountMode === "total" ? "2px solid #2d2d2d" : "2px solid transparent",
+                }}
               >
                 Monto total
               </button>
             </div>
 
-            {/* Modo: cuota por persona */}
             {amountMode === "person" && (
               <>
                 <FieldGroup label="Cuota por persona *" hint="Cada participante pagará este monto al unirse.">
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold text-muted-foreground">$</span>
                     <Input
                       type="text"
                       inputMode="numeric"
                       placeholder="0"
                       value={fmtCLP(amountPerPerson)}
                       onChange={(e) => setAmountPerPerson(digitsOnly(e.target.value))}
-                      className="bg-secondary border-0 rounded-xl h-12 pl-8 text-lg font-bold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+                      className="pl-8 text-xl font-bold"
                     />
                   </div>
                 </FieldGroup>
@@ -273,13 +265,14 @@ export default function NuevoEventoPage() {
                     placeholder="Ej: 10"
                     value={numPeople}
                     onChange={(e) => setNumPeople(e.target.value)}
-                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                   />
                 </FieldGroup>
 
-                {/* Resultado calculado */}
                 {parseFloat(amountPerPerson) > 0 && (
-                  <div className="rounded-xl bg-primary/[0.08] px-4 py-3 text-sm">
+                  <div
+                    className="border-2 border-foreground/30 bg-primary/10 px-4 py-3 text-sm"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                  >
                     <p className="text-muted-foreground">
                       Cuota: <span className="font-bold text-foreground">{currency} {parseFloat(amountPerPerson).toLocaleString("es-CL")}</span> por persona
                     </p>
@@ -296,19 +289,18 @@ export default function NuevoEventoPage() {
               </>
             )}
 
-            {/* Modo: monto total */}
             {amountMode === "total" && (
               <>
                 <FieldGroup label="Monto total de la colecta *" hint="El total general de gastos a cubrir entre todos.">
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-semibold text-muted-foreground">$</span>
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base font-bold text-muted-foreground">$</span>
                     <Input
                       type="text"
                       inputMode="numeric"
                       placeholder="0"
                       value={fmtCLP(totalAmount)}
                       onChange={(e) => setTotalAmount(digitsOnly(e.target.value))}
-                      className="bg-secondary border-0 rounded-xl h-12 pl-8 text-lg font-bold tracking-tight focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+                      className="pl-8 text-xl font-bold"
                     />
                   </div>
                 </FieldGroup>
@@ -319,13 +311,14 @@ export default function NuevoEventoPage() {
                     placeholder="Ej: 10"
                     value={numPeople}
                     onChange={(e) => setNumPeople(e.target.value)}
-                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
                   />
                 </FieldGroup>
 
-                {/* Resultado calculado */}
                 {parseFloat(totalAmount) > 0 && (
-                  <div className="rounded-xl bg-primary/[0.08] px-4 py-3 text-sm">
+                  <div
+                    className="border-2 border-foreground/30 bg-primary/10 px-4 py-3 text-sm"
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                  >
                     <p className="text-muted-foreground">
                       Total: <span className="font-bold text-foreground">{currency} {parseFloat(totalAmount).toLocaleString("es-CL")}</span>
                     </p>
@@ -342,8 +335,8 @@ export default function NuevoEventoPage() {
               </>
             )}
 
-            {/* Divisor */}
-            <div className="border-t border-border" />
+            {/* Dashed divider */}
+            <div className="border-t-2 border-dashed border-foreground/20" />
 
             {/* Toggle facturas */}
             <Toggle
@@ -357,13 +350,15 @@ export default function NuevoEventoPage() {
               onChange={(v) => { setUploadInvoices(v); if (!v) setInvoiceFiles([]); }}
             />
 
-            {/* Zona de carga — visible solo si toggle ON */}
             {uploadInvoices && (
               <div className="space-y-2">
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary/50 px-4 py-5 text-center hover:bg-secondary/80 transition">
+                <label
+                  className="flex cursor-pointer flex-col items-center justify-center gap-2 border-[3px] border-dashed border-foreground/40 bg-white px-4 py-5 text-center hover:border-foreground/70 transition-colors"
+                  style={{ borderRadius: WOBBLY_RADIUS_MD }}
+                >
                   <span className="text-2xl">📎</span>
-                  <span className="text-sm font-medium text-foreground">Seleccionar archivos</span>
-                  <span className="text-xs text-muted-foreground">Imágenes o PDF · múltiples archivos</span>
+                  <span className="text-base font-bold text-foreground">Seleccionar archivos</span>
+                  <span className="text-sm text-muted-foreground">Imágenes o PDF · múltiples archivos</span>
                   <input
                     type="file"
                     multiple
@@ -380,14 +375,17 @@ export default function NuevoEventoPage() {
                   />
                 </label>
 
-                {/* Lista de archivos seleccionados */}
                 {invoiceFiles.length > 0 && (
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {invoiceFiles.map((file, i) => (
-                      <li key={i} className="flex items-center justify-between rounded-xl border border-border bg-card px-3 py-2">
+                      <li
+                        key={i}
+                        className="flex items-center justify-between border-2 border-foreground bg-card px-3 py-2 shadow-[2px_2px_0px_0px_#2d2d2d]"
+                        style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                      >
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-base">{file.type.startsWith("image/") ? "🖼" : "📄"}</span>
-                          <span className="truncate text-xs font-medium text-foreground">{file.name}</span>
+                          <span className="truncate text-sm font-bold text-foreground">{file.name}</span>
                           <span className="shrink-0 text-xs text-muted-foreground">
                             {(file.size / 1024).toFixed(0)} KB
                           </span>
@@ -395,7 +393,7 @@ export default function NuevoEventoPage() {
                         <button
                           type="button"
                           onClick={() => setInvoiceFiles((prev) => prev.filter((_, idx) => idx !== i))}
-                          className="ml-2 shrink-0 text-muted-foreground hover:text-foreground transition"
+                          className="ml-2 shrink-0 font-bold text-muted-foreground hover:text-primary transition"
                           aria-label="Eliminar"
                         >
                           ✕
@@ -408,31 +406,38 @@ export default function NuevoEventoPage() {
             )}
           </StepCard>
 
-          {/* ════════════════════════════════════════
-              SECCIÓN 3 — Datos bancarios (opcional)
-          ════════════════════════════════════════ */}
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          {/* ════ SECCIÓN 3 — Datos bancarios (opcional) ════ */}
+          <div
+            className="border-2 border-foreground bg-card overflow-hidden shadow-[3px_3px_0px_0px_rgba(45,45,45,0.15)]"
+            style={{ borderRadius: WOBBLY_RADIUS_MD }}
+          >
             {/* Toggle header */}
-            <label className="flex cursor-pointer items-center justify-between gap-3 border-b border-border bg-secondary px-4 py-3 hover:bg-secondary/70 transition-colors">
+            <label className="flex cursor-pointer items-center justify-between gap-3 border-b-2 border-foreground bg-secondary px-4 py-3 hover:bg-secondary/70 transition-colors">
               <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center bg-primary text-sm font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d]"
+                  style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+                >
                   3
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-semibold text-foreground leading-tight">Datos de transferencia</h2>
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <h2 className="font-display text-base font-bold text-foreground leading-tight">Datos de transferencia</h2>
+                    <span
+                      className="border border-foreground/30 bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground"
+                      style={{ borderRadius: WOBBLY_RADIUS_SM }}
+                    >
                       Opcional
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                  <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
                     {showBankInfo
                       ? "Se guardarán al crear la colecta."
                       : "¿Dónde deben pagarte? Puedes agregarlo después."}
                   </p>
                 </div>
               </div>
-              {/* Switch */}
+              {/* Hand-drawn toggle switch */}
               <div className="relative shrink-0">
                 <input
                   type="checkbox"
@@ -440,20 +445,26 @@ export default function NuevoEventoPage() {
                   onChange={(e) => setShowBankInfo(e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`h-5 w-9 rounded-full transition-colors ${showBankInfo ? "bg-primary" : "bg-muted-foreground/25"}`} />
-                <div className={`absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform ${showBankInfo ? "translate-x-4 bg-white" : "translate-x-0.5 bg-white"}`} />
+                <div
+                  className={`h-6 w-10 border-2 border-foreground transition-colors ${showBankInfo ? "bg-primary" : "bg-secondary"}`}
+                  style={{ borderRadius: "9999px" }}
+                />
+                <div
+                  className={`absolute top-0.5 h-5 w-5 border-2 border-foreground bg-white shadow-[1px_1px_0px_0px_#2d2d2d] transition-transform ${showBankInfo ? "translate-x-[18px]" : "translate-x-[1px]"}`}
+                  style={{ borderRadius: "50%" }}
+                />
               </div>
             </label>
 
-            {/* Campos — solo cuando toggle ON */}
             {showBankInfo && (
-              <div className="border-t border-border px-4 py-4 space-y-4">
+              <div className="border-t-2 border-foreground px-4 py-4 space-y-4">
                 <FieldGroup label="Nombre del titular">
                   <input
                     value={bankHolder}
                     onChange={(e) => setBankHolder(e.target.value)}
                     placeholder="Ej: Juan Pérez"
                     className={fieldCls}
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   />
                 </FieldGroup>
 
@@ -463,6 +474,7 @@ export default function NuevoEventoPage() {
                       value={bankSel}
                       onChange={(e) => { setBankSel(e.target.value); if (e.target.value !== "otro") setBankCustom(""); }}
                       className={fieldCls}
+                      style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     >
                       <option value="">Selecciona un banco...</option>
                       {CHILE_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
@@ -475,6 +487,7 @@ export default function NuevoEventoPage() {
                         onChange={(e) => setBankCustom(e.target.value)}
                         placeholder="Nombre del banco"
                         className={fieldCls}
+                        style={{ borderRadius: WOBBLY_RADIUS_SM }}
                       />
                     )}
                   </div>
@@ -486,6 +499,7 @@ export default function NuevoEventoPage() {
                       value={typeSel}
                       onChange={(e) => { setTypeSel(e.target.value); if (e.target.value !== "otro") setTypeCustom(""); }}
                       className={fieldCls}
+                      style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     >
                       <option value="">Selecciona un tipo...</option>
                       {CHILE_ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -497,6 +511,7 @@ export default function NuevoEventoPage() {
                         onChange={(e) => setTypeCustom(e.target.value)}
                         placeholder="Tipo de cuenta"
                         className={fieldCls}
+                        style={{ borderRadius: WOBBLY_RADIUS_SM }}
                       />
                     )}
                   </div>
@@ -509,6 +524,7 @@ export default function NuevoEventoPage() {
                       onChange={(e) => setBankNumber(e.target.value)}
                       placeholder="00123456789"
                       className={fieldCls}
+                      style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     />
                   </FieldGroup>
                   <FieldGroup label="RUT">
@@ -517,6 +533,7 @@ export default function NuevoEventoPage() {
                       onChange={(e) => setBankRut(e.target.value)}
                       placeholder="12.345.678-9"
                       className={fieldCls}
+                      style={{ borderRadius: WOBBLY_RADIUS_SM }}
                     />
                   </FieldGroup>
                 </div>
@@ -528,26 +545,24 @@ export default function NuevoEventoPage() {
                     onChange={(e) => setBankEmail(e.target.value)}
                     placeholder="correo@ejemplo.com"
                     className={fieldCls}
+                    style={{ borderRadius: WOBBLY_RADIUS_SM }}
                   />
                 </FieldGroup>
               </div>
             )}
 
-            {/* Hint cuando está colapsado */}
             {!showBankInfo && (
-              <div className="border-t border-border/50 px-4 py-2.5">
-                <p className="text-xs text-muted-foreground/70">
+              <div className="border-t border-dashed border-foreground/20 px-4 py-2.5">
+                <p className="text-sm text-muted-foreground">
                   💡 Si no los agregas ahora, podrás hacerlo después desde la pantalla de tu colecta.
                 </p>
               </div>
             )}
           </div>
 
-          {/* ════════════════════════════════════════
-              SECCIÓN 4 — PIN del organizador
-          ════════════════════════════════════════ */}
+          {/* ════ SECCIÓN 4 — PIN ════ */}
           <StepCard step={4} title="PIN del organizador">
-            <p className="text-xs text-muted-foreground -mt-1 mb-1">
+            <p className="text-sm text-muted-foreground -mt-1 mb-1">
               Te permite gestionar la colecta desde cualquier dispositivo. Solo tú lo sabes.
             </p>
 
@@ -564,13 +579,13 @@ export default function NuevoEventoPage() {
                     maxLength={8}
                     autoComplete="off"
                     name="colecta-pin"
-                    style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-                    className="bg-secondary border-0 rounded-xl h-11 px-4 text-center tracking-widest font-bold text-base pr-14 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+                    style={showPin ? { borderRadius: WOBBLY_RADIUS_SM } : { WebkitTextSecurity: "disc", borderRadius: WOBBLY_RADIUS_SM } as React.CSSProperties}
+                    className="text-center tracking-widest font-bold text-lg pr-14"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/70 hover:text-muted-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground/70 hover:text-muted-foreground"
                   >
                     {showPin ? "Ocultar" : "Ver"}
                   </button>
@@ -589,29 +604,28 @@ export default function NuevoEventoPage() {
                     maxLength={8}
                     autoComplete="off"
                     name="colecta-pin-confirm"
-                    style={showPin ? {} : { WebkitTextSecurity: "disc" } as React.CSSProperties}
-                    className={`bg-secondary border-0 rounded-xl h-11 px-4 text-center tracking-widest font-bold text-base focus-visible:ring-2 focus-visible:ring-offset-0 ${
-                      pinMismatch
-                        ? "border border-destructive focus-visible:ring-destructive"
-                        : pinMatch
-                        ? "border border-success focus-visible:ring-success"
-                        : ""
+                    style={showPin
+                      ? { borderRadius: WOBBLY_RADIUS_SM }
+                      : { WebkitTextSecurity: "disc", borderRadius: WOBBLY_RADIUS_SM } as React.CSSProperties
+                    }
+                    className={`text-center tracking-widest font-bold text-lg ${
+                      pinMismatch ? "border-primary" : pinMatch ? "border-accent" : ""
                     }`}
                   />
                   {pinMatch && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-success font-medium">✓</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[hsl(var(--success))]">✓</span>
                   )}
                 </div>
               </FieldGroup>
             </div>
 
             {pinMismatch && (
-              <p className="flex items-center gap-1 text-xs text-destructive font-medium">
+              <p className="flex items-center gap-1 text-sm font-bold text-primary">
                 <span>⚠</span> Los PINs no coinciden
               </p>
             )}
             {pinMatch && adminPin.length >= 4 && (
-              <p className="flex items-center gap-1 text-xs text-success font-medium">
+              <p className="flex items-center gap-1 text-sm font-bold text-[hsl(var(--success-text))]">
                 <span>✓</span> PINs coinciden
               </p>
             )}
@@ -620,13 +634,13 @@ export default function NuevoEventoPage() {
         </form>
       </main>
 
-      {/* CTA fijo al fondo */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-lg gap-3 px-4 py-3">
+      {/* CTA fijo */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t-2 border-foreground bg-background px-4 py-3 shadow-[0px_-3px_0px_0px_#2d2d2d]">
+        <div className="mx-auto flex max-w-lg gap-3 px-4 py-0">
           <Link href="/" className="flex-none">
             <Button
               variant="outline"
-              className="h-11 rounded-full px-5 text-sm border border-border bg-background text-foreground"
+              className="h-12 px-5 text-base"
               type="button"
             >
               Cancelar
@@ -634,7 +648,7 @@ export default function NuevoEventoPage() {
           </Link>
           <Button
             type="submit"
-            className="flex-1 h-11 rounded-full text-sm font-semibold bg-primary text-white"
+            className="flex-1 h-12 text-base font-bold"
             disabled={loading}
             onClick={handleSubmit}
           >
@@ -656,11 +670,11 @@ export default function NuevoEventoPage() {
   );
 }
 
-/* ─── Estilos de campos ──────────────────────────────────── */
+/* ─── Field base styles ─────────────────────────────────────────────────── */
 const fieldCls =
-  "flex h-11 w-full rounded-xl border-0 bg-secondary px-4 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors placeholder:text-muted-foreground";
+  "flex h-12 w-full border-2 border-foreground bg-white px-4 py-2.5 font-sans text-base text-foreground placeholder:text-foreground/35 focus-visible:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors";
 
-/* ─── Componentes reutilizables ─────────────────────────── */
+/* ─── Reusable components ───────────────────────────────────────────────── */
 
 function StepCard({
   step,
@@ -672,15 +686,21 @@ function StepCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      {/* Header de la sección */}
-      <div className="flex items-center gap-3 border-b border-border bg-secondary px-4 py-3">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+    <div
+      className="border-2 border-foreground bg-card overflow-hidden shadow-[3px_3px_0px_0px_rgba(45,45,45,0.15)]"
+      style={{ borderRadius: WOBBLY_RADIUS_MD }}
+    >
+      {/* Section header */}
+      <div className="flex items-center gap-3 border-b-2 border-foreground bg-secondary px-4 py-3">
+        <span
+          className="flex h-7 w-7 shrink-0 items-center justify-center bg-primary text-sm font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d]"
+          style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+        >
           {step}
         </span>
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <h2 className="font-display text-base font-bold text-foreground">{title}</h2>
       </div>
-      {/* Contenido */}
+      {/* Content */}
       <div className="px-4 py-4 space-y-4">
         {children}
       </div>
@@ -699,12 +719,12 @@ function FieldGroup({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+      <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
         {label}
       </label>
       {children}
       {hint && (
-        <p className="text-xs text-muted-foreground/70 leading-relaxed">{hint}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{hint}</p>
       )}
     </div>
   );
@@ -722,8 +742,11 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 hover:bg-secondary/60 transition-colors">
-      {/* Switch */}
+    <label
+      className="flex cursor-pointer items-center gap-3 border-2 border-foreground bg-card px-3 py-3 hover:bg-secondary/60 transition-colors shadow-[2px_2px_0px_0px_rgba(45,45,45,0.12)]"
+      style={{ borderRadius: WOBBLY_RADIUS_SM }}
+    >
+      {/* Hand-drawn toggle switch */}
       <div className="relative shrink-0">
         <input
           type="checkbox"
@@ -732,20 +755,18 @@ function Toggle({
           className="sr-only"
         />
         <div
-          className={`h-5 w-9 rounded-full transition-colors ${
-            checked ? "bg-primary" : "bg-muted-foreground/25"
-          }`}
+          className={`h-6 w-10 border-2 border-foreground transition-colors ${checked ? "bg-primary" : "bg-secondary"}`}
+          style={{ borderRadius: "9999px" }}
         />
         <div
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-            checked ? "translate-x-4" : "translate-x-0.5"
-          }`}
+          className={`absolute top-0.5 h-5 w-5 border-2 border-foreground bg-white shadow-[1px_1px_0px_0px_#2d2d2d] transition-transform ${checked ? "translate-x-[18px]" : "translate-x-[1px]"}`}
+          style={{ borderRadius: "50%" }}
         />
       </div>
-      {/* Texto */}
+      {/* Text */}
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
-        <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{description}</p>
+        <p className="font-display text-base font-bold text-foreground leading-tight">{label}</p>
+        <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{description}</p>
       </div>
     </label>
   );

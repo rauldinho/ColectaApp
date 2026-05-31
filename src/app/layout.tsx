@@ -1,9 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Kalam, Patrick_Hand } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
+/* Body font: Patrick Hand — legible but distinctly handwritten */
+const patrickHand = Patrick_Hand({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-patrick-hand",
+  display: "swap",
+});
+
+/* Display / Heading font: Kalam — thick felt-tip marker feel */
+const kalam = Kalam({
+  subsets: ["latin"],
+  weight: "700",
+  variable: "--font-kalam",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Colecta — Organiza pagos grupales",
@@ -27,17 +41,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      {/* Script anti-flash: aplica el tema ANTES del primer render */}
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('colecta-theme');if(t==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})();`,
-          }}
-        />
-      </head>
-      <body className={inter.className}>
+      <body className={`${patrickHand.variable} ${kalam.variable} ${patrickHand.className}`}>
         {children}
-        <Toaster richColors position="top-right" />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

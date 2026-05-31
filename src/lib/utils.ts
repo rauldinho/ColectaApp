@@ -1,6 +1,17 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/* ─── Hand-Drawn border-radius constants ─────────────────────────────────────
+   These organic ellipse values cannot be expressed as Tailwind classes.
+   Use via inline style={{ borderRadius: WOBBLY_RADIUS }}.
+─────────────────────────────────────────────────────────────────────────── */
+/** Full wobbly oval — for buttons and large containers */
+export const WOBBLY_RADIUS = "255px 15px 225px 15px / 15px 225px 15px 255px";
+/** Medium wobbly — for cards and panels */
+export const WOBBLY_RADIUS_MD = "30px 8px 28px 6px / 6px 28px 8px 30px";
+/** Small wobbly — for inputs, badges, small elements */
+export const WOBBLY_RADIUS_SM = "25px 6px 22px 6px / 6px 22px 6px 25px";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
