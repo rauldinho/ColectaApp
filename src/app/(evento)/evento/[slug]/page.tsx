@@ -680,7 +680,7 @@ export default function EventoPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-warning">Agrega tus datos de transferencia</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Los participantes no podrán ver cómo pagarte. Toca aquí para agregar tu cuenta bancaria.
+                Los participantes no podrán ver cómo pagarte. Presiona aquí para agregar tu cuenta bancaria.
               </p>
             </div>
             <span className="shrink-0 text-warning self-center font-bold">→</span>
@@ -789,7 +789,7 @@ export default function EventoPage() {
                 >
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                      Código de acceso · toca para copiar
+                      Código de acceso · presiona para copiar
                     </p>
                     <p className="text-3xl font-bold tracking-[6px] text-foreground font-mono leading-none">
                       {event.code}
@@ -1672,7 +1672,7 @@ function ParticipantCard({
               ) : (
                 <>
                   <span className="text-2xl mb-1">📸</span>
-                  <p className="text-sm text-muted-foreground">Toca para subir foto</p>
+                  <p className="text-sm text-muted-foreground">Presiona para subir foto</p>
                   <p className="text-xs text-muted-foreground/70">JPG, PNG o PDF</p>
                 </>
               )}

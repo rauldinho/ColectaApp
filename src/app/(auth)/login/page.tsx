@@ -78,7 +78,7 @@ export default function LoginPage() {
                 <span className="text-3xl">📬</span>
               </div>
               <h2 className="mb-2 font-display text-2xl font-bold text-foreground">
-                ¡Revisá tu correo!
+                ¡Revisa tu correo!
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
                 Enviamos un link mágico a{" "}
@@ -141,7 +141,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-5 text-center text-base text-muted-foreground">
-          ¿No tenés cuenta?{" "}
+          ¿No tienes cuenta?{" "}
           <Link
             href="/signup"
             className="font-bold text-accent hover:underline underline-offset-4"

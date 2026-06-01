@@ -187,7 +187,7 @@ export default function NuevoEventoPage() {
 
             <FieldGroup label="Descripción">
               <Input
-                placeholder="Añade un detalle opcional..."
+                placeholder="Agrega un detalle opcional..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />

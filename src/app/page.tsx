@@ -52,7 +52,7 @@ export default function HomePage() {
 
         {/* Subheadline */}
         <p className="mb-10 text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          Un código. Todos pagan. Vos controlás.
+          Un código. Todos pagan. Tú controlas.
           <br className="hidden sm:block" />
           Asados, viajes, regalos — así de simple.
         </p>
@@ -163,8 +163,8 @@ const steps = [
     rotate: "rotate-1",
   },
   {
-    label: "Confirmá los pagos",
-    detail: "Revisás los comprobantes y llevás el control en tiempo real.",
+    label: "Confirma los pagos",
+    detail: "Revisa los comprobantes y lleva el control en tiempo real.",
     num: "03",
     emoji: "✅",
     rotate: "-rotate-1",
