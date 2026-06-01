@@ -6,11 +6,10 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
-import { WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 import type { EventWithDetails, Participant, Payment } from "@/types/database";
 import { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
@@ -108,6 +107,7 @@ export default function EventoPage() {
       }, () => loadEvent())
       .on("postgres_changes", {
         event: "*", schema: "public", table: "payments",
+        filter: `participant_id=in.(${event.participants.map((p) => p.id).join(",")})`,
       }, () => loadEvent())
       .subscribe();
 
@@ -175,14 +175,16 @@ export default function EventoPage() {
     if (!event) return;
     const supabase = createClient();
 
-    // Deduplicación por email
-    const emailLower = email.trim().toLowerCase();
-    const duplicate = event.participants.find(
-      (p) => p.email && p.email.trim().toLowerCase() === emailLower
-    );
-    if (duplicate) {
-      toast.error("Ya existe un pago registrado con este correo en esta colecta.");
-      return;
+    // Deduplicación por email (solo si el participante ingresó uno)
+    if (email.trim()) {
+      const emailLower = email.trim().toLowerCase();
+      const duplicate = event.participants.find(
+        (p) => p.email && p.email.trim().toLowerCase() === emailLower
+      );
+      if (duplicate) {
+        toast.error("Ya existe un pago registrado con este correo en esta colecta.");
+        return;
+      }
     }
 
     // Crear participante
@@ -191,7 +193,7 @@ export default function EventoPage() {
       .insert({
         event_id: event.id,
         name: name.trim(),
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         amount_owed: amount,
       })
       .select()
@@ -453,9 +455,9 @@ export default function EventoPage() {
   ).length;
   const hasJoined = !!myParticipantId;
   const perPerson = event.amount_per_person
-    ?? (event.participants.length > 0
-      ? (event.total_amount ?? 0) / event.participants.length
-      : event.total_amount ?? 0);
+    ?? (event.participants.length > 0 && event.total_amount
+      ? event.total_amount / event.participants.length
+      : null);
 
   // ── Mailto invite link ──
   const inviteSubject = encodeURIComponent(`Te invitan a la colecta "${event.name}"`);
@@ -900,7 +902,7 @@ export default function EventoPage() {
                 </div>
               ) : (
                 <>
-                  {event.participants.length > 1 && (
+                  {event.participants.length > 1 && perPerson && (
                     <div className="border-2 border-foreground bg-secondary px-4 py-2.5 flex justify-between items-center" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
                       <span className="text-sm text-primary">
                         {event.participants.length} participante{event.participants.length !== 1 ? "s" : ""}
@@ -1113,7 +1115,7 @@ function SummaryModal({ summaryText, onClose }: { summaryText: string; onClose: 
             <h3 className="font-display font-bold text-foreground">📊 Resumen de pagos</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Listo para copiar y pegar en WhatsApp</p>
           </div>
-          <button onClick={onClose} className="border-2 border-foreground p-1.5 text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
+          <button onClick={onClose} aria-label="Cerrar" className="border-2 border-foreground p-1.5 text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>
             ✕
           </button>
         </div>
@@ -1221,14 +1223,14 @@ function JoinSection({
   const [submitting, setSubmitting] = useState(false);
 
   const parsedAmount = parseFloat(amount) || 0;
-  const canSubmit = name.trim() && email.trim() && parsedAmount > 0 && !submitting;
+  const canSubmit = name.trim() && parsedAmount > 0 && !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-    // Validar email básico
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      toast.error("Ingresa un email válido");
+    // Validar email solo si se ingresó uno
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("El email ingresado no es válido");
       return;
     }
     setSubmitting(true);
@@ -1270,17 +1272,16 @@ function JoinSection({
         {/* Email */}
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Email *
+            Email <span className="font-normal normal-case text-muted-foreground/60">(opcional)</span>
           </label>
           <Input
             type="email"
             placeholder="tu@correo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
           <p className="text-xs text-muted-foreground/70">
-            Solo para evitar duplicados, no se muestra públicamente.
+            Si lo ingresas, te permite evitar duplicados.
           </p>
         </div>
 
@@ -1294,11 +1295,11 @@ function JoinSection({
               $
             </span>
             <Input
-              type="number"
-              min="1"
+              type="text"
+              inputMode="numeric"
               placeholder={defaultAmount > 0 ? String(defaultAmount) : "0"}
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
               required
               className="pl-7 font-bold"
             />
@@ -1803,6 +1804,7 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
           </div>
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="border-2 border-foreground bg-background p-1.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
             style={{ borderRadius: WOBBLY_RADIUS_SM }}
           >
@@ -1890,6 +1892,7 @@ function EditModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="border-2 border-foreground bg-background p-1.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
             style={{ borderRadius: WOBBLY_RADIUS_SM }}
           >
@@ -1948,11 +1951,6 @@ function EditModal({
     </div>
   );
 }
-
-// ──────────────────────────────────────────────
-// Chilean banks & account types (imported from shared lib)
-// ──────────────────────────────────────────────
-export { CHILE_BANKS, CHILE_ACCOUNT_TYPES } from "@/lib/chile-constants";
 
 const selectCls = `flex h-10 w-full border-2 border-foreground bg-white px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20 transition-colors`;
 

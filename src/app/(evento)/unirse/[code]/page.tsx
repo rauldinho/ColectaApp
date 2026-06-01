@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
+import { WOBBLY_RADIUS_SM, WOBBLY_RADIUS_MD } from "@/lib/utils";
 
 export default function UnirsePage() {
   const params = useParams();
@@ -35,11 +36,17 @@ export default function UnirsePage() {
   if (status === "error") {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 bg-secondary">
-        <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 mx-auto">
+        <div
+          className="w-full max-w-sm border-2 border-foreground bg-card p-8 text-center shadow-[4px_4px_0px_0px_#2d2d2d]"
+          style={{ borderRadius: WOBBLY_RADIUS_MD }}
+        >
+          <div
+            className="mb-5 flex h-16 w-16 items-center justify-center border-2 border-foreground bg-white mx-auto shadow-[3px_3px_0px_0px_#2d2d2d]"
+            style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+          >
             <span className="text-2xl">😕</span>
           </div>
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Código no válido</h2>
+          <h2 className="font-display text-xl font-bold text-foreground">Código no válido</h2>
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
             El código{" "}
             <span className="font-mono font-bold text-foreground">{code}</span>{" "}
@@ -47,7 +54,8 @@ export default function UnirsePage() {
           </p>
           <button
             onClick={() => router.push("/")}
-            className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary/90"
+            className="mt-6 inline-flex h-11 items-center justify-center border-2 border-foreground bg-primary px-6 text-sm font-bold text-white shadow-[3px_3px_0px_0px_#2d2d2d] transition-all hover:shadow-[1px_1px_0px_0px_#2d2d2d] hover:translate-x-[2px] hover:translate-y-[2px]"
+            style={{ borderRadius: WOBBLY_RADIUS_SM }}
           >
             ← Volver al inicio
           </button>

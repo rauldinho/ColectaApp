@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
-import { WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
+import { formatCurrency, WOBBLY_RADIUS_MD, WOBBLY_RADIUS_SM } from "@/lib/utils";
 import type { Event } from "@/types/database";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { ColectaLogo } from "@/components/ui/colecta-logo";
@@ -83,9 +82,9 @@ function EmptyState() {
       style={{ borderRadius: "30px 8px 28px 6px / 6px 28px 8px 30px" }}
     >
       <div className="mb-5 opacity-25"><ColectaLogo size={52} /></div>
-      <h3 className="mb-1.5 font-display text-2xl font-bold text-foreground">Aún no tenés colectas</h3>
+      <h3 className="mb-1.5 font-display text-2xl font-bold text-foreground">Aún no tienes colectas</h3>
       <p className="text-base text-muted-foreground leading-relaxed max-w-xs">
-        Creá tu primera colecta y compartila con tus participantes.
+        Crea tu primera colecta y compártela con tus participantes.
       </p>
     </div>
   );
