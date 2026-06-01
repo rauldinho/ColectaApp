@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colecta — Extended Styles Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Pacifico&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#1a1a2e;font-family:'Inter',sans-serif;padding:48px 24px 80px;}
+
+/* ── Page structure ── */
+.page{max-width:1380px;margin:0 auto;}
+.page-head{text-align:center;margin-bottom:64px;}
+.page-head h1{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px;}
+.page-head p{font-size:13px;color:#888;margin-top:6px;}
+.style-section{margin-bottom:80px;}
+.style-header{margin-bottom:28px;}
+.style-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;}
+.style-desc{font-size:13px;color:#666;margin-bottom:16px;}
+.palette{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+.chip{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sw{width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.1);}
+.cl{font-size:9px;color:#555;text-align:center;font-family:'Space Mono',monospace;line-height:1.3;}
+.grid{display:grid;grid-template-columns:repeat(3,375px);gap:32px;}
+.screen-wrap{display:flex;flex-direction:column;gap:8px;align-items:center;}
+.screen-label{font-size:13px;font-weight:600;color:#ccc;}
+.screen-route{font-family:'Space Mono',monospace;font-size:10px;color:#555;}
+
+/* ── Phone frame ── */
+.phone{width:375px;height:780px;border-radius:44px;overflow:hidden;position:relative;flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;border-radius:0 0 16px 16px;z-index:10;}
+.scr{width:100%;height:100%;overflow-y:auto;padding-top:26px;scrollbar-width:none;}
+.scr::-webkit-scrollbar{display:none;}
+
+/* ═══════════════════════════════════
+   STYLE 2 — NEON NIGHT
+═══════════════════════════════════ */
+.neon .phone{border:8px solid #1a1a2e;box-shadow:0 0 0 2px #00E5C8,0 24px 60px rgba(0,229,200,.2),inset 0 0 30px rgba(0,229,200,.03);}
+.neon .notch{background:#0A0909;}
+.neon .scr{background:#0A0909;background-image:repeating-linear-gradient(transparent 0,transparent 23px,rgba(0,229,200,.03) 23px,rgba(0,229,200,.03) 24px);}
+
+.n-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(10,9,9,.92);border-bottom:1px solid #1E2030;position:sticky;top:0;z-index:5;}
+.n-logo{display:flex;align-items:center;gap:8px;}
+.n-mark{width:28px;height:28px;border-radius:8px;background:#00E5C8;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#0A0909;}
+.n-name{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#00E5C8;letter-spacing:2px;text-transform:uppercase;}
+.n-icon{width:30px;height:30px;border-radius:50%;border:1px solid #1E2030;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px;}
+.n-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#444;margin-bottom:4px;}
+.n-title{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:#EAEAF0;letter-spacing:-1px;line-height:1.1;}
+.n-title span{color:#00E5C8;text-shadow:0 0 20px rgba(0,229,200,.5);}
+.n-sub{font-size:12px;color:#555;line-height:1.6;margin:12px 0 24px;}
+.n-btn{display:flex;align-items:center;justify-content:center;width:100%;height:48px;border-radius:8px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;margin-bottom:8px;}
+.n-btn-primary{background:#00E5C8;color:#0A0909;box-shadow:0 0 20px rgba(0,229,200,.35);}
+.n-btn-outline{background:transparent;color:#00E5C8;border:1px solid #00E5C8;}
+.n-btn-pink{background:#FF3CAC;color:#fff;box-shadow:0 0 20px rgba(255,60,172,.35);}
+.n-card{background:#0F0F14;border:1px solid #1E2030;border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.n-card-active{border-color:#00E5C8;box-shadow:0 0 12px rgba(0,229,200,.1);}
+.n-card-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;}
+.n-card-name{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#EAEAF0;letter-spacing:.5px;}
+.n-card-desc{font-size:10px;color:#444;margin-top:2px;font-family:'Space Mono',monospace;}
+.n-card-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;border-top:1px solid #1E2030;}
+.n-meta{font-family:'Space Mono',monospace;font-size:9px;color:#444;letter-spacing:1px;}
+.n-amt{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:#00E5C8;text-shadow:0 0 12px rgba(0,229,200,.4);}
+.n-badge{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:4px;}
+.n-badge-on{background:rgba(0,229,200,.1);color:#00E5C8;border:1px solid rgba(0,229,200,.3);}
+.n-badge-off{background:#1E2030;color:#444;}
+.n-voucher{background:#0F0F14;border:1px solid #00E5C8;border-radius:16px;overflow:hidden;margin-bottom:10px;box-shadow:0 0 20px rgba(0,229,200,.08);}
+.n-v-top{padding:16px 20px;background:#000;text-align:center;border-bottom:1px solid #1E2030;}
+.n-v-name{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#EAEAF0;letter-spacing:1px;text-transform:uppercase;}
+.n-v-date{font-family:'Space Mono',monospace;font-size:9px;color:#444;letter-spacing:2px;margin-top:4px;}
+.n-v-body{padding:16px 20px;}
+.n-amount{text-align:center;padding:12px 0;}
+.n-amt-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#444;margin-bottom:8px;}
+.n-amt-val{font-family:'Space Mono',monospace;font-size:46px;font-weight:700;color:#00E5C8;text-shadow:0 0 30px rgba(0,229,200,.5);letter-spacing:-2px;line-height:1;}
+.n-amt-cur{font-size:20px;opacity:.6;}
+.n-tear{display:flex;align-items:center;margin:8px -20px;}
+.n-tear-hole{width:16px;height:16px;border-radius:50%;background:#0A0909;flex-shrink:0;}
+.n-tear-dash{flex:1;border-top:1px dashed #1E2030;margin:0 4px;}
+.n-stats{display:flex;gap:8px;margin:12px 0;}
+.n-stat{flex:1;background:#000;border:1px solid #1E2030;border-radius:10px;padding:10px;text-align:center;}
+.n-stat-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#EAEAF0;}
+.n-stat-val.cyan{color:#00E5C8;text-shadow:0 0 12px rgba(0,229,200,.4);}
+.n-stat-lbl{font-family:'Space Mono',monospace;font-size:8px;color:#444;letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.n-prog-bg{height:4px;background:#1E2030;border-radius:999px;overflow:hidden;margin:6px 0 4px;}
+.n-prog{height:100%;background:linear-gradient(90deg,#00E5C8,#FF3CAC);border-radius:999px;}
+.n-code-block{background:#000;border:1px solid #1E2030;border-radius:10px;padding:12px 16px;text-align:center;margin:10px 0;}
+.n-code-lbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#333;margin-bottom:6px;}
+.n-code-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;letter-spacing:8px;color:#00E5C8;text-shadow:0 0 20px rgba(0,229,200,.5);}
+.n-p-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1E2030;}
+.n-p-row:last-child{border-bottom:none;}
+.n-p-av{width:32px;height:32px;border-radius:50%;background:#1E2030;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#00E5C8;border:1px solid #2a2a3a;}
+.n-p-name{font-family:'Space Mono',monospace;font-size:12px;color:#EAEAF0;margin-left:10px;}
+.n-p-meta{font-family:'Space Mono',monospace;font-size:9px;color:#444;margin-top:1px;margin-left:10px;}
+.n-stamp-paid{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:4px;color:#00E5C8;background:rgba(0,229,200,.08);border:1px solid rgba(0,229,200,.3);}
+.n-stamp-pend{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;padding:3px 8px;border-radius:4px;color:#FF3CAC;background:rgba(255,60,172,.08);border:1px solid rgba(255,60,172,.3);}
+.n-bottom{position:sticky;bottom:0;padding:10px 18px;background:rgba(10,9,9,.95);border-top:1px solid #1E2030;}
+.n-eyebrow{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#333;border:1px solid #1E2030;border-radius:999px;padding:4px 12px;display:inline-block;margin-bottom:20px;}
+.n-divider{display:flex;align-items:center;gap:10px;margin:8px 0;}
+.n-divider-line{flex:1;height:1px;background:#1E2030;}
+.n-divider-lbl{font-family:'Space Mono',monospace;font-size:8px;color:#333;letter-spacing:2px;}
+
+/* ═══════════════════════════════════
+   STYLE 3 — TROPICAL FIESTA
+═══════════════════════════════════ */
+.tropical .phone{border:8px solid #1A1A1A;box-shadow:0 0 0 2px rgba(255,107,53,.3),0 24px 60px rgba(0,0,0,.3);}
+.tropical .notch{background:#1A1A1A;}
+.tropical .scr{background:#FFF5EE;}
+
+.t-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(255,245,238,.92);backdrop-filter:blur(12px);border-bottom:2px solid #FFE5D6;position:sticky;top:0;z-index:5;}
+.t-mark{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FF6B35,#FF3CAC);display:flex;align-items:center;justify-content:center;font-family:'Pacifico',cursive;font-size:16px;color:#fff;}
+.t-name{font-family:'Pacifico',cursive;font-size:18px;color:#1A1A1A;letter-spacing:.5px;}
+.t-icon{width:32px;height:32px;border-radius:50%;border:2px solid #FFE5D6;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.t-hero{padding:36px 24px 24px;text-align:center;}
+.t-hero-eye{display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#FF6B35;background:#FFE5D6;border-radius:999px;padding:4px 14px;margin-bottom:20px;}
+.t-hero-title{font-family:'Pacifico',cursive;font-size:38px;color:#1A1A1A;line-height:1.15;margin-bottom:12px;}
+.t-hero-title span{color:#FF6B35;}
+.t-hero-sub{font-size:14px;color:#888;line-height:1.6;margin-bottom:28px;}
+.t-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:16px;font-size:16px;font-weight:700;border:none;cursor:pointer;margin-bottom:10px;}
+.t-btn-primary{background:linear-gradient(135deg,#FF6B35,#FF3CAC);color:#fff;box-shadow:0 8px 20px rgba(255,107,53,.35);}
+.t-btn-teal{background:linear-gradient(135deg,#00BFA5,#00897B);color:#fff;box-shadow:0 8px 20px rgba(0,191,165,.3);}
+.t-btn-outline{background:#fff;color:#FF6B35;border:2px solid #FF6B35;}
+.t-card{background:#fff;border:2px solid #FFE5D6;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 16px rgba(255,107,53,.08);}
+.t-card-stripe{height:4px;background:linear-gradient(90deg,#FF6B35,#FF3CAC,#FFD166);}
+.t-card-top{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px 8px;}
+.t-card-name{font-family:'Pacifico',cursive;font-size:17px;color:#1A1A1A;line-height:1.2;}
+.t-card-desc{font-size:11px;color:#aaa;margin-top:3px;}
+.t-card-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 12px;border-top:1px dashed #FFE5D6;}
+.t-meta{font-size:11px;color:#aaa;}
+.t-amt{font-weight:800;font-size:17px;color:#FF6B35;}
+.t-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;}
+.t-pill-green{background:#E8F8F0;color:#00897B;}
+.t-pill-gray{background:#F5F5F5;color:#aaa;}
+.t-voucher{background:#fff;border:2px solid #FFE5D6;border-radius:24px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 20px rgba(255,107,53,.1);}
+.t-v-top{padding:24px 20px 20px;background:linear-gradient(135deg,#FF6B35,#FF3CAC);text-align:center;position:relative;}
+.t-v-emoji{font-size:36px;margin-bottom:8px;}
+.t-v-name{font-family:'Pacifico',cursive;font-size:22px;color:#fff;margin-bottom:4px;}
+.t-v-date{font-size:11px;color:rgba(255,255,255,.7);}
+.t-v-body{padding:18px 20px;}
+.t-amount-block{text-align:center;padding:14px 0;}
+.t-amt-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:8px;}
+.t-amt-val{font-size:48px;font-weight:800;color:#1A1A1A;letter-spacing:-2px;line-height:1;}
+.t-amt-cur{font-size:22px;font-weight:600;color:#FF6B35;margin-right:2px;}
+.t-tear{display:flex;align-items:center;margin:6px -20px;}
+.t-tear-hole{width:18px;height:18px;border-radius:50%;background:#FFF5EE;border:2px solid #FFE5D6;flex-shrink:0;}
+.t-tear-dash{flex:1;border-top:2px dashed #FFE5D6;margin:0 6px;}
+.t-stats{display:flex;gap:10px;margin:10px 0;}
+.t-stat{flex:1;background:#FFF5EE;border:2px solid #FFE5D6;border-radius:16px;padding:12px;text-align:center;}
+.t-stat-val{font-size:26px;font-weight:800;color:#1A1A1A;}
+.t-stat-lbl{font-size:10px;color:#aaa;margin-top:3px;}
+.t-prog-bg{height:8px;background:#FFE5D6;border-radius:999px;overflow:hidden;margin:6px 0;}
+.t-prog{height:100%;background:linear-gradient(90deg,#FF6B35,#FFD166);border-radius:999px;}
+.t-code-block{background:linear-gradient(135deg,#00BFA5,#00897B);border-radius:16px;padding:14px 20px;text-align:center;margin:10px 0;}
+.t-code-lbl{font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px;}
+.t-code-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#fff;}
+.t-p-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #FFE5D6;}
+.t-p-row:last-child{border-bottom:none;}
+.t-p-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0;}
+.t-p-name{font-weight:700;font-size:15px;color:#1A1A1A;margin-left:10px;}
+.t-p-meta{font-size:10px;color:#aaa;margin-top:1px;margin-left:10px;}
+.t-stamp-paid{font-size:10px;font-weight:700;padding:4px 10px;border-radius:999px;background:#E8F8F0;color:#00897B;}
+.t-stamp-pend{font-size:10px;font-weight:700;padding:4px 10px;border-radius:999px;background:#FFF0EB;color:#FF6B35;}
+.t-bottom{position:sticky;bottom:0;padding:12px 18px;background:rgba(255,245,238,.95);border-top:2px solid #FFE5D6;}
+.t-hiw-step{display:flex;gap:14px;margin-bottom:20px;}
+.t-hiw-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF6B35,#FF3CAC);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;flex-shrink:0;}
+.t-hiw-lbl{font-weight:700;font-size:16px;color:#1A1A1A;}
+.t-hiw-det{font-size:12px;color:#aaa;margin-top:2px;line-height:1.5;}
+
+/* ═══════════════════════════════════
+   STYLE 4 — EDITORIAL / PRESS
+═══════════════════════════════════ */
+.editorial .phone{border:8px solid #0D0D0D;box-shadow:0 0 0 2px #E5E5E5,0 24px 60px rgba(0,0,0,.25);}
+.editorial .notch{background:#0D0D0D;}
+.editorial .scr{background:#F8F6F0;}
+
+.e-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#F8F6F0;border-bottom:2px solid #0D0D0D;position:sticky;top:0;z-index:5;}
+.e-masthead{display:flex;flex-direction:column;}
+.e-vol{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:#aaa;text-transform:uppercase;}
+.e-pub{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#0D0D0D;letter-spacing:-.5px;line-height:1;}
+.e-icon{width:28px;height:28px;border:1.5px solid #0D0D0D;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.e-hero{padding:28px 20px 20px;}
+.e-rule{height:2px;background:#0D0D0D;margin:12px 0;}
+.e-rule-thin{height:1px;background:#E5E5E5;margin:10px 0;}
+.e-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#C41E3A;margin-bottom:12px;}
+.e-headline{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:#0D0D0D;line-height:1.1;letter-spacing:-.5px;margin-bottom:10px;}
+.e-headline em{font-style:italic;color:#C41E3A;}
+.e-sub{font-size:13px;color:#666;line-height:1.6;margin-bottom:20px;}
+.e-btn{display:flex;align-items:center;justify-content:center;width:100%;height:48px;font-size:14px;font-weight:700;letter-spacing:.5px;border:none;cursor:pointer;margin-bottom:8px;}
+.e-btn-red{background:#C41E3A;color:#fff;}
+.e-btn-outline{background:transparent;color:#0D0D0D;border:2px solid #0D0D0D;}
+.e-card{background:#fff;border:1.5px solid #E5E5E5;margin-bottom:10px;}
+.e-card-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;}
+.e-card-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#0D0D0D;line-height:1.2;}
+.e-card-desc{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;margin-top:3px;letter-spacing:.5px;}
+.e-card-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;border-top:1px solid #E5E5E5;}
+.e-meta{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;}
+.e-amt{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;color:#C41E3A;}
+.e-tag{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border:1.5px solid currentColor;}
+.e-tag-red{color:#C41E3A;}
+.e-tag-gray{color:#aaa;}
+.e-voucher{background:#fff;border:1.5px solid #0D0D0D;margin-bottom:10px;}
+.e-v-top{padding:18px 20px 14px;border-bottom:2px solid #0D0D0D;}
+.e-v-kicker{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#C41E3A;margin-bottom:6px;}
+.e-v-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#0D0D0D;line-height:1.1;}
+.e-v-date{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;margin-top:4px;}
+.e-v-body{padding:16px 20px;}
+.e-amt-block{padding:14px 0;border-bottom:1px solid #E5E5E5;}
+.e-amt-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#aaa;margin-bottom:6px;}
+.e-amt-val{font-family:'IBM Plex Mono',monospace;font-size:44px;font-weight:700;color:#0D0D0D;letter-spacing:-2px;line-height:1;}
+.e-amt-val span{font-size:20px;color:#C41E3A;margin-right:2px;}
+.e-stats{display:flex;border-bottom:1px solid #E5E5E5;margin-bottom:12px;}
+.e-stat{flex:1;padding:12px;border-right:1px solid #E5E5E5;text-align:center;}
+.e-stat:last-child{border-right:none;}
+.e-stat-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#0D0D0D;}
+.e-stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.e-prog-bg{height:4px;background:#F0F0F0;margin:6px 0;}
+.e-prog{height:100%;background:#C41E3A;}
+.e-prog-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.e-prog-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;letter-spacing:1px;text-transform:uppercase;}
+.e-code-block{background:#0D0D0D;padding:12px 16px;margin:12px 0;text-align:center;}
+.e-code-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:4px;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.e-code-val{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;letter-spacing:8px;color:#fff;}
+.e-p-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F0F0F0;}
+.e-p-row:last-child{border-bottom:none;}
+.e-p-av{width:30px;height:30px;border:1.5px solid #0D0D0D;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;}
+.e-p-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-left:10px;}
+.e-p-meta{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;margin-top:1px;margin-left:10px;}
+.e-stamp{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border:1.5px solid currentColor;}
+.e-stamp-paid{color:#2D6A4F;border-color:#2D6A4F;}
+.e-stamp-pend{color:#C41E3A;border-color:#C41E3A;}
+.e-bottom{position:sticky;bottom:0;padding:10px 18px;background:#F8F6F0;border-top:2px solid #0D0D0D;}
+.e-hiw-step{display:flex;gap:12px;margin-bottom:16px;}
+.e-hiw-num{width:28px;height:28px;border:2px solid #0D0D0D;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0;}
+.e-hiw-lbl{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#0D0D0D;}
+.e-hiw-det{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;margin-top:3px;line-height:1.5;}
+
+/* ═══════════════════════════════════
+   STYLE 5 — NATIVE MOBILE (iOS-like)
+   Based on ChatGPT suggestions
+═══════════════════════════════════ */
+.native .phone{border:8px solid #1C1C1E;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 28px 64px rgba(0,0,0,.4);}
+.native .notch{background:#1C1C1E;}
+.native .scr{background:#F2F2F7;}
+
+/* Top bar */
+.m-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(242,242,247,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid rgba(60,60,67,.29);position:sticky;top:0;z-index:5;}
+.m-back{font-size:17px;color:#007AFF;font-weight:400;display:flex;align-items:center;gap:4px;}
+.m-page-title{font-size:17px;font-weight:600;color:#000;}
+.m-header-action{font-size:17px;color:#007AFF;font-weight:400;}
+
+/* Hero event card — full width, no side margins */
+.m-hero{background:#fff;margin:0;padding:20px 16px 0;}
+.m-hero-event-name{font-size:28px;font-weight:700;color:#000;letter-spacing:-.5px;margin-bottom:4px;}
+.m-hero-date{font-size:13px;color:#6C6C70;margin-bottom:20px;}
+.m-hero-summary{background:#007AFF;border-radius:20px;padding:20px;margin:0 0 0 0;}
+.m-hs-label{font-size:12px;font-weight:500;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.m-hs-amount{font-size:44px;font-weight:700;color:#fff;letter-spacing:-2px;line-height:1;margin-bottom:16px;}
+.m-hs-prog-bg{height:6px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;margin-bottom:8px;}
+.m-hs-prog{height:100%;background:#fff;border-radius:999px;}
+.m-hs-meta{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7);}
+.m-hs-stats{display:flex;gap:12px;margin-top:12px;}
+.m-hs-stat{background:rgba(255,255,255,.15);border-radius:12px;padding:10px 14px;flex:1;text-align:center;}
+.m-hs-stat-val{font-size:20px;font-weight:700;color:#fff;}
+.m-hs-stat-lbl{font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;}
+
+/* Payment hero — for participants */
+.m-pay-hero{background:#fff;margin:12px 16px;border-radius:20px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.m-pay-icon{font-size:32px;margin-bottom:10px;}
+.m-pay-label{font-size:13px;color:#6C6C70;margin-bottom:6px;}
+.m-pay-amount{font-size:40px;font-weight:700;color:#000;letter-spacing:-1.5px;line-height:1;margin-bottom:8px;}
+.m-pay-status{display:inline-flex;align-items:center;gap:6px;background:#E8F8F0;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:#1C7C54;}
+
+/* Segmented control */
+.m-seg-wrap{padding:0 16px;margin:14px 0;}
+.m-seg{display:flex;background:#E5E5EA;border-radius:9px;padding:2px;gap:0;}
+.m-seg-item{flex:1;padding:7px 0;text-align:center;font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;}
+.m-seg-on{background:#fff;color:#000;box-shadow:0 1px 2px rgba(0,0,0,.15);}
+.m-seg-off{color:#6C6C70;}
+
+/* Content sections */
+.m-section{padding:0 16px;margin-bottom:4px;}
+.m-section-title{font-size:20px;font-weight:700;color:#000;margin-bottom:12px;margin-top:20px;}
+.m-grouped{background:#fff;border-radius:12px;overflow:hidden;}
+.m-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:.5px solid rgba(60,60,67,.29);}
+.m-row:last-child{border-bottom:none;}
+.m-row-left{display:flex;align-items:center;gap:12px;}
+.m-row-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.m-row-name{font-size:17px;color:#000;}
+.m-row-meta{font-size:12px;color:#6C6C70;margin-top:1px;}
+.m-chevron{color:#C7C7CC;font-size:17px;}
+.m-badge-green{background:#E8F8F0;color:#1C7C54;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;}
+.m-badge-yellow{background:#FFF9E6;color:#B8860B;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;}
+
+/* Share section */
+.m-share{background:#fff;margin:0 16px;border-radius:20px;padding:20px;margin-bottom:12px;}
+.m-share-title{font-size:17px;font-weight:600;color:#000;margin-bottom:14px;}
+.m-share-btn{display:flex;align-items:center;gap:12px;width:100%;height:52px;background:#F2F2F7;border-radius:14px;border:none;padding:0 16px;margin-bottom:8px;cursor:pointer;font-size:16px;font-weight:500;color:#000;}
+.m-share-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.m-si-blue{background:#007AFF;}
+.m-si-green{background:#34C759;}
+.m-si-gray{background:#8E8E93;}
+
+/* Code display */
+.m-code-card{background:#fff;margin:0 16px;border-radius:20px;padding:20px;margin-bottom:12px;}
+.m-code-title{font-size:13px;color:#6C6C70;margin-bottom:8px;}
+.m-code-val{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#000;margin-bottom:12px;}
+.m-copy-btn{display:flex;align-items:center;justify-content:center;width:100%;height:44px;background:#007AFF;border-radius:12px;border:none;color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
+
+/* Gallery cards */
+.m-gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:80px;}
+.m-gallery-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.m-gallery-img{aspect-ratio:3/4;background:linear-gradient(135deg,#E5E5EA,#C7C7CC);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.m-gallery-info{padding:8px 10px;}
+.m-gallery-name{font-size:12px;font-weight:600;color:#000;}
+.m-gallery-date{font-size:11px;color:#6C6C70;margin-top:1px;}
+
+/* Bottom tab bar */
+.m-tabbar{position:sticky;bottom:0;background:rgba(242,242,247,.9);backdrop-filter:blur(20px);border-top:.5px solid rgba(60,60,67,.29);display:flex;padding:8px 0 20px;}
+.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding-top:4px;}
+.m-tab-icon{font-size:22px;}
+.m-tab-lbl{font-size:10px;color:#6C6C70;}
+.m-tab-lbl.active-tab{color:#007AFF;}
+.m-tab-icon.active-tab{filter:none;}
+
+/* Bottom action bar (participant) */
+.m-action-bar{position:sticky;bottom:0;background:rgba(242,242,247,.95);backdrop-filter:blur(20px);border-top:.5px solid rgba(60,60,67,.29);padding:12px 16px 28px;display:flex;gap:10px;}
+.m-action-btn{flex:1;height:52px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;}
+.m-action-primary{background:#007AFF;color:#fff;}
+.m-action-secondary{background:#E5E5EA;color:#000;}
+
+/* Landing screen */
+.m-landing{background:#F2F2F7;min-height:100%;}
+.m-landing-hero{background:#fff;margin:0;padding:32px 16px 24px;}
+.m-landing-label{font-size:13px;color:#6C6C70;font-weight:500;margin-bottom:4px;}
+.m-landing-title{font-size:34px;font-weight:700;color:#000;letter-spacing:-.5px;line-height:1.15;margin-bottom:12px;}
+.m-landing-sub{font-size:15px;color:#6C6C70;line-height:1.5;margin-bottom:24px;}
+.m-landing-btn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;border:none;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:10px;}
+.m-lb-blue{background:#007AFF;color:#fff;}
+.m-lb-gray{background:#E5E5EA;color:#000;}
+.m-hiw{padding:24px 16px;}
+.m-hiw-title{font-size:13px;font-weight:600;color:#6C6C70;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.m-hiw-step{display:flex;gap:14px;margin-bottom:16px;background:#fff;border-radius:14px;padding:14px;}
+.m-hiw-num{width:32px;height:32px;border-radius:50%;background:#007AFF;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0;}
+.m-hiw-lbl{font-size:15px;font-weight:600;color:#000;margin-bottom:2px;}
+.m-hiw-det{font-size:13px;color:#6C6C70;line-height:1.4;}
+
+/* Dashboard cards */
+.m-event-card{background:#fff;border-radius:16px;margin:0 16px 10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.m-ec-strip{height:3px;background:#007AFF;}
+.m-ec-body{padding:14px 16px;}
+.m-ec-name{font-size:17px;font-weight:600;color:#000;margin-bottom:4px;}
+.m-ec-desc{font-size:13px;color:#6C6C70;margin-bottom:12px;}
+.m-ec-foot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:.5px solid rgba(60,60,67,.29);}
+.m-ec-meta{font-size:12px;color:#6C6C70;}
+.m-ec-amt{font-size:17px;font-weight:700;color:#007AFF;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-head">
+    <h1>Colecta — Extended Style Preview</h1>
+    <p>4 new mobile-first styles · Open alongside voucher-preview.html</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STYLE 2 — NEON NIGHT
+  ═══════════════════════════════════════════════════════ -->
+  <div class="style-section neon">
+    <div class="style-header">
+      <div class="style-title">Style 2 — Neon Night</div>
+      <div class="style-desc">Dark · Electric · Club ticket · Space Mono</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#0A0909;"></div><div class="cl">#0A0909<br>Bg</div></div>
+        <div class="chip"><div class="sw" style="background:#0F0F14;"></div><div class="cl">#0F0F14<br>Card</div></div>
+        <div class="chip"><div class="sw" style="background:#00E5C8;"></div><div class="cl">#00E5C8<br>Cyan</div></div>
+        <div class="chip"><div class="sw" style="background:#FF3CAC;"></div><div class="cl">#FF3CAC<br>Pink</div></div>
+        <div class="chip"><div class="sw" style="background:#EAEAF0;"></div><div class="cl">#EAEAF0<br>Text</div></div>
+        <div class="chip"><div class="sw" style="background:#1E2030;"></div><div class="cl">#1E2030<br>Border</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label" style="color:#00E5C8;">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#0A0909;"></div>
+          <div class="scr" style="background:#0A0909;">
+            <div style="padding:40px 22px 24px;text-align:center;">
+              <div class="n-eyebrow">PARA GRUPOS · SIN REGISTRO</div>
+              <div style="font-family:'Space Mono',monospace;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#333;margin-bottom:12px;">[ EVENTO NO. 0042 ]</div>
+              <div class="n-title">Organiza<br>tu <span>colecta.</span></div>
+              <div class="n-sub">Un código. Todos pagan.<br>Vos controlás. Así de simple.</div>
+              <button class="n-btn n-btn-primary">► CREAR COLECTA</button>
+              <button class="n-btn n-btn-outline">[ INGRESAR CÓDIGO ]</button>
+              <div class="n-divider" style="margin-top:32px;">
+                <div class="n-divider-line"></div>
+                <div class="n-divider-lbl">CÓMO FUNCIONA</div>
+                <div class="n-divider-line"></div>
+              </div>
+            </div>
+            <div style="padding:0 22px 32px;">
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #1E2030;">
+                  <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#00E5C8;flex-shrink:0;">01</div>
+                  <div><div style="font-family:'Space Mono',monospace;font-size:12px;color:#EAEAF0;margin-bottom:3px;">CREAR LA COLECTA</div><div style="font-size:11px;color:#444;line-height:1.5;">Un nombre, la cuota y un PIN tuyo.</div></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #1E2030;">
+                  <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#FF3CAC;flex-shrink:0;">02</div>
+                  <div><div style="font-family:'Space Mono',monospace;font-size:12px;color:#EAEAF0;margin-bottom:3px;">COMPARTIR CÓDIGO</div><div style="font-size:11px;color:#444;line-height:1.5;">Cada uno registra su pago.</div></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;">
+                  <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#00E5C8;flex-shrink:0;">03</div>
+                  <div><div style="font-family:'Space Mono',monospace;font-size:12px;color:#EAEAF0;margin-bottom:3px;">CONFIRMAR PAGOS</div><div style="font-size:11px;color:#444;line-height:1.5;">Revisás comprobantes en tiempo real.</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label" style="color:#00E5C8;">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#0A0909;"></div>
+          <div class="scr" style="background:#0A0909;">
+            <div class="n-header">
+              <div class="n-logo"><div class="n-mark">C</div><span class="n-name">COLECTA</span></div>
+              <div style="display:flex;gap:8px;"><div class="n-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div style="margin-bottom:16px;">
+                <div class="n-label">MIS COLECTAS ///</div>
+                <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#EAEAF0;">3 activas</div>
+              </div>
+              <div class="n-card n-card-active">
+                <div style="height:2px;background:linear-gradient(90deg,#00E5C8,#FF3CAC);"></div>
+                <div class="n-card-top">
+                  <div><div class="n-card-name">Asado del sábado</div><div class="n-card-desc">PARQUE LOS DOMINICOS</div></div>
+                  <span class="n-badge n-badge-on">ON</span>
+                </div>
+                <div class="n-card-foot">
+                  <div class="n-meta">8 PX · ABX72K</div>
+                  <div class="n-amt">$4.500/PX</div>
+                </div>
+              </div>
+              <div class="n-card n-card-active">
+                <div style="height:2px;background:linear-gradient(90deg,#FF3CAC,#00E5C8);"></div>
+                <div class="n-card-top">
+                  <div><div class="n-card-name">Viaje a Mendoza</div><div class="n-card-desc">GRUPO 6 PERSONAS</div></div>
+                  <span class="n-badge n-badge-on">ON</span>
+                </div>
+                <div class="n-card-foot">
+                  <div class="n-meta">6 PX · MZK91R</div>
+                  <div class="n-amt">$85.000/PX</div>
+                </div>
+              </div>
+              <div class="n-card">
+                <div class="n-card-top">
+                  <div><div class="n-card-name">Regalo de Mati</div></div>
+                  <span class="n-badge n-badge-off">OFF</span>
+                </div>
+                <div class="n-card-foot">
+                  <div class="n-meta">12 PX · GT44PP</div>
+                  <div class="n-amt" style="color:#333;">$180.000</div>
+                </div>
+              </div>
+            </div>
+            <div class="n-bottom"><button class="n-btn n-btn-primary" style="margin:0;">► NUEVA COLECTA</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label" style="color:#00E5C8;">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#0A0909;"></div>
+          <div class="scr" style="background:#0A0909;">
+            <div class="n-header">
+              <div class="n-logo"><div class="n-mark">C</div><span class="n-name">COLECTA</span></div>
+              <div style="display:flex;gap:8px;"><div class="n-icon">☀</div><div class="n-icon" style="font-size:11px;border-color:#1E2030;">⚙</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="n-voucher">
+                <div class="n-v-top">
+                  <div class="n-label">· ADMIT ALL ·</div>
+                  <div class="n-v-name">ASADO DEL SÁBADO 🔥</div>
+                  <div class="n-v-date">14 DE JUNIO, 2025 · PARQUE LOS DOMINICOS</div>
+                </div>
+                <div class="n-v-body">
+                  <div class="n-amount">
+                    <div class="n-amt-label">CUOTA POR PERSONA</div>
+                    <div class="n-amt-val"><span class="n-amt-cur">$</span>4.500</div>
+                  </div>
+                  <div class="n-tear"><div class="n-tear-hole"></div><div class="n-tear-dash"></div><div class="n-tear-hole"></div></div>
+                  <div class="n-stats" style="margin-top:12px;">
+                    <div class="n-stat"><div class="n-stat-val">8</div><div class="n-stat-lbl">PERSONAS</div></div>
+                    <div class="n-stat"><div class="n-stat-val">6</div><div class="n-stat-lbl">PAGARON</div></div>
+                    <div class="n-stat"><div class="n-stat-val cyan">$36k</div><div class="n-stat-lbl">TOTAL</div></div>
+                  </div>
+                  <div style="margin:10px 0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span class="n-label" style="font-size:8px;">PROGRESO</span><span class="n-label" style="font-size:8px;">75%</span></div>
+                    <div class="n-prog-bg"><div class="n-prog" style="width:75%;"></div></div>
+                  </div>
+                  <div class="n-tear"><div class="n-tear-hole"></div><div class="n-tear-dash"></div><div class="n-tear-hole"></div></div>
+                  <div class="n-code-block" style="margin-top:12px;">
+                    <div class="n-code-lbl">ACCESS CODE</div>
+                    <div class="n-code-val">ABX72K</div>
+                  </div>
+                </div>
+              </div>
+              <div style="border-bottom:1px solid #1E2030;display:flex;margin-bottom:10px;">
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#00E5C8;border-bottom:1px solid #00E5C8;margin-bottom:-1px;">PARTICIPANTES</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#333;">INFO</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#333;">FACTURAS</div>
+              </div>
+              <div style="padding:0 2px;">
+                <div class="n-p-row"><div style="display:flex;align-items:center;"><div class="n-p-av">C</div><div><div class="n-p-name">Carlos M.</div><div class="n-p-meta">hace 2 días</div></div></div><span class="n-stamp-paid">PAID</span></div>
+                <div class="n-p-row"><div style="display:flex;align-items:center;"><div class="n-p-av">A</div><div><div class="n-p-name">Ana G.</div><div class="n-p-meta">ayer</div></div></div><span class="n-stamp-paid">PAID</span></div>
+                <div class="n-p-row"><div style="display:flex;align-items:center;"><div class="n-p-av" style="border-color:#FF3CAC;color:#FF3CAC;">P</div><div><div class="n-p-name">Pablo R.</div><div class="n-p-meta">hoy</div></div></div><span class="n-stamp-pend">PEND.</span></div>
+              </div>
+            </div>
+            <div class="n-bottom"><button class="n-btn n-btn-pink" style="margin:0;">► REGISTRAR MI PAGO</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STYLE 3 — TROPICAL FIESTA
+  ═══════════════════════════════════════════════════════ -->
+  <div class="style-section tropical">
+    <div class="style-header">
+      <div class="style-title">Style 3 — Tropical Fiesta</div>
+      <div class="style-desc">Warm · Energetic · Colorful · Pacifico</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#FFF5EE;border:1px solid #FFE5D6;"></div><div class="cl">#FFF5EE<br>Bg</div></div>
+        <div class="chip"><div class="sw" style="background:#FF6B35;"></div><div class="cl">#FF6B35<br>Coral</div></div>
+        <div class="chip"><div class="sw" style="background:#FF3CAC;"></div><div class="cl">#FF3CAC<br>Pink</div></div>
+        <div class="chip"><div class="sw" style="background:#00BFA5;"></div><div class="cl">#00BFA5<br>Teal</div></div>
+        <div class="chip"><div class="sw" style="background:#FFD166;"></div><div class="cl">#FFD166<br>Yellow</div></div>
+        <div class="chip"><div class="sw" style="background:#1A1A1A;"></div><div class="cl">#1A1A1A<br>Text</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A1A1A;"></div>
+          <div class="scr">
+            <div class="t-hero">
+              <div class="t-hero-eye">🌴 Para grupos · Sin registro</div>
+              <h1 class="t-hero-title">Organiza<br>tu <span>colecta!</span></h1>
+              <p class="t-hero-sub">Un código, todos pagan, vos controlás. 🎉 Asados, viajes y regalos.</p>
+              <div class="cta-stack" style="display:flex;flex-direction:column;gap:10px;">
+                <button class="t-btn t-btn-primary">✏️ Crear una colecta</button>
+                <button class="t-btn t-btn-teal">🔑 Ingresar con código</button>
+              </div>
+            </div>
+            <div style="padding:0 24px 32px;">
+              <div style="text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:20px;">¿Cómo funciona?</div>
+              <div class="t-hiw-step"><div class="t-hiw-num">1</div><div><div class="t-hiw-lbl">Crea la colecta</div><div class="t-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div class="t-hiw-step"><div class="t-hiw-num" style="background:linear-gradient(135deg,#00BFA5,#00897B);">2</div><div><div class="t-hiw-lbl">Comparte el código</div><div class="t-hiw-det">Cada participante registra su pago.</div></div></div>
+              <div class="t-hiw-step" style="margin-bottom:0;"><div class="t-hiw-num" style="background:linear-gradient(135deg,#FFD166,#FF6B35);">3</div><div><div class="t-hiw-lbl">Confirma los pagos</div><div class="t-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A1A1A;"></div>
+          <div class="scr">
+            <div class="t-header">
+              <div class="logo-wrap" style="display:flex;align-items:center;gap:8px;"><div class="t-mark">C</div><span class="t-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="t-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div style="font-family:'Pacifico',cursive;font-size:26px;color:#1A1A1A;margin-bottom:4px;">Mis Colectas</div>
+              <div style="font-size:12px;color:#aaa;margin-bottom:16px;">3 colectas creadas</div>
+              <div class="t-card">
+                <div class="t-card-stripe"></div>
+                <div class="t-card-top">
+                  <div><div class="t-card-name">Asado del sábado 🔥</div><div class="t-card-desc">Parque Los Dominicos</div></div>
+                  <span class="t-pill t-pill-green">Activa</span>
+                </div>
+                <div class="t-card-foot"><div class="t-meta">8 personas · ABX72K</div><div class="t-amt">$4.500 c/u</div></div>
+              </div>
+              <div class="t-card">
+                <div class="t-card-stripe" style="background:linear-gradient(90deg,#00BFA5,#FFD166,#FF6B35);"></div>
+                <div class="t-card-top">
+                  <div><div class="t-card-name">Viaje a Mendoza ✈️</div><div class="t-card-desc">Grupo 6 personas</div></div>
+                  <span class="t-pill t-pill-green">Activa</span>
+                </div>
+                <div class="t-card-foot"><div class="t-meta">6 personas · MZK91R</div><div class="t-amt">$85.000 c/u</div></div>
+              </div>
+              <div class="t-card">
+                <div class="t-card-top">
+                  <div><div class="t-card-name">Regalo de Mati 🎁</div></div>
+                  <span class="t-pill t-pill-gray">Cerrada</span>
+                </div>
+                <div class="t-card-foot"><div class="t-meta">12 personas · GT44PP</div><div class="t-amt" style="color:#aaa;">$180.000</div></div>
+              </div>
+            </div>
+            <div class="t-bottom"><button class="t-btn t-btn-primary" style="margin:0;">🎉 Nueva colecta</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A1A1A;"></div>
+          <div class="scr">
+            <div class="t-header">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="t-mark">C</div><span class="t-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="t-icon">☀</div><div class="t-icon">⚙️</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="t-voucher">
+                <div class="t-v-top">
+                  <div class="t-v-emoji">🔥</div>
+                  <div class="t-v-name">Asado del sábado</div>
+                  <div class="t-v-date">📅 14 junio 2025 · Parque Los Dominicos</div>
+                </div>
+                <div class="t-v-body">
+                  <div class="t-amount-block">
+                    <div class="t-amt-label">Cuota por persona</div>
+                    <div class="t-amt-val"><span class="t-amt-cur">$</span>4.500</div>
+                  </div>
+                  <div class="t-tear"><div class="t-tear-hole"></div><div class="t-tear-dash"></div><div class="t-tear-hole"></div></div>
+                  <div class="t-stats" style="margin-top:12px;">
+                    <div class="t-stat"><div class="t-stat-val">8</div><div class="t-stat-lbl">Personas</div></div>
+                    <div class="t-stat"><div class="t-stat-val">6</div><div class="t-stat-lbl">Pagaron</div></div>
+                    <div class="t-stat"><div class="t-stat-val" style="color:#FF6B35;">$36k</div><div class="t-stat-lbl">Total</div></div>
+                  </div>
+                  <div style="margin:10px 0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:#aaa;">Progreso</span><span style="font-size:11px;font-weight:700;color:#FF6B35;">75%</span></div>
+                    <div class="t-prog-bg"><div class="t-prog" style="width:75%;"></div></div>
+                  </div>
+                  <div class="t-tear"><div class="t-tear-hole"></div><div class="t-tear-dash"></div><div class="t-tear-hole"></div></div>
+                  <div class="t-code-block" style="margin-top:12px;">
+                    <div class="t-code-lbl">Código de acceso</div>
+                    <div class="t-code-val">ABX72K</div>
+                  </div>
+                </div>
+              </div>
+              <div style="border-bottom:2px solid #FFE5D6;display:flex;margin-bottom:10px;">
+                <div style="flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#FF6B35;border-bottom:2px solid #FF6B35;margin-bottom:-2px;">Participantes</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#aaa;">Info</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#aaa;">Facturas</div>
+              </div>
+              <div>
+                <div class="t-p-row"><div style="display:flex;align-items:center;"><div class="t-p-av" style="background:linear-gradient(135deg,#FF6B35,#FF3CAC);">C</div><div><div class="t-p-name">Carlos M.</div><div class="t-p-meta">hace 2 días</div></div></div><span class="t-stamp-paid">Pagado</span></div>
+                <div class="t-p-row"><div style="display:flex;align-items:center;"><div class="t-p-av" style="background:linear-gradient(135deg,#00BFA5,#00897B);">A</div><div><div class="t-p-name">Ana G.</div><div class="t-p-meta">ayer</div></div></div><span class="t-stamp-paid">Pagado</span></div>
+                <div class="t-p-row"><div style="display:flex;align-items:center;"><div class="t-p-av" style="background:linear-gradient(135deg,#FFD166,#FF6B35);">P</div><div><div class="t-p-name">Pablo R.</div><div class="t-p-meta">hoy</div></div></div><span class="t-stamp-pend">Pendiente</span></div>
+              </div>
+            </div>
+            <div class="t-bottom"><button class="t-btn t-btn-primary" style="margin:0;">💸 Registrar mi pago</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STYLE 4 — EDITORIAL / PRESS
+  ═══════════════════════════════════════════════════════ -->
+  <div class="style-section editorial">
+    <div class="style-header">
+      <div class="style-title">Style 4 — Editorial / Press</div>
+      <div class="style-desc">Minimal · Typographic · Newspaper red · Playfair Display + IBM Plex Mono</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#F8F6F0;border:1px solid #E5E5E5;"></div><div class="cl">#F8F6F0<br>Bg</div></div>
+        <div class="chip"><div class="sw" style="background:#0D0D0D;"></div><div class="cl">#0D0D0D<br>Ink</div></div>
+        <div class="chip"><div class="sw" style="background:#C41E3A;"></div><div class="cl">#C41E3A<br>Red</div></div>
+        <div class="chip"><div class="sw" style="background:#ffffff;border:1px solid #E5E5E5;"></div><div class="cl">#FFFFFF<br>Card</div></div>
+        <div class="chip"><div class="sw" style="background:#E5E5E5;"></div><div class="cl">#E5E5E5<br>Border</div></div>
+        <div class="chip"><div class="sw" style="background:#2D6A4F;"></div><div class="cl">#2D6A4F<br>Green</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#0D0D0D;"></div>
+          <div class="scr">
+            <div class="e-header">
+              <div class="e-masthead">
+                <div class="e-vol">Vol. I · 2025</div>
+                <div class="e-pub">COLECTA</div>
+              </div>
+              <div class="e-icon">☀</div>
+            </div>
+            <div class="e-hero">
+              <div class="e-rule"></div>
+              <div class="e-eyebrow">Para grupos · Sin registro</div>
+              <h1 class="e-headline">Organiza tu<br><em>colecta.</em></h1>
+              <div class="e-rule-thin"></div>
+              <p class="e-sub">Un código. Todos pagan. Vos controlás. Asados, viajes, regalos — así de simple.</p>
+              <button class="e-btn e-btn-red" style="margin-bottom:8px;">Crear una colecta</button>
+              <button class="e-btn e-btn-outline">Ingresar con código</button>
+              <div class="e-rule" style="margin-top:28px;"></div>
+              <div class="e-eyebrow" style="margin-top:16px;margin-bottom:14px;">Cómo funciona</div>
+              <div class="e-hiw-step"><div class="e-hiw-num">1</div><div><div class="e-hiw-lbl">Crea la colecta</div><div class="e-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div class="e-rule-thin"></div>
+              <div class="e-hiw-step" style="margin-top:14px;"><div class="e-hiw-num">2</div><div><div class="e-hiw-lbl">Comparte el código</div><div class="e-hiw-det">Cada participante registra su pago.</div></div></div>
+              <div class="e-rule-thin"></div>
+              <div class="e-hiw-step" style="margin-top:14px;margin-bottom:0;"><div class="e-hiw-num">3</div><div><div class="e-hiw-lbl">Confirma los pagos</div><div class="e-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#0D0D0D;"></div>
+          <div class="scr">
+            <div class="e-header">
+              <div class="e-masthead"><div class="e-vol">Vol. I · 2025</div><div class="e-pub">COLECTA</div></div>
+              <div style="display:flex;gap:8px;"><div class="e-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div class="e-rule"></div>
+              <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:#0D0D0D;margin:12px 0 4px;">Mis Colectas</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;margin-bottom:14px;">3 COLECTAS CREADAS</div>
+              <div class="e-card">
+                <div style="height:2px;background:#C41E3A;"></div>
+                <div class="e-card-top">
+                  <div><div class="e-card-name">Asado del sábado</div><div class="e-card-desc">PARQUE LOS DOMINICOS</div></div>
+                  <span class="e-tag e-tag-red">ACTIVA</span>
+                </div>
+                <div class="e-card-foot"><div class="e-meta">8 PX · ABX72K</div><div class="e-amt">$4.500/px</div></div>
+              </div>
+              <div class="e-card">
+                <div style="height:2px;background:#C41E3A;"></div>
+                <div class="e-card-top">
+                  <div><div class="e-card-name">Viaje a Mendoza</div><div class="e-card-desc">GRUPO 6 PERSONAS</div></div>
+                  <span class="e-tag e-tag-red">ACTIVA</span>
+                </div>
+                <div class="e-card-foot"><div class="e-meta">6 PX · MZK91R</div><div class="e-amt">$85.000/px</div></div>
+              </div>
+              <div class="e-card">
+                <div class="e-card-top">
+                  <div><div class="e-card-name">Regalo de Mati</div></div>
+                  <span class="e-tag e-tag-gray">CERRADA</span>
+                </div>
+                <div class="e-card-foot"><div class="e-meta">12 PX · GT44PP</div><div class="e-amt" style="color:#aaa;">$180.000</div></div>
+              </div>
+            </div>
+            <div class="e-bottom"><button class="e-btn e-btn-red" style="margin:0;">+ Nueva colecta</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#0D0D0D;"></div>
+          <div class="scr">
+            <div class="e-header">
+              <div class="e-masthead"><div class="e-vol">Vol. I · 2025</div><div class="e-pub">COLECTA</div></div>
+              <div style="display:flex;gap:8px;"><div class="e-icon">☀</div><div class="e-icon">⚙</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="e-voucher">
+                <div class="e-v-top">
+                  <div class="e-v-kicker">Colecta activa</div>
+                  <div class="e-v-name">Asado del sábado</div>
+                  <div class="e-v-date">14 DE JUNIO, 2025 · PARQUE LOS DOMINICOS</div>
+                </div>
+                <div class="e-v-body">
+                  <div class="e-amt-block">
+                    <div class="e-amt-label">Cuota por persona</div>
+                    <div class="e-amt-val"><span>$</span>4.500</div>
+                  </div>
+                  <div class="e-stats">
+                    <div class="e-stat"><div class="e-stat-val">8</div><div class="e-stat-lbl">PERSONAS</div></div>
+                    <div class="e-stat"><div class="e-stat-val">6</div><div class="e-stat-lbl">PAGARON</div></div>
+                    <div class="e-stat"><div class="e-stat-val" style="color:#C41E3A;">$36k</div><div class="e-stat-lbl">TOTAL</div></div>
+                  </div>
+                  <div>
+                    <div class="e-prog-row"><span class="e-prog-lbl">Progreso</span><span class="e-prog-lbl">75%</span></div>
+                    <div class="e-prog-bg"><div class="e-prog" style="width:75%;height:4px;"></div></div>
+                  </div>
+                  <div class="e-code-block" style="margin-top:14px;">
+                    <div class="e-code-lbl">Código de acceso</div>
+                    <div class="e-code-val">ABX72K</div>
+                  </div>
+                </div>
+              </div>
+              <div style="border-bottom:2px solid #0D0D0D;display:flex;margin-bottom:10px;">
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#C41E3A;border-bottom:2px solid #C41E3A;margin-bottom:-2px;">Participantes</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#aaa;">Info</div>
+                <div style="flex:1;padding:10px 6px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#aaa;">Facturas</div>
+              </div>
+              <div>
+                <div class="e-p-row"><div style="display:flex;align-items:center;"><div class="e-p-av">C</div><div><div class="e-p-name">Carlos M.</div><div class="e-p-meta">hace 2 días</div></div></div><span class="e-stamp e-stamp-paid">PAGADO</span></div>
+                <div class="e-p-row"><div style="display:flex;align-items:center;"><div class="e-p-av">A</div><div><div class="e-p-name">Ana G.</div><div class="e-p-meta">ayer</div></div></div><span class="e-stamp e-stamp-paid">PAGADO</span></div>
+                <div class="e-p-row"><div style="display:flex;align-items:center;"><div class="e-p-av">P</div><div><div class="e-p-name">Pablo R.</div><div class="e-p-meta">hoy</div></div></div><span class="e-stamp e-stamp-pend">PENDIENTE</span></div>
+              </div>
+            </div>
+            <div class="e-bottom"><button class="e-btn e-btn-red" style="margin:0;">Registrar mi pago</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STYLE 5 — NATIVE MOBILE (ChatGPT suggestions)
+  ═══════════════════════════════════════════════════════ -->
+  <div class="style-section native">
+    <div class="style-header">
+      <div class="style-title">Style 5 — Native Mobile <span style="font-size:13px;font-weight:400;color:#666;">(ChatGPT suggestions applied)</span></div>
+      <div class="style-desc">Full-width · Bottom tabs · Large touch targets · iOS-like · Splitwise/Venmo feel</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#F2F2F7;border:1px solid #E5E5EA;"></div><div class="cl">#F2F2F7<br>System Bg</div></div>
+        <div class="chip"><div class="sw" style="background:#007AFF;"></div><div class="cl">#007AFF<br>iOS Blue</div></div>
+        <div class="chip"><div class="sw" style="background:#34C759;"></div><div class="cl">#34C759<br>iOS Green</div></div>
+        <div class="chip"><div class="sw" style="background:#FF3B30;"></div><div class="cl">#FF3B30<br>iOS Red</div></div>
+        <div class="chip"><div class="sw" style="background:#ffffff;border:1px solid #E5E5EA;"></div><div class="cl">#FFFFFF<br>Card</div></div>
+        <div class="chip"><div class="sw" style="background:#6C6C70;"></div><div class="cl">#6C6C70<br>Secondary</div></div>
+      </div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(3,375px);">
+
+      <!-- Landing — full width, no centered container -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio — Full width</div>
+        <div class="screen-route">/ · No max-width container</div>
+        <div class="phone">
+          <div class="notch" style="background:#1C1C1E;"></div>
+          <div class="scr">
+            <div class="m-landing">
+              <!-- Hero — full width, white card -->
+              <div class="m-landing-hero">
+                <div class="m-landing-label">Para grupos · Sin registro</div>
+                <h1 class="m-landing-title">Organiza tu colecta.</h1>
+                <p class="m-landing-sub">Un código. Todos pagan. Vos controlás. Asados, viajes, regalos.</p>
+                <button class="m-landing-btn m-lb-blue">Crear una colecta</button>
+                <button class="m-landing-btn m-lb-gray">Ingresar con código</button>
+              </div>
+              <!-- How it works — full width, no horizontal margins on section -->
+              <div class="m-hiw">
+                <div class="m-hiw-title">Cómo funciona</div>
+                <div class="m-hiw-step">
+                  <div class="m-hiw-num">1</div>
+                  <div><div class="m-hiw-lbl">Crea la colecta</div><div class="m-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div>
+                </div>
+                <div class="m-hiw-step">
+                  <div class="m-hiw-num">2</div>
+                  <div><div class="m-hiw-lbl">Comparte el código</div><div class="m-hiw-det">Cada participante registra su pago.</div></div>
+                </div>
+                <div class="m-hiw-step">
+                  <div class="m-hiw-num">3</div>
+                  <div><div class="m-hiw-lbl">Confirma los pagos</div><div class="m-hiw-det">Revisás comprobantes en tiempo real.</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard — edge to edge -->
+      <div class="screen-wrap">
+        <div class="screen-label">Dashboard — Edge to edge</div>
+        <div class="screen-route">/dashboard · Bottom tab navigation</div>
+        <div class="phone">
+          <div class="notch" style="background:#1C1C1E;"></div>
+          <div class="scr">
+            <!-- Sticky header -->
+            <div class="m-header">
+              <div class="m-back"></div>
+              <div class="m-page-title">Mis Colectas</div>
+              <div class="m-header-action">+ Nueva</div>
+            </div>
+            <!-- Content — full width, no centered container -->
+            <div style="padding:16px 0 0;">
+              <!-- Event cards — edge to edge (16px padding only) -->
+              <div class="m-event-card">
+                <div class="m-ec-strip"></div>
+                <div class="m-ec-body">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0;">
+                    <div class="m-ec-name">Asado del sábado 🔥</div>
+                    <span class="m-badge-green">Activa</span>
+                  </div>
+                  <div class="m-ec-desc">Parque Los Dominicos</div>
+                  <div class="m-ec-foot">
+                    <div class="m-ec-meta">8 personas · ABX72K</div>
+                    <div class="m-ec-amt">$4.500 c/u</div>
+                  </div>
+                </div>
+              </div>
+              <div class="m-event-card">
+                <div class="m-ec-strip"></div>
+                <div class="m-ec-body">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="m-ec-name">Viaje a Mendoza ✈️</div>
+                    <span class="m-badge-green">Activa</span>
+                  </div>
+                  <div class="m-ec-desc">Grupo 6 personas</div>
+                  <div class="m-ec-foot">
+                    <div class="m-ec-meta">6 personas · MZK91R</div>
+                    <div class="m-ec-amt">$85.000 c/u</div>
+                  </div>
+                </div>
+              </div>
+              <div class="m-event-card">
+                <div class="m-ec-body">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="m-ec-name">Regalo de Mati 🎁</div>
+                    <span class="m-badge-yellow">Cerrada</span>
+                  </div>
+                  <div class="m-ec-foot">
+                    <div class="m-ec-meta">12 personas · GT44PP</div>
+                    <div class="m-ec-amt" style="color:#6C6C70;">$180.000</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Bottom tab bar — native -->
+            <div class="m-tabbar">
+              <div class="m-tab"><div class="m-tab-icon active-tab">🏠</div><div class="m-tab-lbl active-tab">Inicio</div></div>
+              <div class="m-tab"><div class="m-tab-icon">👥</div><div class="m-tab-lbl">Colectas</div></div>
+              <div class="m-tab"><div class="m-tab-icon">📄</div><div class="m-tab-lbl">Facturas</div></div>
+              <div class="m-tab"><div class="m-tab-icon">⚙️</div><div class="m-tab-lbl">Ajustes</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento — full native redesign -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento — Native redesign</div>
+        <div class="screen-route">/evento/[slug] · Large hero + bottom bar</div>
+        <div class="phone">
+          <div class="notch" style="background:#1C1C1E;"></div>
+          <div class="scr">
+            <!-- Native header with back + settings -->
+            <div class="m-header">
+              <div class="m-back">‹ Colectas</div>
+              <div class="m-page-title">Asado del sábado</div>
+              <div class="m-header-action">⚙️</div>
+            </div>
+
+            <!-- Full-width hero summary card — no side margins -->
+            <div class="m-hero" style="padding:16px 16px 0;">
+              <div class="m-hero-summary">
+                <div class="m-hs-label">Recaudado</div>
+                <div class="m-hs-amount">$27.000</div>
+                <div class="m-hs-prog-bg"><div class="m-hs-prog" style="width:75%;"></div></div>
+                <div class="m-hs-meta"><span>6 de 8 pagaron</span><span>75%</span></div>
+                <div class="m-hs-stats">
+                  <div class="m-hs-stat"><div class="m-hs-stat-val">8</div><div class="m-hs-stat-lbl">Personas</div></div>
+                  <div class="m-hs-stat"><div class="m-hs-stat-val">$4.500</div><div class="m-hs-stat-lbl">c/u</div></div>
+                  <div class="m-hs-stat"><div class="m-hs-stat-val">2</div><div class="m-hs-stat-lbl">Pendientes</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment hero — most important for participant -->
+            <div class="m-pay-hero">
+              <div class="m-pay-icon">✅</div>
+              <div class="m-pay-label">Tu aporte</div>
+              <div class="m-pay-amount">$4.500</div>
+              <span class="m-pay-status">✓ Pago confirmado</span>
+            </div>
+
+            <!-- Segmented control — replaces tabs -->
+            <div class="m-seg-wrap">
+              <div class="m-seg">
+                <div class="m-seg-item m-seg-on">Participantes</div>
+                <div class="m-seg-item m-seg-off">Facturas</div>
+              </div>
+            </div>
+
+            <!-- Participant list — full width grouped -->
+            <div style="padding:0 16px 100px;">
+              <div class="m-grouped">
+                <div class="m-row">
+                  <div class="m-row-left">
+                    <div class="m-row-av" style="background:#007AFF;">C</div>
+                    <div><div class="m-row-name">Carlos M.</div><div class="m-row-meta">hace 2 días · Transferencia</div></div>
+                  </div>
+                  <span class="m-badge-green">✓ Pagó</span>
+                </div>
+                <div class="m-row">
+                  <div class="m-row-left">
+                    <div class="m-row-av" style="background:#34C759;">A</div>
+                    <div><div class="m-row-name">Ana G.</div><div class="m-row-meta">ayer · Efectivo</div></div>
+                  </div>
+                  <span class="m-badge-green">✓ Pagó</span>
+                </div>
+                <div class="m-row">
+                  <div class="m-row-left">
+                    <div class="m-row-av" style="background:#FF9500;">P</div>
+                    <div><div class="m-row-name">Pablo R.</div><div class="m-row-meta">hoy · pendiente</div></div>
+                  </div>
+                  <span class="m-badge-yellow">⏳ Pendiente</span>
+                </div>
+                <div class="m-row">
+                  <div class="m-row-left">
+                    <div class="m-row-av" style="background:#5856D6;">L</div>
+                    <div><div class="m-row-name">Luisa F.</div><div class="m-row-meta">hace 3 días · Transferencia</div></div>
+                  </div>
+                  <span class="m-badge-green">✓ Pagó</span>
+                </div>
+              </div>
+
+              <!-- Share section — large bottom-sheet-style buttons -->
+              <div style="margin-top:20px;">
+                <div style="font-size:13px;font-weight:600;color:#6C6C70;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Compartir colecta</div>
+                <button class="m-share-btn"><div class="m-share-icon m-si-blue">🔗</div>Copiar link</button>
+                <button class="m-share-btn"><div class="m-share-icon m-si-green">📷</div>Mostrar QR</button>
+              </div>
+            </div>
+
+            <!-- Bottom action bar — sticky, large buttons -->
+            <div class="m-action-bar">
+              <button class="m-action-btn m-action-secondary">Compartir</button>
+              <button class="m-action-btn m-action-primary">Ver QR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

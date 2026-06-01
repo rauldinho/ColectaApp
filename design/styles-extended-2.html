@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colecta — 4 New Styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#111;font-family:'Inter',sans-serif;padding:48px 24px 80px;}
+.page{max-width:1380px;margin:0 auto;}
+.page-head{text-align:center;margin-bottom:64px;}
+.page-head h1{font-size:26px;font-weight:700;color:#fff;}
+.page-head p{font-size:13px;color:#555;margin-top:6px;}
+.style-section{margin-bottom:80px;}
+.style-header{margin-bottom:28px;}
+.style-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;}
+.style-desc{font-size:13px;color:#555;margin-bottom:16px;}
+.palette{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+.chip{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sw{width:44px;height:44px;border-radius:10px;}
+.cl{font-size:9px;color:#444;text-align:center;font-family:'Space Grotesk',sans-serif;line-height:1.3;}
+.grid{display:grid;grid-template-columns:repeat(3,375px);gap:32px;}
+.screen-wrap{display:flex;flex-direction:column;gap:8px;align-items:center;}
+.screen-label{font-size:13px;font-weight:600;color:#aaa;}
+.screen-route{font-size:10px;color:#444;font-family:'Space Grotesk',monospace;}
+.phone{width:375px;height:780px;border-radius:44px;overflow:hidden;position:relative;flex-shrink:0;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;border-radius:0 0 16px 16px;z-index:10;}
+.scr{width:100%;height:100%;overflow-y:auto;padding-top:26px;scrollbar-width:none;}
+.scr::-webkit-scrollbar{display:none;}
+
+/* ═══════════════════════════════════
+   STYLE A — SAGE & LINEN
+   Palette: forest sage, warm linen, DM Sans
+═══════════════════════════════════ */
+.sage .phone{border:8px solid #2A3D35;box-shadow:0 28px 64px rgba(45,74,62,.3),0 0 0 2px #8CB8A4;}
+.sage .notch{background:#2A3D35;}
+.sage .scr{background:#F5F0E8;font-family:'DM Sans',sans-serif;}
+
+.sa-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(245,240,232,.92);backdrop-filter:blur(12px);border-bottom:1px solid #DDD8CE;position:sticky;top:0;z-index:5;}
+.sa-mark{width:32px;height:32px;border-radius:50%;background:#3D6B57;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#F5F0E8;}
+.sa-name{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:#2A3020;letter-spacing:-.3px;}
+.sa-icon{width:32px;height:32px;border-radius:50%;border:1.5px solid #DDD8CE;display:flex;align-items:center;justify-content:center;font-size:13px;color:#7A7060;}
+.sa-hero{padding:40px 24px 28px;text-align:center;}
+.sa-leaf{font-size:32px;margin-bottom:16px;}
+.sa-eyebrow{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#8CB8A4;margin-bottom:14px;}
+.sa-title{font-family:'DM Sans',sans-serif;font-size:38px;font-weight:700;color:#2A3020;line-height:1.1;letter-spacing:-.8px;margin-bottom:12px;}
+.sa-title em{font-style:normal;color:#3D6B57;}
+.sa-sub{font-size:15px;color:#7A7060;line-height:1.65;margin-bottom:28px;}
+.sa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:26px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;border:none;cursor:pointer;margin-bottom:10px;}
+.sa-btn-primary{background:#3D6B57;color:#F5F0E8;box-shadow:0 4px 16px rgba(61,107,87,.3);}
+.sa-btn-outline{background:transparent;color:#3D6B57;border:1.5px solid #8CB8A4;}
+.sa-card{background:#fff;border:1px solid #E8E2D8;border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 2px 12px rgba(45,60,32,.06);}
+.sa-card-inner{padding:14px 16px;}
+.sa-card-name{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:600;color:#2A3020;margin-bottom:3px;}
+.sa-card-desc{font-size:12px;color:#9A9080;}
+.sa-card-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 12px;border-top:1px solid #F0EAE0;}
+.sa-meta{font-size:11px;color:#9A9080;}
+.sa-amt{font-size:17px;font-weight:700;color:#3D6B57;}
+.sa-badge-on{background:#E8F3EE;color:#3D6B57;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
+.sa-badge-off{background:#F0EAE0;color:#9A9080;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
+.sa-strip{height:3px;background:#3D6B57;}
+.sa-voucher{background:#fff;border:1px solid #E8E2D8;border-radius:24px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 20px rgba(45,60,32,.08);}
+.sa-v-top{background:#3D6B57;padding:24px 22px 20px;text-align:center;}
+.sa-v-label{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:rgba(245,240,232,.55);margin-bottom:6px;}
+.sa-v-name{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:700;color:#F5F0E8;line-height:1.15;}
+.sa-v-date{font-size:11px;color:rgba(245,240,232,.55);margin-top:5px;}
+.sa-v-body{padding:18px 22px;}
+.sa-amount{text-align:center;padding:12px 0 16px;}
+.sa-amt-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9A9080;margin-bottom:8px;}
+.sa-amt-val{font-family:'DM Sans',sans-serif;font-size:48px;font-weight:700;color:#2A3020;letter-spacing:-2px;line-height:1;}
+.sa-amt-cur{font-size:22px;font-weight:500;color:#8CB8A4;margin-right:2px;}
+.sa-divider{height:1px;background:#F0EAE0;margin:4px -22px;}
+.sa-stats{display:flex;gap:1px;background:#F0EAE0;margin:0 -22px;}
+.sa-stat{flex:1;background:#fff;padding:12px;text-align:center;}
+.sa-stat-val{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:#2A3020;}
+.sa-stat-lbl{font-size:10px;color:#9A9080;margin-top:3px;letter-spacing:.5px;}
+.sa-prog-bg{height:6px;background:#E8E2D8;border-radius:999px;margin:14px 0 6px;}
+.sa-prog{height:100%;background:#3D6B57;border-radius:999px;}
+.sa-code{background:#F5F0E8;border:1.5px solid #DDD8CE;border-radius:16px;padding:14px 20px;text-align:center;margin:12px 0;}
+.sa-code-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#9A9080;margin-bottom:6px;}
+.sa-code-val{font-family:'Space Grotesk',monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#2A3020;}
+.sa-p-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F0EAE0;}
+.sa-p-row:last-child{border-bottom:none;}
+.sa-p-av{width:36px;height:36px;border-radius:50%;background:#E8F3EE;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#3D6B57;flex-shrink:0;}
+.sa-p-name{font-weight:600;font-size:15px;color:#2A3020;margin-left:10px;}
+.sa-p-meta{font-size:11px;color:#9A9080;margin-top:1px;margin-left:10px;}
+.sa-stamp-paid{font-size:11px;font-weight:600;color:#3D6B57;background:#E8F3EE;padding:3px 10px;border-radius:999px;}
+.sa-stamp-pend{font-size:11px;font-weight:600;color:#B07A40;background:#FBF0E0;padding:3px 10px;border-radius:999px;}
+.sa-bottom{position:sticky;bottom:0;padding:12px 20px;background:rgba(245,240,232,.95);border-top:1px solid #DDD8CE;}
+.sa-hiw-step{display:flex;gap:14px;margin-bottom:18px;}
+.sa-hiw-num{width:36px;height:36px;border-radius:50%;background:#E8F3EE;border:1.5px solid #8CB8A4;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#3D6B57;flex-shrink:0;}
+.sa-hiw-lbl{font-weight:600;font-size:16px;color:#2A3020;}
+.sa-hiw-det{font-size:12px;color:#9A9080;margin-top:2px;line-height:1.5;}
+.sa-tabs{display:flex;background:#F0EAE0;border-radius:14px;padding:3px;gap:0;margin-bottom:12px;}
+.sa-tab{flex:1;padding:8px;text-align:center;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;border-radius:12px;color:#9A9080;}
+.sa-tab-on{background:#fff;color:#2A3020;box-shadow:0 1px 4px rgba(45,60,32,.1);}
+
+/* ═══════════════════════════════════
+   STYLE B — MIDNIGHT FINANCE
+   Palette: deep navy, gold, premium fintech
+═══════════════════════════════════ */
+.midnight .phone{border:8px solid #070D1A;box-shadow:0 28px 64px rgba(0,0,0,.6),0 0 0 1px #1A2B4A,0 0 40px rgba(201,168,76,.05);}
+.midnight .notch{background:#070D1A;}
+.midnight .scr{background:#070D1A;font-family:'Plus Jakarta Sans',sans-serif;}
+
+.mf-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(7,13,26,.92);backdrop-filter:blur(16px);border-bottom:1px solid #1A2B4A;position:sticky;top:0;z-index:5;}
+.mf-mark{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#C9A84C,#E8C86A);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#070D1A;}
+.mf-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:#E8F0FE;letter-spacing:-.3px;}
+.mf-icon{width:32px;height:32px;border-radius:50%;border:1px solid #1A2B4A;display:flex;align-items:center;justify-content:center;font-size:13px;color:#4A6B8A;}
+.mf-hero{padding:32px 22px 24px;}
+.mf-greeting{font-size:12px;font-weight:500;color:#4A6B8A;letter-spacing:.5px;margin-bottom:20px;text-transform:uppercase;}
+.mf-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;color:#E8F0FE;line-height:1.1;letter-spacing:-.8px;margin-bottom:12px;}
+.mf-title span{background:linear-gradient(90deg,#C9A84C,#E8C86A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.mf-sub{font-size:14px;color:#4A6B8A;line-height:1.6;margin-bottom:28px;}
+.mf-btn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-bottom:10px;}
+.mf-btn-primary{background:linear-gradient(135deg,#C9A84C,#E8C86A);color:#070D1A;box-shadow:0 8px 24px rgba(201,168,76,.3);}
+.mf-btn-secondary{background:#0D1A2E;color:#E8F0FE;border:1px solid #1A2B4A;}
+.mf-card{background:#0D1A2E;border:1px solid #1A2B4A;border-radius:18px;overflow:hidden;margin-bottom:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.mf-card-inner{padding:14px 16px;}
+.mf-card-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:#E8F0FE;margin-bottom:3px;}
+.mf-card-desc{font-size:12px;color:#4A6B8A;}
+.mf-card-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 12px;border-top:1px solid #1A2B4A;}
+.mf-meta{font-size:11px;color:#4A6B8A;font-family:'Space Grotesk',monospace;}
+.mf-amt{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:#C9A84C;}
+.mf-badge-on{background:rgba(201,168,76,.15);color:#C9A84C;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid rgba(201,168,76,.3);}
+.mf-badge-off{background:#1A2B4A;color:#4A6B8A;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.mf-strip{height:2px;background:linear-gradient(90deg,#C9A84C,#4A9EFF);}
+.mf-voucher{background:#0D1A2E;border:1px solid #1A2B4A;border-radius:22px;overflow:hidden;margin-bottom:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.mf-v-top{background:linear-gradient(135deg,#0D1A2E 0%,#1A2B4A 100%);padding:22px 22px 18px;border-bottom:1px solid #1A2B4A;position:relative;overflow:hidden;}
+.mf-v-top::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(201,168,76,.15),transparent 70%);pointer-events:none;}
+.mf-v-kicker{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#4A6B8A;margin-bottom:6px;}
+.mf-v-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:#E8F0FE;line-height:1.2;}
+.mf-v-date{font-size:11px;color:#4A6B8A;margin-top:5px;}
+.mf-v-body{padding:18px 22px;}
+.mf-amount{text-align:center;padding:12px 0 16px;border-bottom:1px solid #1A2B4A;}
+.mf-amt-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#4A6B8A;margin-bottom:8px;}
+.mf-amt-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:48px;font-weight:800;color:#E8F0FE;letter-spacing:-2px;line-height:1;}
+.mf-amt-cur{font-size:22px;font-weight:600;color:#C9A84C;margin-right:2px;}
+.mf-stats{display:flex;gap:8px;margin:14px 0;}
+.mf-stat{flex:1;background:#070D1A;border:1px solid #1A2B4A;border-radius:12px;padding:10px;text-align:center;}
+.mf-stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#E8F0FE;}
+.mf-stat-val.gold{color:#C9A84C;}
+.mf-stat-lbl{font-size:9px;color:#4A6B8A;margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+.mf-prog-bg{height:4px;background:#1A2B4A;border-radius:999px;margin:4px 0;}
+.mf-prog{height:100%;background:linear-gradient(90deg,#C9A84C,#E8C86A);border-radius:999px;}
+.mf-prog-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.mf-prog-lbl{font-size:9px;color:#4A6B8A;text-transform:uppercase;letter-spacing:.5px;}
+.mf-code{background:#070D1A;border:1px solid #C9A84C;border-radius:14px;padding:14px 20px;text-align:center;margin:12px 0;}
+.mf-code-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#4A6B8A;margin-bottom:6px;}
+.mf-code-val{font-family:'Space Grotesk',monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#C9A84C;text-shadow:0 0 20px rgba(201,168,76,.3);}
+.mf-p-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #1A2B4A;}
+.mf-p-row:last-child{border-bottom:none;}
+.mf-p-av{width:36px;height:36px;border-radius:50%;background:#1A2B4A;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#C9A84C;flex-shrink:0;border:1px solid #2A3B5A;}
+.mf-p-name{font-weight:600;font-size:15px;color:#E8F0FE;margin-left:10px;}
+.mf-p-meta{font-size:11px;color:#4A6B8A;margin-top:1px;margin-left:10px;}
+.mf-badge-paid{font-size:10px;font-weight:700;color:#34D399;background:rgba(52,211,153,.1);padding:3px 10px;border-radius:999px;border:1px solid rgba(52,211,153,.25);}
+.mf-badge-pend{font-size:10px;font-weight:700;color:#C9A84C;background:rgba(201,168,76,.1);padding:3px 10px;border-radius:999px;border:1px solid rgba(201,168,76,.25);}
+.mf-bottom{position:sticky;bottom:0;padding:12px 20px;background:rgba(7,13,26,.95);border-top:1px solid #1A2B4A;}
+.mf-tabs{display:flex;background:#0D1A2E;border:1px solid #1A2B4A;border-radius:12px;padding:3px;gap:0;margin-bottom:12px;}
+.mf-tab{flex:1;padding:8px;text-align:center;font-size:11px;font-weight:700;border-radius:10px;color:#4A6B8A;letter-spacing:.3px;}
+.mf-tab-on{background:#1A2B4A;color:#E8F0FE;}
+.mf-hiw-step{display:flex;gap:14px;margin-bottom:18px;}
+.mf-hiw-num{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#C9A84C,#E8C86A);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#070D1A;flex-shrink:0;}
+.mf-hiw-lbl{font-weight:700;font-size:15px;color:#E8F0FE;}
+.mf-hiw-det{font-size:12px;color:#4A6B8A;margin-top:2px;line-height:1.5;}
+
+/* ═══════════════════════════════════
+   STYLE C — CANDY POP / GEN-Z
+   Palette: deep purple bg, bubblegum, mint, yellow, Fredoka
+═══════════════════════════════════ */
+.candy .phone{border:8px solid #1A0A2E;box-shadow:0 28px 64px rgba(155,93,229,.2),0 0 0 2px #9B5DE5,0 0 60px rgba(0,245,212,.05);}
+.candy .notch{background:#1A0A2E;}
+.candy .scr{background:#1A0A2E;font-family:'Fredoka',sans-serif;}
+
+.cp-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(26,10,46,.92);backdrop-filter:blur(12px);border-bottom:1px solid #2E1850;position:sticky;top:0;z-index:5;}
+.cp-mark{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#FF6B9D,#9B5DE5);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;}
+.cp-name{font-family:'Fredoka',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.cp-icon{width:32px;height:32px;border-radius:50%;border:2px solid #2E1850;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.cp-hero{padding:36px 22px 24px;text-align:center;}
+.cp-eyebrow{display:inline-block;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(135deg,#9B5DE5,#FF6B9D);border-radius:999px;padding:5px 16px;margin-bottom:20px;letter-spacing:.5px;}
+.cp-title{font-family:'Fredoka',sans-serif;font-size:44px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:12px;letter-spacing:.5px;}
+.cp-title em{font-style:normal;background:linear-gradient(135deg,#FF6B9D,#FEE440);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cp-sub{font-size:15px;color:#8A7AAA;line-height:1.6;margin-bottom:28px;}
+.cp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:18px;font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;border:none;cursor:pointer;margin-bottom:10px;letter-spacing:.5px;}
+.cp-btn-primary{background:linear-gradient(135deg,#FF6B9D,#9B5DE5);color:#fff;box-shadow:0 8px 24px rgba(155,93,229,.4);}
+.cp-btn-mint{background:linear-gradient(135deg,#00F5D4,#00B8AA);color:#1A0A2E;box-shadow:0 8px 24px rgba(0,245,212,.25);}
+.cp-btn-outline{background:transparent;color:#FF6B9D;border:2px solid #FF6B9D;}
+.cp-card{background:#2A1040;border:1.5px solid #3E2060;border-radius:20px;overflow:hidden;margin-bottom:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.cp-card-inner{padding:14px 16px;}
+.cp-card-name{font-family:'Fredoka',sans-serif;font-size:19px;font-weight:600;color:#fff;margin-bottom:3px;}
+.cp-card-desc{font-size:12px;color:#8A7AAA;}
+.cp-card-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 12px;border-top:1px solid #3E2060;}
+.cp-meta{font-size:11px;color:#8A7AAA;font-family:'Space Grotesk',monospace;}
+.cp-amt{font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;color:#FEE440;}
+.cp-badge-on{background:linear-gradient(135deg,#00F5D4,#00B8AA);color:#1A0A2E;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;}
+.cp-badge-off{background:#2A1040;color:#8A7AAA;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;border:1px solid #3E2060;}
+.cp-stripe{height:3px;}
+.cp-voucher{background:#2A1040;border:1.5px solid #3E2060;border-radius:24px;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.cp-v-top{padding:22px 22px 18px;background:linear-gradient(135deg,#3E1070,#1A0A2E);position:relative;text-align:center;}
+.cp-v-top::before{content:'✨';position:absolute;top:10px;left:16px;font-size:18px;opacity:.5;}
+.cp-v-top::after{content:'🎉';position:absolute;top:10px;right:16px;font-size:18px;opacity:.5;}
+.cp-v-label{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8A7AAA;margin-bottom:6px;}
+.cp-v-name{font-family:'Fredoka',sans-serif;font-size:26px;font-weight:700;color:#fff;line-height:1.1;}
+.cp-v-date{font-size:11px;color:#8A7AAA;margin-top:5px;}
+.cp-v-body{padding:18px 22px;}
+.cp-amount{text-align:center;padding:14px 0 16px;}
+.cp-amt-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#8A7AAA;margin-bottom:8px;}
+.cp-amt-val{font-family:'Fredoka',sans-serif;font-size:52px;font-weight:700;color:#FEE440;letter-spacing:-1px;line-height:1;text-shadow:0 0 30px rgba(254,228,64,.3);}
+.cp-amt-cur{font-size:26px;color:#FF6B9D;}
+.cp-tear{display:flex;align-items:center;margin:8px -22px;}
+.cp-tear-hole{width:18px;height:18px;border-radius:50%;background:#1A0A2E;flex-shrink:0;}
+.cp-tear-dash{flex:1;border-top:2px dashed #3E2060;margin:0 6px;}
+.cp-stats{display:flex;gap:8px;margin:12px 0;}
+.cp-stat{flex:1;background:#1A0A2E;border:1px solid #3E2060;border-radius:16px;padding:10px;text-align:center;}
+.cp-stat-val{font-family:'Fredoka',sans-serif;font-size:24px;font-weight:700;color:#fff;}
+.cp-stat-val.yellow{color:#FEE440;}
+.cp-stat-lbl{font-size:10px;color:#8A7AAA;margin-top:3px;}
+.cp-prog-bg{height:8px;background:#1A0A2E;border-radius:999px;margin:6px 0;}
+.cp-prog{height:100%;background:linear-gradient(90deg,#9B5DE5,#FF6B9D,#FEE440);border-radius:999px;}
+.cp-code{background:#1A0A2E;border:2px solid #9B5DE5;border-radius:16px;padding:14px 20px;text-align:center;margin:10px 0;box-shadow:0 0 20px rgba(155,93,229,.15);}
+.cp-code-lbl{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8A7AAA;margin-bottom:6px;}
+.cp-code-val{font-family:'Space Grotesk',monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#00F5D4;text-shadow:0 0 20px rgba(0,245,212,.4);}
+.cp-p-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #3E2060;}
+.cp-p-row:last-child{border-bottom:none;}
+.cp-p-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;}
+.cp-p-name{font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;color:#fff;margin-left:10px;}
+.cp-p-meta{font-size:11px;color:#8A7AAA;margin-top:1px;margin-left:10px;}
+.cp-stamp-paid{font-size:12px;font-weight:700;color:#00F5D4;background:rgba(0,245,212,.1);padding:3px 10px;border-radius:999px;border:1px solid rgba(0,245,212,.3);}
+.cp-stamp-pend{font-size:12px;font-weight:700;color:#FF6B9D;background:rgba(255,107,157,.1);padding:3px 10px;border-radius:999px;border:1px solid rgba(255,107,157,.3);}
+.cp-bottom{position:sticky;bottom:0;padding:12px 20px;background:rgba(26,10,46,.95);border-top:1px solid #3E2060;}
+.cp-tabs{display:flex;background:#1A0A2E;border:1px solid #3E2060;border-radius:14px;padding:3px;gap:0;margin-bottom:12px;}
+.cp-tab{flex:1;padding:8px;text-align:center;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;border-radius:12px;color:#8A7AAA;}
+.cp-tab-on{background:linear-gradient(135deg,#9B5DE5,#FF6B9D);color:#fff;}
+.cp-hiw-step{display:flex;gap:14px;margin-bottom:18px;}
+.cp-hiw-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+.cp-hiw-lbl{font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;color:#fff;}
+.cp-hiw-det{font-size:12px;color:#8A7AAA;margin-top:2px;line-height:1.5;}
+
+/* ═══════════════════════════════════
+   STYLE D — BAUHAUS BRUTALIST
+   Palette: cream, pure black, scarlet red, Space Grotesk + Bebas Neue
+═══════════════════════════════════ */
+.brutal .phone{border:8px solid #000;box-shadow:8px 8px 0 #E8C84C,0 0 0 9px #000;}
+.brutal .notch{background:#000;}
+.brutal .scr{background:#FFFCE8;font-family:'Space Grotesk',sans-serif;}
+
+.br-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#FFFCE8;border-bottom:3px solid #000;position:sticky;top:0;z-index:5;}
+.br-mark{width:34px;height:34px;background:#FF2400;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#FFFCE8;letter-spacing:1px;}
+.br-name{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#000;letter-spacing:3px;}
+.br-icon{width:32px;height:32px;border:3px solid #000;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.br-hero{padding:28px 22px;}
+.br-rule{height:4px;background:#000;margin-bottom:16px;}
+.br-rule-red{height:4px;background:#FF2400;margin:12px 0;}
+.br-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:4px;color:#FF2400;margin-bottom:8px;}
+.br-title{font-family:'Bebas Neue',sans-serif;font-size:56px;color:#000;line-height:.95;letter-spacing:2px;margin-bottom:12px;}
+.br-title em{font-style:normal;color:#FF2400;}
+.br-sub{font-size:14px;color:#333;line-height:1.55;margin-bottom:24px;font-weight:500;}
+.br-btn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border:3px solid #000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;margin-bottom:10px;position:relative;}
+.br-btn-primary{background:#FF2400;color:#FFFCE8;box-shadow:4px 4px 0 #000;}
+.br-btn-yellow{background:#E8C84C;color:#000;box-shadow:4px 4px 0 #000;}
+.br-btn-outline{background:transparent;color:#000;box-shadow:4px 4px 0 #000;}
+.br-card{background:#fff;border:3px solid #000;margin-bottom:10px;position:relative;}
+.br-card-inner{padding:14px 16px;}
+.br-card-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#000;margin-bottom:3px;}
+.br-card-desc{font-size:11px;color:#666;font-weight:500;text-transform:uppercase;letter-spacing:1px;}
+.br-card-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 12px;border-top:2px solid #000;}
+.br-meta{font-family:'Space Grotesk',monospace;font-size:10px;color:#666;letter-spacing:1px;text-transform:uppercase;}
+.br-amt{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#FF2400;letter-spacing:1px;}
+.br-badge-on{background:#E8C84C;color:#000;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:3px 10px;border:2px solid #000;}
+.br-badge-off{background:#eee;color:#666;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:3px 10px;border:2px solid #999;}
+.br-strip{height:4px;}
+.br-voucher{background:#fff;border:3px solid #000;margin-bottom:12px;box-shadow:5px 5px 0 #000;}
+.br-v-top{background:#000;padding:20px 22px;text-align:center;}
+.br-v-label{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:6px;color:#999;margin-bottom:6px;}
+.br-v-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#FFFCE8;}
+.br-v-date{font-size:11px;color:#666;margin-top:5px;text-transform:uppercase;letter-spacing:1px;}
+.br-v-body{padding:18px 22px;}
+.br-amount{text-align:center;padding:14px 0;border-top:2px solid #eee;border-bottom:2px solid #eee;margin-bottom:14px;}
+.br-amt-label{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:#999;margin-bottom:8px;}
+.br-amt-val{font-family:'Bebas Neue',sans-serif;font-size:60px;color:#000;letter-spacing:-1px;line-height:1;}
+.br-amt-val span{color:#FF2400;}
+.br-stats{display:flex;border:2px solid #000;margin-bottom:14px;}
+.br-stat{flex:1;padding:12px;text-align:center;border-right:2px solid #000;}
+.br-stat:last-child{border-right:none;}
+.br-stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#000;letter-spacing:1px;}
+.br-stat-val.red{color:#FF2400;}
+.br-stat-lbl{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+.br-prog-bg{height:8px;background:#eee;border:2px solid #000;margin:6px 0;}
+.br-prog{height:100%;background:#FF2400;}
+.br-prog-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.br-prog-lbl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:#999;}
+.br-code{background:#000;padding:14px 20px;text-align:center;margin:12px -22px;}
+.br-code-lbl{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:5px;color:#555;margin-bottom:6px;}
+.br-code-val{font-family:'Space Grotesk',monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#E8C84C;}
+.br-p-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:2px dashed #000;}
+.br-p-row:last-child{border-bottom:none;}
+.br-p-av{width:36px;height:36px;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;flex-shrink:0;}
+.br-p-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;margin-left:10px;}
+.br-p-meta{font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-top:1px;margin-left:10px;}
+.br-stamp-paid{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;padding:3px 10px;border:2px solid #2D6A4F;color:#2D6A4F;background:#E8F3EE;}
+.br-stamp-pend{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;padding:3px 10px;border:2px solid #FF2400;color:#FF2400;background:#FFF0EE;}
+.br-bottom{position:sticky;bottom:0;padding:12px 20px;background:#FFFCE8;border-top:3px solid #000;}
+.br-tabs{display:flex;border:2px solid #000;margin-bottom:12px;}
+.br-tab{flex:1;padding:9px 6px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#999;border-right:2px solid #000;}
+.br-tab:last-child{border-right:none;}
+.br-tab-on{background:#FF2400;color:#fff;}
+.br-hiw-step{display:flex;gap:14px;margin-bottom:14px;}
+.br-hiw-num{width:36px;height:36px;background:#000;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#FFFCE8;flex-shrink:0;}
+.br-hiw-lbl{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#000;}
+.br-hiw-det{font-size:12px;color:#666;margin-top:2px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Colecta — 4 New Styles</h1>
+    <p>Sage &amp; Linen · Midnight Finance · Candy Pop · Bauhaus Brutalist</p>
+  </div>
+
+  <!-- ═══ STYLE A — SAGE & LINEN ═══ -->
+  <div class="style-section sage">
+    <div class="style-header">
+      <div class="style-title">Style A — Sage &amp; Linen</div>
+      <div class="style-desc">Natural · Earthy · Calm · DM Sans — como Calm, Headspace o Notion</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#F5F0E8;border:1px solid #DDD8CE;"></div><div class="cl">#F5F0E8<br>Linen</div></div>
+        <div class="chip"><div class="sw" style="background:#3D6B57;"></div><div class="cl">#3D6B57<br>Forest</div></div>
+        <div class="chip"><div class="sw" style="background:#8CB8A4;"></div><div class="cl">#8CB8A4<br>Sage</div></div>
+        <div class="chip"><div class="sw" style="background:#2A3020;"></div><div class="cl">#2A3020<br>Ink</div></div>
+        <div class="chip"><div class="sw" style="background:#E8E2D8;border:1px solid #DDD8CE;"></div><div class="cl">#E8E2D8<br>Border</div></div>
+        <div class="chip"><div class="sw" style="background:#B07A40;"></div><div class="cl">#B07A40<br>Amber</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#2A3D35;"></div>
+          <div class="scr">
+            <div class="sa-hero">
+              <div class="sa-leaf">🌿</div>
+              <div class="sa-eyebrow">Para grupos · Sin registro</div>
+              <h1 class="sa-title">Organiza tu<br><em>colecta.</em></h1>
+              <p class="sa-sub">Un código. Todos pagan. Vos controlás.<br>Asados, viajes, regalos — así de simple.</p>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="sa-btn sa-btn-primary">🌱 Crear una colecta</button>
+                <button class="sa-btn sa-btn-outline">Ingresar con código</button>
+              </div>
+            </div>
+            <div style="padding:0 24px 32px;">
+              <div style="text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:#9A9080;margin:8px 0 20px;">Cómo funciona</div>
+              <div class="sa-hiw-step"><div class="sa-hiw-num">1</div><div><div class="sa-hiw-lbl">Crea la colecta</div><div class="sa-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div class="sa-hiw-step"><div class="sa-hiw-num">2</div><div><div class="sa-hiw-lbl">Comparte el código</div><div class="sa-hiw-det">Cada participante registra su pago.</div></div></div>
+              <div class="sa-hiw-step" style="margin-bottom:0;"><div class="sa-hiw-num">3</div><div><div class="sa-hiw-lbl">Confirma los pagos</div><div class="sa-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#2A3D35;"></div>
+          <div class="scr">
+            <div class="sa-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="sa-mark">C</div><span class="sa-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="sa-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div style="font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:#2A3020;margin-bottom:4px;">Mis Colectas</div>
+              <div style="font-size:12px;color:#9A9080;margin-bottom:16px;">3 colectas creadas</div>
+              <div class="sa-card"><div class="sa-strip"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 8px;"><div><div class="sa-card-name">Asado del sábado 🔥</div><div class="sa-card-desc">Parque Los Dominicos</div></div><span class="sa-badge-on">Activa</span></div><div class="sa-card-foot"><div class="sa-meta">8 personas · ABX72K</div><div class="sa-amt">$4.500 c/u</div></div></div>
+              <div class="sa-card"><div class="sa-strip"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 8px;"><div><div class="sa-card-name">Viaje a Mendoza ✈️</div><div class="sa-card-desc">Grupo 6 personas</div></div><span class="sa-badge-on">Activa</span></div><div class="sa-card-foot"><div class="sa-meta">6 personas · MZK91R</div><div class="sa-amt">$85.000 c/u</div></div></div>
+              <div class="sa-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 8px;"><div><div class="sa-card-name">Regalo de Mati 🎁</div></div><span class="sa-badge-off">Cerrada</span></div><div class="sa-card-foot"><div class="sa-meta">12 personas · GT44PP</div><div class="sa-amt" style="color:#9A9080;">$180.000</div></div></div>
+            </div>
+            <div class="sa-bottom"><button class="sa-btn sa-btn-primary" style="margin:0;">+ Nueva colecta</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#2A3D35;"></div>
+          <div class="scr">
+            <div class="sa-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="sa-mark">C</div><span class="sa-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="sa-icon">☀</div><div class="sa-icon" style="font-size:11px;">⚙</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="sa-voucher">
+                <div class="sa-v-top"><div class="sa-v-label">Colecta activa</div><div class="sa-v-name">Asado del sábado 🔥</div><div class="sa-v-date">📅 14 junio 2025 · Parque Los Dominicos</div></div>
+                <div class="sa-v-body">
+                  <div class="sa-amount"><div class="sa-amt-label">Cuota por persona</div><div class="sa-amt-val"><span class="sa-amt-cur">$</span>4.500</div></div>
+                  <div class="sa-divider"></div>
+                  <div class="sa-stats"><div class="sa-stat"><div class="sa-stat-val">8</div><div class="sa-stat-lbl">Personas</div></div><div class="sa-stat"><div class="sa-stat-val">6</div><div class="sa-stat-lbl">Pagaron</div></div><div class="sa-stat"><div class="sa-stat-val" style="color:#3D6B57;">$36k</div><div class="sa-stat-lbl">Total</div></div></div>
+                  <div style="margin:10px 0;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:#9A9080;">Progreso</span><span style="font-size:11px;font-weight:600;color:#3D6B57;">75%</span></div><div class="sa-prog-bg"><div class="sa-prog" style="width:75%;"></div></div></div>
+                  <div class="sa-code"><div class="sa-code-lbl">Código de acceso</div><div class="sa-code-val">ABX72K</div></div>
+                </div>
+              </div>
+              <div class="sa-tabs"><div class="sa-tab sa-tab-on">Participantes</div><div class="sa-tab">Info</div><div class="sa-tab">Facturas</div></div>
+              <div>
+                <div class="sa-p-row"><div style="display:flex;align-items:center;"><div class="sa-p-av">C</div><div><div class="sa-p-name">Carlos M.</div><div class="sa-p-meta">hace 2 días</div></div></div><span class="sa-stamp-paid">Pagado</span></div>
+                <div class="sa-p-row"><div style="display:flex;align-items:center;"><div class="sa-p-av">A</div><div><div class="sa-p-name">Ana G.</div><div class="sa-p-meta">ayer</div></div></div><span class="sa-stamp-paid">Pagado</span></div>
+                <div class="sa-p-row"><div style="display:flex;align-items:center;"><div class="sa-p-av" style="background:#FBF0E0;color:#B07A40;">P</div><div><div class="sa-p-name">Pablo R.</div><div class="sa-p-meta">hoy</div></div></div><span class="sa-stamp-pend">Pendiente</span></div>
+              </div>
+            </div>
+            <div class="sa-bottom"><button class="sa-btn sa-btn-primary" style="margin:0;">Registrar mi pago</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STYLE B — MIDNIGHT FINANCE ═══ -->
+  <div class="style-section midnight">
+    <div class="style-header">
+      <div class="style-title">Style B — Midnight Finance</div>
+      <div class="style-desc">Premium · Dark navy · Gold · Plus Jakarta Sans — como N26, Revolut, Monzo</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#070D1A;"></div><div class="cl">#070D1A<br>Navy</div></div>
+        <div class="chip"><div class="sw" style="background:#0D1A2E;"></div><div class="cl">#0D1A2E<br>Card</div></div>
+        <div class="chip"><div class="sw" style="background:#C9A84C;"></div><div class="cl">#C9A84C<br>Gold</div></div>
+        <div class="chip"><div class="sw" style="background:#4A9EFF;"></div><div class="cl">#4A9EFF<br>Blue</div></div>
+        <div class="chip"><div class="sw" style="background:#E8F0FE;border:1px solid rgba(255,255,255,.1);"></div><div class="cl">#E8F0FE<br>Text</div></div>
+        <div class="chip"><div class="sw" style="background:#34D399;"></div><div class="cl">#34D399<br>Green</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#070D1A;"></div>
+          <div class="scr">
+            <div class="mf-hero">
+              <div class="mf-greeting">Tu colecta · Sin registro</div>
+              <h1 class="mf-title">Organiza tu<br><span>colecta.</span></h1>
+              <p class="mf-sub">Un código. Todos pagan. Vos controlás.<br>Asados, viajes, regalos — así de simple.</p>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="mf-btn mf-btn-primary">Crear una colecta →</button>
+                <button class="mf-btn mf-btn-secondary">Ingresar con código</button>
+              </div>
+            </div>
+            <div style="padding:0 22px 32px;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:#4A6B8A;text-align:center;margin:16px 0;">Cómo funciona</div>
+              <div class="mf-hiw-step"><div class="mf-hiw-num">1</div><div><div class="mf-hiw-lbl">Crea la colecta</div><div class="mf-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div class="mf-hiw-step"><div class="mf-hiw-num">2</div><div><div class="mf-hiw-lbl">Comparte el código</div><div class="mf-hiw-det">Cada participante registra su pago.</div></div></div>
+              <div class="mf-hiw-step" style="margin-bottom:0;"><div class="mf-hiw-num">3</div><div><div class="mf-hiw-lbl">Confirma los pagos</div><div class="mf-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#070D1A;"></div>
+          <div class="scr">
+            <div class="mf-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="mf-mark">C</div><span class="mf-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="mf-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:#E8F0FE;margin-bottom:4px;">Mis Colectas</div>
+              <div style="font-size:11px;color:#4A6B8A;margin-bottom:16px;font-family:'Space Grotesk',monospace;text-transform:uppercase;letter-spacing:1px;">3 activas</div>
+              <div class="mf-card"><div class="mf-strip"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="mf-card-inner"><div><div class="mf-card-name">Asado del sábado 🔥</div><div class="mf-card-desc">Parque Los Dominicos</div></div><span class="mf-badge-on">ACTIVA</span></div><div class="mf-card-foot"><div class="mf-meta">8 px · ABX72K</div><div class="mf-amt">$4.500/px</div></div></div>
+              <div class="mf-card"><div class="mf-strip" style="background:linear-gradient(90deg,#4A9EFF,#C9A84C);"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="mf-card-inner"><div><div class="mf-card-name">Viaje a Mendoza ✈️</div><div class="mf-card-desc">Grupo 6 personas</div></div><span class="mf-badge-on">ACTIVA</span></div><div class="mf-card-foot"><div class="mf-meta">6 px · MZK91R</div><div class="mf-amt">$85.000/px</div></div></div>
+              <div class="mf-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="mf-card-inner"><div><div class="mf-card-name">Regalo de Mati 🎁</div></div><span class="mf-badge-off">CERRADA</span></div><div class="mf-card-foot"><div class="mf-meta">12 px · GT44PP</div><div class="mf-amt" style="color:#4A6B8A;">$180.000</div></div></div>
+            </div>
+            <div class="mf-bottom"><button class="mf-btn mf-btn-primary" style="margin:0;">+ Nueva colecta</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#070D1A;"></div>
+          <div class="scr">
+            <div class="mf-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="mf-mark">C</div><span class="mf-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="mf-icon">☀</div><div class="mf-icon" style="font-size:11px;">⚙</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="mf-voucher">
+                <div class="mf-v-top"><div class="mf-v-kicker">Colecta activa</div><div class="mf-v-name">Asado del sábado 🔥</div><div class="mf-v-date">14 de junio, 2025 · Parque Los Dominicos</div></div>
+                <div class="mf-v-body">
+                  <div class="mf-amount"><div class="mf-amt-label">Cuota por persona</div><div class="mf-amt-val"><span class="mf-amt-cur">$</span>4.500</div></div>
+                  <div class="mf-stats"><div class="mf-stat"><div class="mf-stat-val">8</div><div class="mf-stat-lbl">Personas</div></div><div class="mf-stat"><div class="mf-stat-val">6</div><div class="mf-stat-lbl">Pagaron</div></div><div class="mf-stat"><div class="mf-stat-val gold">$36k</div><div class="mf-stat-lbl">Total</div></div></div>
+                  <div><div class="mf-prog-row"><span class="mf-prog-lbl">Progreso</span><span class="mf-prog-lbl">75%</span></div><div class="mf-prog-bg"><div class="mf-prog" style="width:75%;"></div></div></div>
+                  <div class="mf-code"><div class="mf-code-lbl">Código de acceso</div><div class="mf-code-val">ABX72K</div></div>
+                </div>
+              </div>
+              <div class="mf-tabs"><div class="mf-tab mf-tab-on">Participantes</div><div class="mf-tab">Info</div><div class="mf-tab">Facturas</div></div>
+              <div>
+                <div class="mf-p-row"><div style="display:flex;align-items:center;"><div class="mf-p-av">C</div><div><div class="mf-p-name">Carlos M.</div><div class="mf-p-meta">hace 2 días</div></div></div><span class="mf-badge-paid">✓ Pagó</span></div>
+                <div class="mf-p-row"><div style="display:flex;align-items:center;"><div class="mf-p-av">A</div><div><div class="mf-p-name">Ana G.</div><div class="mf-p-meta">ayer</div></div></div><span class="mf-badge-paid">✓ Pagó</span></div>
+                <div class="mf-p-row"><div style="display:flex;align-items:center;"><div class="mf-p-av" style="color:#C9A84C;">P</div><div><div class="mf-p-name">Pablo R.</div><div class="mf-p-meta">hoy</div></div></div><span class="mf-badge-pend">⏳ Pend.</span></div>
+              </div>
+            </div>
+            <div class="mf-bottom"><button class="mf-btn mf-btn-primary" style="margin:0;">Registrar mi pago →</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STYLE C — CANDY POP ═══ -->
+  <div class="style-section candy">
+    <div class="style-header">
+      <div class="style-title">Style C — Candy Pop</div>
+      <div class="style-desc">Gen-Z · Vibrant · Bold · Fredoka — como Duolingo, BeReal o Locket</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#1A0A2E;"></div><div class="cl">#1A0A2E<br>Purple bg</div></div>
+        <div class="chip"><div class="sw" style="background:#FF6B9D;"></div><div class="cl">#FF6B9D<br>Pink</div></div>
+        <div class="chip"><div class="sw" style="background:#9B5DE5;"></div><div class="cl">#9B5DE5<br>Purple</div></div>
+        <div class="chip"><div class="sw" style="background:#00F5D4;"></div><div class="cl">#00F5D4<br>Mint</div></div>
+        <div class="chip"><div class="sw" style="background:#FEE440;"></div><div class="cl">#FEE440<br>Yellow</div></div>
+        <div class="chip"><div class="sw" style="background:#8A7AAA;"></div><div class="cl">#8A7AAA<br>Muted</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A0A2E;"></div>
+          <div class="scr">
+            <div class="cp-hero">
+              <div class="cp-eyebrow">✨ Para grupos · Sin registro</div>
+              <h1 class="cp-title">Organiza<br>tu <em>colecta!</em></h1>
+              <p class="cp-sub">Un código. Todos pagan. Vos controlás. Asados, viajes, regalos 🎉</p>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="cp-btn cp-btn-primary">✏️ Crear una colecta</button>
+                <button class="cp-btn cp-btn-mint">🔑 Ingresar con código</button>
+              </div>
+            </div>
+            <div style="padding:0 22px 32px;">
+              <div style="text-align:center;font-family:'Fredoka',sans-serif;font-size:18px;font-weight:600;color:#8A7AAA;margin:8px 0 20px;">¿Cómo funciona?</div>
+              <div class="cp-hiw-step"><div class="cp-hiw-num" style="background:linear-gradient(135deg,#9B5DE5,#FF6B9D);">1</div><div><div class="cp-hiw-lbl">Crea la colecta</div><div class="cp-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div class="cp-hiw-step"><div class="cp-hiw-num" style="background:linear-gradient(135deg,#00F5D4,#00B8AA);">2</div><div><div class="cp-hiw-lbl">Comparte el código</div><div class="cp-hiw-det">Cada participante registra su pago.</div></div></div>
+              <div class="cp-hiw-step" style="margin-bottom:0;"><div class="cp-hiw-num" style="background:linear-gradient(135deg,#FEE440,#FF6B35);">3</div><div><div class="cp-hiw-lbl">Confirma los pagos</div><div class="cp-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A0A2E;"></div>
+          <div class="scr">
+            <div class="cp-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="cp-mark">C</div><span class="cp-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="cp-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div style="font-family:'Fredoka',sans-serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;">Mis Colectas 🎯</div>
+              <div style="font-size:12px;color:#8A7AAA;margin-bottom:16px;">3 colectas creadas</div>
+              <div class="cp-card"><div class="cp-stripe" style="background:linear-gradient(90deg,#FF6B9D,#9B5DE5);height:3px;"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="cp-card-inner"><div><div class="cp-card-name">Asado del sábado 🔥</div><div class="cp-card-desc">Parque Los Dominicos</div></div><span class="cp-badge-on">Activa</span></div><div class="cp-card-foot"><div class="cp-meta">8 px · ABX72K</div><div class="cp-amt">$4.500/px</div></div></div>
+              <div class="cp-card"><div class="cp-stripe" style="background:linear-gradient(90deg,#00F5D4,#9B5DE5);height:3px;"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="cp-card-inner"><div><div class="cp-card-name">Viaje a Mendoza ✈️</div><div class="cp-card-desc">Grupo 6 personas</div></div><span class="cp-badge-on">Activa</span></div><div class="cp-card-foot"><div class="cp-meta">6 px · MZK91R</div><div class="cp-amt">$85.000/px</div></div></div>
+              <div class="cp-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="cp-card-inner"><div><div class="cp-card-name">Regalo de Mati 🎁</div></div><span class="cp-badge-off">Cerrada</span></div><div class="cp-card-foot"><div class="cp-meta">12 px · GT44PP</div><div class="cp-amt" style="color:#8A7AAA;">$180.000</div></div></div>
+            </div>
+            <div class="cp-bottom"><button class="cp-btn cp-btn-primary" style="margin:0;">🎉 Nueva colecta</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#1A0A2E;"></div>
+          <div class="scr">
+            <div class="cp-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="cp-mark">C</div><span class="cp-name">Colecta</span></div>
+              <div style="display:flex;gap:8px;"><div class="cp-icon">☀</div><div class="cp-icon">⚙️</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="cp-voucher">
+                <div class="cp-v-top"><div class="cp-v-label">Colecta activa</div><div class="cp-v-name">Asado del sábado 🔥</div><div class="cp-v-date">📅 14 junio 2025 · Parque Los Dominicos</div></div>
+                <div class="cp-v-body">
+                  <div class="cp-amount"><div class="cp-amt-label">Cuota por persona</div><div class="cp-amt-val"><span class="cp-amt-cur">$</span>4.500</div></div>
+                  <div class="cp-tear"><div class="cp-tear-hole"></div><div class="cp-tear-dash"></div><div class="cp-tear-hole"></div></div>
+                  <div class="cp-stats" style="margin-top:12px;"><div class="cp-stat"><div class="cp-stat-val">8</div><div class="cp-stat-lbl">Personas</div></div><div class="cp-stat"><div class="cp-stat-val">6</div><div class="cp-stat-lbl">Pagaron</div></div><div class="cp-stat"><div class="cp-stat-val yellow">$36k</div><div class="cp-stat-lbl">Total</div></div></div>
+                  <div style="margin:10px 0;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:#8A7AAA;">Progreso</span><span style="font-size:11px;font-weight:700;color:#FF6B9D;">75%</span></div><div class="cp-prog-bg"><div class="cp-prog" style="width:75%;"></div></div></div>
+                  <div class="cp-code"><div class="cp-code-lbl">Código de acceso</div><div class="cp-code-val">ABX72K</div></div>
+                </div>
+              </div>
+              <div class="cp-tabs"><div class="cp-tab cp-tab-on">Participantes</div><div class="cp-tab">Info</div><div class="cp-tab">Facturas</div></div>
+              <div>
+                <div class="cp-p-row"><div style="display:flex;align-items:center;"><div class="cp-p-av" style="background:linear-gradient(135deg,#9B5DE5,#FF6B9D);">C</div><div><div class="cp-p-name">Carlos M.</div><div class="cp-p-meta">hace 2 días</div></div></div><span class="cp-stamp-paid">✓ Pagado</span></div>
+                <div class="cp-p-row"><div style="display:flex;align-items:center;"><div class="cp-p-av" style="background:linear-gradient(135deg,#00F5D4,#00B8AA);color:#1A0A2E;">A</div><div><div class="cp-p-name">Ana G.</div><div class="cp-p-meta">ayer</div></div></div><span class="cp-stamp-paid">✓ Pagado</span></div>
+                <div class="cp-p-row"><div style="display:flex;align-items:center;"><div class="cp-p-av" style="background:linear-gradient(135deg,#FEE440,#FF6B35);color:#1A0A2E;">P</div><div><div class="cp-p-name">Pablo R.</div><div class="cp-p-meta">hoy</div></div></div><span class="cp-stamp-pend">⏳ Pendiente</span></div>
+              </div>
+            </div>
+            <div class="cp-bottom"><button class="cp-btn cp-btn-primary" style="margin:0;">💸 Registrar mi pago</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STYLE D — BAUHAUS BRUTALIST ═══ -->
+  <div class="style-section brutal">
+    <div class="style-header">
+      <div class="style-title">Style D — Bauhaus Brutalist</div>
+      <div class="style-desc">Raw · Bold · Geometric · Bebas Neue + Space Grotesk — como una cartelera constructivista</div>
+      <div class="palette">
+        <div class="chip"><div class="sw" style="background:#FFFCE8;border:1px solid #E5E0C0;"></div><div class="cl">#FFFCE8<br>Cream</div></div>
+        <div class="chip"><div class="sw" style="background:#000000;"></div><div class="cl">#000000<br>Black</div></div>
+        <div class="chip"><div class="sw" style="background:#FF2400;"></div><div class="cl">#FF2400<br>Scarlet</div></div>
+        <div class="chip"><div class="sw" style="background:#E8C84C;"></div><div class="cl">#E8C84C<br>Gold</div></div>
+        <div class="chip"><div class="sw" style="background:#0047AB;"></div><div class="cl">#0047AB<br>Cobalt</div></div>
+        <div class="chip"><div class="sw" style="background:#2D6A4F;"></div><div class="cl">#2D6A4F<br>Forest</div></div>
+      </div>
+    </div>
+    <div class="grid">
+
+      <!-- Landing -->
+      <div class="screen-wrap">
+        <div class="screen-label">Inicio</div>
+        <div class="screen-route">/</div>
+        <div class="phone">
+          <div class="notch" style="background:#000;"></div>
+          <div class="scr">
+            <div class="br-hero">
+              <div class="br-rule"></div>
+              <div style="background:#FF2400;padding:4px 0 2px;margin:0 -22px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:6px;color:#FFFCE8;margin-bottom:16px;">PARA GRUPOS · SIN REGISTRO</div>
+              <div class="br-title">ORGANIZA<br>TU <em>COLECTA.</em></div>
+              <div class="br-rule-red"></div>
+              <p class="br-sub">Un código. Todos pagan. Vos controlás. Asados, viajes, regalos — así de simple.</p>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="br-btn br-btn-primary">CREAR COLECTA</button>
+                <button class="br-btn br-btn-yellow">INGRESAR CÓDIGO</button>
+              </div>
+              <div class="br-rule" style="margin-top:28px;"></div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#999;margin:14px 0 12px;">CÓMO FUNCIONA</div>
+              <div class="br-hiw-step"><div class="br-hiw-num">01</div><div><div class="br-hiw-lbl">CREA LA COLECTA</div><div class="br-hiw-det">Un nombre, la cuota y un PIN tuyo.</div></div></div>
+              <div style="height:2px;background:#eee;margin:8px 0;"></div>
+              <div class="br-hiw-step"><div class="br-hiw-num" style="background:#FF2400;">02</div><div><div class="br-hiw-lbl">COMPARTE EL CÓDIGO</div><div class="br-hiw-det">Cada uno registra su pago.</div></div></div>
+              <div style="height:2px;background:#eee;margin:8px 0;"></div>
+              <div class="br-hiw-step" style="margin-bottom:0;"><div class="br-hiw-num" style="background:#E8C84C;color:#000;">03</div><div><div class="br-hiw-lbl">CONFIRMA LOS PAGOS</div><div class="br-hiw-det">Revisás comprobantes en tiempo real.</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen-label">Mis Colectas</div>
+        <div class="screen-route">/dashboard</div>
+        <div class="phone">
+          <div class="notch" style="background:#000;"></div>
+          <div class="scr">
+            <div class="br-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="br-mark">C</div><span class="br-name">COLECTA</span></div>
+              <div style="display:flex;gap:8px;"><div class="br-icon">☀</div></div>
+            </div>
+            <div style="padding:18px 18px 80px;">
+              <div class="br-rule"></div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#000;margin:10px 0 4px;">MIS COLECTAS</div>
+              <div style="font-family:'Space Grotesk',monospace;font-size:10px;color:#999;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">3 ACTIVAS</div>
+              <div class="br-card"><div class="br-strip" style="background:#FF2400;height:4px;"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="br-card-inner"><div><div class="br-card-name">ASADO DEL SÁBADO</div><div class="br-card-desc">Parque Los Dominicos</div></div><span class="br-badge-on">ACTIVA</span></div><div class="br-card-foot"><div class="br-meta">8 PX · ABX72K</div><div class="br-amt">$4.500/PX</div></div></div>
+              <div class="br-card"><div class="br-strip" style="background:#0047AB;height:4px;"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="br-card-inner"><div><div class="br-card-name">VIAJE A MENDOZA</div><div class="br-card-desc">Grupo 6 personas</div></div><span class="br-badge-on">ACTIVA</span></div><div class="br-card-foot"><div class="br-meta">6 PX · MZK91R</div><div class="br-amt">$85.000/PX</div></div></div>
+              <div class="br-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;" class="br-card-inner"><div><div class="br-card-name">REGALO DE MATI</div></div><span class="br-badge-off">CERRADA</span></div><div class="br-card-foot"><div class="br-meta">12 PX · GT44PP</div><div class="br-amt" style="color:#999;">$180.000</div></div></div>
+            </div>
+            <div class="br-bottom"><button class="br-btn br-btn-primary" style="margin:0;box-shadow:4px 4px 0 #000;">+ NUEVA COLECTA</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="screen-wrap">
+        <div class="screen-label">Vista Evento</div>
+        <div class="screen-route">/evento/[slug]</div>
+        <div class="phone">
+          <div class="notch" style="background:#000;"></div>
+          <div class="scr">
+            <div class="br-hdr">
+              <div style="display:flex;align-items:center;gap:8px;"><div class="br-mark">C</div><span class="br-name">COLECTA</span></div>
+              <div style="display:flex;gap:8px;"><div class="br-icon">☀</div><div class="br-icon">⚙</div></div>
+            </div>
+            <div style="padding:12px 14px 80px;">
+              <div class="br-voucher">
+                <div class="br-v-top"><div class="br-v-label">COLECTA ACTIVA</div><div class="br-v-name">ASADO DEL SÁBADO 🔥</div><div class="br-v-date">14 DE JUNIO, 2025 · PARQUE LOS DOMINICOS</div></div>
+                <div class="br-v-body">
+                  <div class="br-amount"><div class="br-amt-label">CUOTA POR PERSONA</div><div class="br-amt-val"><span>$</span>4.500</div></div>
+                  <div class="br-stats"><div class="br-stat"><div class="br-stat-val">8</div><div class="br-stat-lbl">PERSONAS</div></div><div class="br-stat"><div class="br-stat-val">6</div><div class="br-stat-lbl">PAGARON</div></div><div class="br-stat"><div class="br-stat-val red">$36k</div><div class="br-stat-lbl">TOTAL</div></div></div>
+                  <div><div class="br-prog-row"><span class="br-prog-lbl">PROGRESO</span><span class="br-prog-lbl">75%</span></div><div class="br-prog-bg"><div class="br-prog" style="width:75%;height:6px;"></div></div></div>
+                  <div class="br-code"><div class="br-code-lbl">CÓDIGO DE ACCESO</div><div class="br-code-val">ABX72K</div></div>
+                </div>
+              </div>
+              <div class="br-tabs"><div class="br-tab br-tab-on">PARTICIPANTES</div><div class="br-tab">INFO</div><div class="br-tab">FACTURAS</div></div>
+              <div style="padding:0 2px;">
+                <div class="br-p-row"><div style="display:flex;align-items:center;"><div class="br-p-av">C</div><div><div class="br-p-name">CARLOS M.</div><div class="br-p-meta">hace 2 días</div></div></div><span class="br-stamp-paid">PAGADO</span></div>
+                <div class="br-p-row"><div style="display:flex;align-items:center;"><div class="br-p-av">A</div><div><div class="br-p-name">ANA G.</div><div class="br-p-meta">ayer</div></div></div><span class="br-stamp-paid">PAGADO</span></div>
+                <div class="br-p-row"><div style="display:flex;align-items:center;"><div class="br-p-av" style="border-color:#FF2400;">P</div><div><div class="br-p-name">PABLO R.</div><div class="br-p-meta">hoy</div></div></div><span class="br-stamp-pend">PENDIENTE</span></div>
+              </div>
+            </div>
+            <div class="br-bottom"><button class="br-btn br-btn-primary" style="margin:0;box-shadow:4px 4px 0 #000;">REGISTRAR MI PAGO</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

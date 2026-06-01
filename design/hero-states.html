@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hero Card — Estados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Patrick Hand', cursive;
+      background-color: #fdfbf7;
+      background-image: radial-gradient(#e5e0d8 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: #2d2d2d;
+      padding: 32px 20px;
+    }
+
+    h1 { font-family: 'Kalam', cursive; font-size: 28px; margin-bottom: 8px; }
+    .subtitle { color: #666; font-size: 15px; margin-bottom: 40px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .scenario { }
+    .scenario-label {
+      font-family: 'Kalam', cursive;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #2d2d2d;
+    }
+    .scenario-label .tag {
+      display: inline-block;
+      background: #fff9c4;
+      border: 2px solid #2d2d2d;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 2px 2px 0 #2d2d2d;
+      border-radius: 4px 2px 4px 2px / 2px 4px 2px 4px;
+      margin-left: 6px;
+    }
+
+    /* Hero Card */
+    .card {
+      border: 2px solid #2d2d2d;
+      background: white;
+      box-shadow: 4px 4px 0 #2d2d2d;
+      border-radius: 30px 8px 28px 6px / 6px 28px 8px 30px;
+      overflow: hidden;
+    }
+
+    /* Row 1: name */
+    .card-header {
+      padding: 16px 16px 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-header h2 {
+      font-family: 'Kalam', cursive;
+      font-size: 26px;
+      font-weight: 700;
+      color: #2d2d2d;
+      line-height: 1.1;
+    }
+    .card-header .meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 3px;
+    }
+    .btn-edit {
+      flex-shrink: 0;
+      border: 2px solid #2d2d2d;
+      background: #fdfbf7;
+      padding: 4px 10px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      box-shadow: 2px 2px 0 #2d2d2d;
+      cursor: pointer;
+      border-radius: 25px 6px 22px 6px / 6px 22px 6px 25px;
+    }
+
+    /* Row 2: metrics */
+    .card-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-top: 2px solid #2d2d2d;
+    }
+    .metric {
+      padding: 10px 12px;
+      text-align: center;
+      border-right: 2px solid #2d2d2d;
+    }
+    .metric:last-child { border-right: none; }
+    .metric-label {
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+    .metric-value {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .red   { color: #ff4d4d; }
+    .green { color: #22c55e; }
+    .gray  { color: #2d2d2d; }
+
+    /* Row 3: progress + participants */
+    .card-bottom {
+      border-top: 2px solid #2d2d2d;
+      padding: 10px 14px;
+    }
+
+    /* Progress bar */
+    .progress-row {
+      margin-bottom: 8px;
+    }
+    .progress-meta {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .progress-track {
+      height: 14px;
+      border: 2px solid #2d2d2d;
+      background: white;
+      overflow: hidden;
+      border-radius: 25px 6px 22px 6px / 6px 22px 6px 25px;
+      display: flex;
+    }
+    .progress-fill-green { background: #22c55e; transition: width .4s; }
+    .progress-fill-yellow { background: rgba(245, 158, 11, 0.5); transition: width .4s; }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 6px;
+      gap: 4px;
+      text-align: center;
+    }
+    .empty-state .icon { font-size: 28px; }
+    .empty-state .title {
+      font-family: 'Kalam', cursive;
+      font-size: 14px;
+      font-weight: 700;
+      color: #2d2d2d;
+    }
+    .empty-state .hint { font-size: 11px; color: #666; line-height: 1.5; }
+    .code { font-family: monospace; font-weight: 700; color: #ff4d4d; }
+
+    /* Dots */
+    .participants-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2px;
+    }
+    .dots { display: flex; align-items: center; gap: 3px; }
+    .dot {
+      width: 12px; height: 12px;
+      border: 1px solid rgba(45,45,45,0.5);
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .dot-confirmed { background: #22c55e; }
+    .dot-pending   { background: rgba(245,158,11,0.55); }
+    .dot-empty     { background: #e5e0d8; }
+    .participants-count { font-size: 11px; font-weight: 700; color: #2d2d2d; }
+    .participants-count .pending { color: #d97706; }
+    .participants-count .muted { font-weight: 400; color: #666; }
+
+    /* Badge (no expected) */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 2px solid #2d2d2d;
+      background: #e5e0d8;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 2px 2px 0 #2d2d2d;
+      border-radius: 25px 6px 22px 6px / 6px 22px 6px 25px;
+    }
+    .badge .dot-sm {
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      border: 1px solid rgba(45,45,45,0.4);
+      background: #22c55e;
+    }
+    .badge .pending { color: #d97706; }
+
+    .justify-end { display: flex; justify-content: flex-end; }
+
+    .section-title {
+      font-family: 'Kalam', cursive;
+      font-size: 22px;
+      margin: 48px 0 6px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .section-desc {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 20px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div style="max-width:960px;margin:0 auto">
+    <h1>🃏 Hero Card — Simulador de estados</h1>
+    <p class="subtitle">4 combinaciones: con/sin número de participantes × con/sin pagos</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECCIÓN A: CON total_amount + amount_per_person -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <p class="section-title">A — Con total colecta y cuota definidos</p>
+  <p class="section-desc">
+    <code>total_amount = $10.000 · amount_per_person = $3.333 · expectedParticipants = 3</code><br>
+    Se muestra la barra de progreso y los puntitos de participantes.
+  </p>
+
+  <div class="grid">
+
+    <!-- A1: sin pagos -->
+    <div class="scenario">
+      <div class="scenario-label">A1 — Sin pagos <span class="tag">Empty state</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Asado del sábado</h2>
+            <div class="meta">Parque los caobos · 📅 1 jun 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value red">$10.000</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value gray">$3.333</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="progress-row">
+            <div class="progress-meta" style="color:#666">0% recaudado</div>
+            <div class="progress-track">
+              <div class="progress-fill-green" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="icon">🫙</div>
+            <div class="title">Aún nadie pagó la colecta</div>
+            <div class="hint">Comparte el código <span class="code">ABC123</span> para que los participantes registren sus pagos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A2: con pagos -->
+    <div class="scenario">
+      <div class="scenario-label">A2 — Con pagos <span class="tag">Activo</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Asado del sábado</h2>
+            <div class="meta">Parque los caobos · 📅 1 jun 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value red">$10.000</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$6.666</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value gray">$3.333</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="progress-row">
+            <div class="progress-meta">
+              <span style="color:#22c55e">67% confirmado</span>
+              <span style="color:#666"> · </span>
+              <span style="color:#d97706">17% pendiente</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill-green" style="width:67%"></div>
+              <div class="progress-fill-yellow" style="width:17%"></div>
+            </div>
+          </div>
+          <div class="justify-end" style="padding-top:4px">
+            <div class="badge">
+              <span class="dot-sm"></span>
+              2 pagaron
+              <span class="pending"> · +1 pendiente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECCIÓN B: SOLO cuota por persona, sin total   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <p class="section-title" style="margin-top:48px">B — Solo cuota por persona (sin total)</p>
+  <p class="section-desc">
+    <code>total_amount = null · amount_per_person = $3.333 · expectedParticipants = null</code><br>
+    Sin barra de progreso. Se muestra badge de texto simple o estado vacío.
+  </p>
+
+  <div class="grid">
+
+    <!-- B1: sin pagos -->
+    <div class="scenario">
+      <div class="scenario-label">B1 — Sin pagos <span class="tag">Empty state</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Regalo de cumpleaños</h2>
+            <div class="meta">📅 1 jun 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value" style="color:#bbb">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value gray">$3.333</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <!-- Sin barra (no hay total_amount) -->
+          <div class="empty-state">
+            <div class="icon">🫙</div>
+            <div class="title">Aún nadie pagó la colecta</div>
+            <div class="hint">Comparte el código <span class="code">XYZ789</span> para que los participantes registren sus pagos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2: con pagos -->
+    <div class="scenario">
+      <div class="scenario-label">B2 — Con pagos <span class="tag">Activo</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Regalo de cumpleaños</h2>
+            <div class="meta">📅 1 jun 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value" style="color:#bbb">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$9.999</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value gray">$3.333</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <!-- Sin barra de progreso porque no hay total_amount -->
+          <div class="justify-end" style="padding-top:4px">
+            <div class="badge">
+              <span class="dot-sm"></span>
+              3 pagaron
+              <span class="pending"> · +1 pendiente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECCIÓN C: SOLO total, sin cuota               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <p class="section-title" style="margin-top:48px">C — Solo total, sin cuota por persona</p>
+  <p class="section-desc">
+    <code>total_amount = $30.000 · amount_per_person = null · expectedParticipants = null</code><br>
+    Barra de progreso visible pero sin puntitos de participantes.
+  </p>
+
+  <div class="grid">
+
+    <!-- C1: sin pagos -->
+    <div class="scenario">
+      <div class="scenario-label">C1 — Sin pagos <span class="tag">Empty state</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Viaje a la playa</h2>
+            <div class="meta">📅 15 jul 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value red">$30.000</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value" style="color:#bbb">—</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="progress-row">
+            <div class="progress-meta" style="color:#666">0% recaudado</div>
+            <div class="progress-track">
+              <div class="progress-fill-green" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="icon">🫙</div>
+            <div class="title">Aún nadie pagó la colecta</div>
+            <div class="hint">Comparte el código <span class="code">VJK441</span> para que los participantes registren sus pagos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C2: con pagos -->
+    <div class="scenario">
+      <div class="scenario-label">C2 — Con pagos <span class="tag">Activo</span></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Viaje a la playa</h2>
+            <div class="meta">📅 15 jul 2026</div>
+          </div>
+          <button class="btn-edit">✏ Editar</button>
+        </div>
+        <div class="card-metrics">
+          <div class="metric">
+            <div class="metric-label red">Total colecta</div>
+            <div class="metric-value red">$30.000</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label green">Recaudado</div>
+            <div class="metric-value green">$20.000</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label gray">Cuota x persona</div>
+            <div class="metric-value" style="color:#bbb">—</div>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="progress-row">
+            <div class="progress-meta">
+              <span style="color:#22c55e">67% confirmado</span>
+              <span style="color:#666"> · </span>
+              <span style="color:#d97706">10% pendiente</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill-green" style="width:67%"></div>
+              <div class="progress-fill-yellow" style="width:10%"></div>
+            </div>
+          </div>
+          <div class="justify-end" style="padding-top:4px">
+            <div class="badge">
+              <span class="dot-sm"></span>
+              4 pagaron
+              <span class="pending"> · +1 pendiente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height:60px"></div>
+
+</body>
+</html>

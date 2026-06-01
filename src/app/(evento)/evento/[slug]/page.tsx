@@ -624,46 +624,18 @@ export default function EventoPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex items-center justify-between pt-0.5">
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const total = expectedParticipants ?? (totalParticipants > 0 ? totalParticipants : null);
-                    const dots = total ? Math.min(total, 12) : Math.min(totalParticipants, 12);
-                    return (
-                      <div className="flex items-center gap-0.5">
-                        {Array.from({ length: dots }).map((_, i) => {
-                          const confirmed = i < confirmedCount;
-                          const pending = !confirmed && i < confirmedCount + pendingCount;
-                          return (
-                            <span
-                              key={i}
-                              className={`inline-block h-3 w-3 border border-foreground/60 transition-colors ${
-                                confirmed ? "bg-success" : pending ? "bg-warning/60" : "bg-secondary"
-                              }`}
-                              style={{ borderRadius: "3px" }}
-                            />
-                          );
-                        })}
-                        {total && total > 12 && <span className="ml-1 text-[10px] text-muted-foreground">+{total - 12}</span>}
-                      </div>
-                    );
-                  })()}
-                </div>
-                <span className="text-xs font-bold text-foreground">
-                  {expectedParticipants ? (
-                    <>
-                      {confirmedCount > 0
-                        ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>}</>
-                        : pendingCount > 0 && <span className="text-warning">+{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
-                      }
-                      {" "}<span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron
-                    </>
-                  ) : (
-                    confirmedCount > 0
-                      ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
-                      : pendingCount > 0 && <span className="text-warning">+{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
+              <div className="flex justify-end pt-1">
+                <div className="inline-flex items-center gap-1.5 border-2 border-foreground bg-secondary px-3 py-1 text-xs font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d]" style={{ borderRadius: "20px 6px 18px 4px / 4px 18px 6px 20px" }}>
+                  <span className="h-2 w-2 rounded-full bg-success shrink-0" />
+                  {confirmedCount > 0 && (
+                    <span>{confirmedCount} {confirmedCount === 1 ? "pagado" : "pagados"}</span>
                   )}
-                </span>
+                  {pendingCount > 0 && (
+                    <span className="text-warning">
+                      {confirmedCount > 0 ? " · " : ""}{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
