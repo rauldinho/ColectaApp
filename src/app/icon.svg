@@ -1,32 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" fill="none">
-  <!-- Hard offset shadow -->
+  <!-- Red circle with dark border -->
+  <circle cx="36" cy="36" r="34" fill="#ff5252" stroke="#2d2d2d" stroke-width="2"/>
+  <!-- Bold white C -->
   <path
-    d="M38 7C54 6 70 20 70 38C71 55 56 70 38 70C20 71 5 56 6 38C5 20 21 8 38 7Z"
-    fill="#2d2d2d"
-  />
-  <!-- Wobbly red circle -->
-  <path
-    d="M35 4C51 3 67 18 67 36C68 53 53 68 35 68C17 69 2 54 3 36C2 18 18 5 35 4Z"
-    fill="#ff4d4d"
-    stroke="#2d2d2d"
-    stroke-width="2.5"
-  />
-  <!-- C shadow depth -->
-  <path
-    d="M51 28C48 23 43 19.5 37 19.5C27.3 19.5 19.5 27.3 19.5 37C19.5 46.7 27.3 54.5 37 54.5C43 54.5 48 51 51 46"
-    stroke="#2d2d2d"
-    stroke-width="9"
-    stroke-linecap="round"
-    fill="none"
-  />
-  <!-- C white -->
-  <path
-    d="M51 28C48 23 43 19.5 37 19.5C27.3 19.5 19.5 27.3 19.5 37C19.5 46.7 27.3 54.5 37 54.5C43 54.5 48 51 51 46"
+    d="M52 24C48.5 19.5 42.6 16.5 36 16.5C23 16.5 12.5 25.8 12.5 37C12.5 48.2 23 57.5 36 57.5C42.6 57.5 48.5 54.5 52 50"
     stroke="white"
-    stroke-width="7"
+    stroke-width="11"
     stroke-linecap="round"
     fill="none"
   />
-  <!-- Blue accent dot -->
-  <circle cx="51" cy="28" r="3" fill="#2d5da1" stroke="#2d2d2d" stroke-width="1.5"/>
 </svg>
