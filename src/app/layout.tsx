@@ -43,7 +43,25 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className={`${patrickHand.variable} ${kalam.variable} ${patrickHand.className}`}>
         {children}
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-center"
+          gap={8}
+          toastOptions={{
+            classNames: {
+              toast:
+                "!border-2 !border-[#2d2d2d] !bg-white !shadow-[4px_4px_0px_0px_#2d2d2d] !text-[#2d2d2d] !font-sans",
+              title: "!font-bold !text-[#2d2d2d]",
+              description: "!text-sm",
+              icon: "!text-[#2d2d2d]",
+              error: "!border-[#ff4d4d] !bg-[#fff0f0]",
+              success: "!border-[#2d2d2d]",
+              warning: "!border-[#2d2d2d]",
+            },
+            style: {
+              borderRadius: "30px 8px 28px 6px / 6px 28px 8px 30px",
+            },
+          }}
+        />
       </body>
     </html>
   );
