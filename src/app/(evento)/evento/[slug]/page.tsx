@@ -2067,8 +2067,8 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
           </div>
         </div>
         {existingInfo.account_holder && <InfoRow label="Titular" value={existingInfo.account_holder} />}
-        {existingInfo.bank_name && <InfoRow label="Banco" value={existingInfo.bank_name} />}
-        {existingInfo.account_type && <InfoRow label="Tipo de cuenta" value={existingInfo.account_type} />}
+        {existingInfo.bank_name && <InfoRow label="Banco" value={existingInfo.bank_name} copyable={false} />}
+        {existingInfo.account_type && <InfoRow label="Tipo de cuenta" value={existingInfo.account_type} copyable={false} />}
         {existingInfo.account_number && <InfoRow label="N° de cuenta" value={existingInfo.account_number} />}
         {existingInfo.rut && <InfoRow label="RUT / DNI" value={existingInfo.rut} />}
         {existingInfo.email && <InfoRow label="Email" value={existingInfo.email} />}
@@ -2186,13 +2186,22 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value, copyable = true }: { label: string; value: string; copyable?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
     navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (!copyable) {
+    return (
+      <div className="flex items-center justify-between py-2 border-b-2 border-dashed border-foreground/20 last:border-0">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className="text-sm font-bold text-foreground">{value}</span>
+      </div>
+    );
   }
 
   return (
