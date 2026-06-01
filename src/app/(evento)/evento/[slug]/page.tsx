@@ -650,10 +650,19 @@ export default function EventoPage() {
                   })()}
                 </div>
                 <span className="text-xs font-bold text-foreground">
-                  {expectedParticipants
-                    ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron</>
-                    : <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
-                  }
+                  {expectedParticipants ? (
+                    <>
+                      {confirmedCount > 0
+                        ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>}</>
+                        : pendingCount > 0 && <span className="text-warning">+{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
+                      }
+                      {" "}<span className="font-normal text-muted-foreground">de</span> {expectedParticipants} pagaron
+                    </>
+                  ) : (
+                    confirmedCount > 0
+                      ? <>{confirmedCount}{pendingCount > 0 && <span className="text-warning"> +{pendingCount}</span>} <span className="font-normal text-muted-foreground">{confirmedCount === 1 ? "pagó" : "pagaron"}</span></>
+                      : pendingCount > 0 && <span className="text-warning">+{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
+                  )}
                 </span>
               </div>
             )}
