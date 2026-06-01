@@ -55,9 +55,13 @@ export default function EventoPage() {
   // Summary modal
   const [showSummary, setShowSummary] = useState(false);
 
-  // Edit amount
-  const [editingAmount, setEditingAmount] = useState(false);
-  const [newAmountValue, setNewAmountValue] = useState("");
+  // Edit event modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editPerPerson, setEditPerPerson] = useState("");
+  const [editTotal, setEditTotal] = useState("");
 
   const joinUrl = typeof window !== "undefined"
     ? `${window.location.origin}/unirse/${event?.code}`
@@ -260,27 +264,39 @@ export default function EventoPage() {
     loadEvent();
   }
 
-  async function saveAmount() {
+  async function saveEvent(
+    name: string, description: string, date: string, perPerson: string, total: string
+  ) {
     if (!isOrganizer || !event) return;
-    const parsed = Math.round(parseFloat(newAmountValue));
-    if (!parsed || parsed <= 0) { toast.error("Ingresa un monto válido"); return; }
+    if (!name.trim()) { toast.error("El nombre es requerido"); return; }
+    const parsedPerPerson = perPerson ? (Math.round(parseFloat(perPerson)) || null) : null;
+    const parsedTotal = total ? (Math.round(parseFloat(total)) || null) : null;
     const supabase = createClient();
-    const { error: evtErr } = await supabase
+    const { error } = await supabase
       .from("events")
-      .update({ amount_per_person: parsed })
+      .update({
+        name: name.trim(),
+        description: description.trim() || null,
+        event_date: date || null,
+        total_amount: parsedTotal,
+        amount_per_person: parsedPerPerson,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", event.id);
-    if (evtErr) { toast.error("Error al actualizar la cuota"); return; }
-    // Update amount_owed for all participants that still haven't confirmed
-    const unconfirmed = event.participants.filter(
-      (p) => !p.payments?.some((pay) => pay.status === "confirmed")
-    );
-    await Promise.all(
-      unconfirmed.map((p) =>
-        supabase.from("participants").update({ amount_owed: parsed }).eq("id", p.id)
-      )
-    );
-    toast.success("Cuota actualizada");
-    setEditingAmount(false);
+    if (error) { toast.error("Error al guardar los cambios"); return; }
+    // Cascade amount_owed to unconfirmed participants if cuota changed
+    if (parsedPerPerson && parsedPerPerson !== event.amount_per_person) {
+      const unconfirmed = event.participants.filter(
+        (p) => !p.payments?.some((pay) => pay.status === "confirmed")
+      );
+      await Promise.all(
+        unconfirmed.map((p) =>
+          supabase.from("participants").update({ amount_owed: parsedPerPerson }).eq("id", p.id)
+        )
+      );
+    }
+    toast.success("¡Cambios guardados!");
+    setShowEditModal(false);
     await loadEvent();
   }
 
@@ -534,9 +550,16 @@ export default function EventoPage() {
                   : new Date(event.created_at).toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             </div>
-            {isOrganizer && !editingAmount && (
+            {isOrganizer && (
               <button
-                onClick={() => { setNewAmountValue(String(event.amount_per_person ?? event.total_amount ?? "")); setEditingAmount(true); }}
+                onClick={() => {
+                  setEditName(event.name);
+                  setEditDescription(event.description ?? "");
+                  setEditDate(event.event_date ?? "");
+                  setEditPerPerson(String(event.amount_per_person ?? ""));
+                  setEditTotal(String(event.total_amount ?? ""));
+                  setShowEditModal(true);
+                }}
                 className="shrink-0 border-2 border-foreground bg-background px-2.5 py-1 text-xs font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                 style={{ borderRadius: WOBBLY_RADIUS_SM }}
               >
@@ -544,25 +567,6 @@ export default function EventoPage() {
               </button>
             )}
           </div>
-
-          {/* Edit amount inline */}
-          {editingAmount && (
-            <div className="flex items-center gap-2 px-4 pb-3">
-              <div className="relative flex-1">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
-                <Input
-                  type="number" min="1"
-                  value={newAmountValue}
-                  onChange={(e) => setNewAmountValue(e.target.value)}
-                  className="pl-7 font-bold"
-                  autoFocus
-                  onKeyDown={(e) => { if (e.key === "Enter") saveAmount(); if (e.key === "Escape") setEditingAmount(false); }}
-                />
-              </div>
-              <button onClick={saveAmount} className="shrink-0 border-2 border-foreground bg-primary px-3 py-2 text-sm font-bold text-white shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>Guardar</button>
-              <button onClick={() => setEditingAmount(false)} className="shrink-0 border-2 border-foreground bg-background px-2.5 py-2 text-sm font-bold text-muted-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]" style={{ borderRadius: WOBBLY_RADIUS_SM }}>✕</button>
-            </div>
-          )}
 
           {/* Row 2: Key numbers */}
           <div className="grid grid-cols-3 gap-0 border-t-2 border-foreground">
@@ -1089,6 +1093,18 @@ export default function EventoPage() {
         <SummaryModal
           summaryText={buildSummaryText()}
           onClose={() => setShowSummary(false)}
+        />
+      )}
+
+      {showEditModal && (
+        <EditModal
+          initialName={editName}
+          initialDescription={editDescription}
+          initialDate={editDate}
+          initialPerPerson={editPerPerson}
+          initialTotal={editTotal}
+          onSave={saveEvent}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </div>
@@ -1841,6 +1857,110 @@ function PinModal({ slug, eventAdminPin, onSuccess, onClose }: {
           <div className="flex gap-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
             <Button type="submit" className="flex-1" disabled={pin.length < 4}>Ingresar</Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Edit Event Modal
+// ──────────────────────────────────────────────
+function EditModal({
+  initialName, initialDescription, initialDate, initialPerPerson, initialTotal,
+  onSave, onClose,
+}: {
+  initialName: string; initialDescription: string; initialDate: string;
+  initialPerPerson: string; initialTotal: string;
+  onSave: (name: string, description: string, date: string, perPerson: string, total: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState(initialName);
+  const [description, setDescription] = useState(initialDescription);
+  const [date, setDate] = useState(initialDate);
+  const [perPerson, setPerPerson] = useState(initialPerPerson);
+  const [total, setTotal] = useState(initialTotal);
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    await onSave(name, description, date, perPerson, total);
+    setSaving(false);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+      <div
+        className="w-full max-w-sm border-2 border-foreground bg-card overflow-hidden shadow-[6px_6px_0px_0px_#2d2d2d]"
+        style={{ borderRadius: WOBBLY_RADIUS_MD }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b-2 border-foreground bg-secondary px-5 py-3.5">
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center bg-primary text-base shadow-[2px_2px_0px_0px_#2d2d2d]"
+              style={{ borderRadius: "50% 40% 60% 30% / 40% 50% 30% 60%" }}
+            >
+              ✏️
+            </span>
+            <h3 className="font-display text-base font-bold text-foreground">Editar colecta</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="border-2 border-foreground bg-background p-1.5 text-sm font-bold text-foreground shadow-[2px_2px_0px_0px_#2d2d2d] transition-all hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+            style={{ borderRadius: WOBBLY_RADIUS_SM }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-3 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Nombre *</label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Descripción</label>
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Opcional" />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Fecha del evento</label>
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Cuota x persona</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
+                <Input
+                  type="text" inputMode="numeric"
+                  value={perPerson}
+                  onChange={(e) => setPerPerson(e.target.value.replace(/\D/g, ""))}
+                  className="pl-7 font-bold" placeholder="0"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">Total colecta</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
+                <Input
+                  type="text" inputMode="numeric"
+                  value={total}
+                  onChange={(e) => setTotal(e.target.value.replace(/\D/g, ""))}
+                  className="pl-7 font-bold" placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" className="flex-1" disabled={saving}>
+              {saving ? "Guardando..." : "Guardar cambios"}
+            </Button>
           </div>
         </form>
       </div>

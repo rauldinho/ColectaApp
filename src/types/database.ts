@@ -47,6 +47,7 @@ export interface Database {
         Update: {
           name?: string;
           description?: string | null;
+          event_date?: string | null;
           total_amount?: number | null;
           amount_per_person?: number | null;
           currency?: string;
