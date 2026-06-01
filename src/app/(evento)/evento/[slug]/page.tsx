@@ -2187,11 +2187,40 @@ function PaymentInfoTab({ eventId, isOrganizer, existingInfo, onSaved }: {
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
-    <div className="flex items-center justify-between py-1.5 border-b-2 border-dashed border-foreground/20 last:border-0">
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="group w-full flex items-center justify-between py-2 border-b-2 border-dashed border-foreground/20 last:border-0 hover:bg-secondary/50 transition-colors px-2 -mx-2"
+    >
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-bold text-foreground">{value}</span>
-    </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-bold text-foreground">{value}</span>
+        <span
+          className={`flex h-5 w-5 shrink-0 items-center justify-center border transition-all duration-200 text-[10px] font-bold ${
+            copied
+              ? "border-success bg-success-bg text-success-text scale-110"
+              : "border-foreground/30 bg-background text-foreground/40 group-hover:border-foreground/60 group-hover:text-foreground/70"
+          }`}
+          style={{ borderRadius: "4px 2px 4px 2px / 2px 4px 2px 4px" }}
+        >
+          {copied ? "✓" : (
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <rect x="3" y="0.5" width="6" height="7" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+              <rect x="0.5" y="2.5" width="6" height="7" rx="1" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.2"/>
+            </svg>
+          )}
+        </span>
+      </div>
+    </button>
   );
 }
 
